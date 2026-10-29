@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create AIDEX Account
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.registration-wrapper{
+    padding:40px 0;
+}
+
+.registration-card{
+    max-width:1180px;
+    margin:auto;
+    overflow:hidden;
+    border:none;
+    border-radius:24px;
+    box-shadow:0 20px 55px rgba(15,23,42,.12);
+}
+
+.registration-info{
+    min-height:100%;
+    padding:55px;
+    color:#fff;
+    background:linear-gradient(
+        145deg,
+        #0f172a,
+        #1d4ed8
+    );
+}
+
+.registration-info-icon{
+    width:75px;
+    height:75px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:20px;
+    background:rgba(255,255,255,.12);
+    margin-bottom:25px;
+    font-size:32px;
+}
+
+.registration-info h2{
+    font-weight:700;
+    margin-bottom:18px;
+}
+
+.registration-info p{
+    color:rgba(255,255,255,.75);
+}
+
+.feature-item{
+    display:flex;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.feature-item i{
+    color:#7dd3fc;
+    font-size:18px;
+    margin-top:4px;
+}
+
+.registration-form{
+    padding:55px;
+    background:#fff;
+}
+
+.registration-form h2{
+    font-weight:700;
+}
+
+.form-label{
+    font-weight:600;
+    color:#1e293b;
+}
+
+.form-control,
+.form-select{
+    min-height:54px;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1px solid #d6dbe4;
+    font-size:16px;
+}
+
+.form-control:focus,
+.form-select:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.15);
+}
+
+.register-button{
+    min-height:56px;
+    border:none;
+    border-radius:12px;
+    font-size:17px;
+    font-weight:700;
+    letter-spacing:.5px;
+    background:linear-gradient(
+        90deg,
+        #1d4ed8,
+        #2563eb
+    );
+}
+
+.register-button:hover{
+    background:linear-gradient(
+        90deg,
+        #1e40af,
+        #1d4ed8
+    );
+}
+
+.required-mark{
+    color:red;
+}
+
+.field-error{
+    color:#dc2626;
+    font-size:14px;
+    margin-top:6px;
+}
+
+.security-note{
+    padding:16px 18px;
+    border:1px solid #bfdbfe;
+    border-radius:14px;
+    background:#eff6ff;
+    color:#1e3a8a;
+}
+
+.security-note strong{
+    color:#1e40af;
+}
+
+.form-check-input.is-invalid{
+    border-color:#dc3545;
+}
+
+@media(max-width:992px){
+    .registration-info,
+    .registration-form{
+        padding:35px;
+    }
+}
+
+@media(max-width:768px){
+    .registration-wrapper{
+        padding:15px;
+    }
+
+    .registration-info,
+    .registration-form{
+        padding:25px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="registration-wrapper">
+    <div class="registration-card">
+        <div class="row g-0">
+
+            <div class="col-lg-5">
+                <section class="registration-info h-100">
+
+                    <div class="registration-info-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+
+                    <h2>Join AIDEX</h2>
+
+                    <p class="mb-5">
+                        Create a secure account for Digital Evidence
+                        Management, Investigation Workflow,
+                        Role Based Access Control and
+                        Cyber Crime Intelligence.
+                    </p>
+
+                    <div class="feature-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div>
+                            <h6 class="mb-1">Secure Authentication</h6>
+                            <small>
+                                Django Authentication with
+                                secure password hashing and validation.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div>
+                            <h6 class="mb-1">Controlled Role Access</h6>
+                            <small>
+                                Public registration cannot grant
+                                Administrator or Cyber Officer privileges.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div>
+                            <h6 class="mb-1">Administrator Approval</h6>
+                            <small>
+                                New Investigator accounts remain pending
+                                until an administrator approves access.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div>
+                            <h6 class="mb-1">Evidence Security</h6>
+                            <small>
+                                Secure storage of Digital Evidence,
+                                Cases and Investigation Data.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top border-light">
+                        <small>GTU Diploma Minor Project</small>
+                        <h5 class="mt-2">
+                            AI Digital Evidence Intelligence &
+                            Investigation System
+                        </h5>
+                    </div>
+
+                </section>
+            </div>
+
+            <div class="col-lg-7">
+                <section class="registration-form">
+
+                    <span class="badge text-bg-primary rounded-pill mb-3">
+                        Secure Registration
+                    </span>
+
+                    <h2>Create Your Account</h2>
+
+                    <p class="text-muted mb-4">
+                        Enter your official information to request AIDEX access.
+                    </p>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Please correct the highlighted fields.</strong>
+
+                            {% if form.non_field_errors %}
+                                <div class="mt-2">
+                                    {% for error in form.non_field_errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                    >
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.full_name.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Full Name
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {{ form.full_name }}
+
+                                {% for error in form.full_name.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.username.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Username
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {{ form.username }}
+
+                                {% for error in form.username.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.email.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Email Address
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {{ form.email }}
+
+                                {% for error in form.email.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.password.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Password
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {{ form.password }}
+
+                                <div class="form-text">
+                                    Use at least 8 characters and avoid common,
+                                    fully numeric or easily guessed passwords.
+                                </div>
+
+                                {% for error in form.password.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.confirm_password.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Confirm Password
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {{ form.confirm_password }}
+
+                                {% for error in form.confirm_password.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.phone_number.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Phone Number
+                                </label>
+
+                                {{ form.phone_number }}
+
+                                {% for error in form.phone_number.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.department.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Department
+                                </label>
+
+                                {{ form.department }}
+
+                                {% for error in form.department.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label
+                                    for="{{ form.badge_id.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Badge ID
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {{ form.badge_id }}
+
+                                {% for error in form.badge_id.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-12">
+                                <div class="security-note">
+                                    <div class="d-flex gap-3 align-items-start">
+                                        <i class="bi bi-person-lock fs-4"></i>
+
+                                        <div>
+                                            <strong>
+                                                Registration Role: Investigator
+                                            </strong>
+
+                                            <div class="small mt-1">
+                                                Public registration cannot create
+                                                Administrator or Cyber Officer
+                                                accounts. Your account will remain
+                                                Pending until approved by an
+                                                administrator.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label
+                                    for="{{ form.profile_photo.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    Profile Photo
+                                </label>
+
+                                {{ form.profile_photo }}
+
+                                <div class="form-text">
+                                    Upload a clear JPG, JPEG or PNG profile image
+                                    (Optional).
+                                </div>
+
+                                {% for error in form.profile_photo.errors %}
+                                    <div class="field-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+
+                        <div class="form-check mt-4">
+                            {{ form.terms_accepted }}
+
+                            <label
+                                class="form-check-label text-muted"
+                                for="{{ form.terms_accepted.id_for_label }}"
+                            >
+                                {{ form.terms_accepted.label }}
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            {% for error in form.terms_accepted.errors %}
+                                <div class="field-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button
+                                type="submit"
+                                class="btn btn-primary register-button"
+                            >
+                                <i class="bi bi-person-plus-fill me-2"></i>
+                                Submit Registration Request
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <span class="text-muted">
+                            Already have an account?
+                        </span>
+
+                        <br>
+
+                        <a
+                            href="{% url 'accounts:login' %}"
+                            class="btn btn-outline-primary mt-3 px-4"
+                        >
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            Login to AIDEX
+                        </a>
+                    </div>
+
+                </section>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

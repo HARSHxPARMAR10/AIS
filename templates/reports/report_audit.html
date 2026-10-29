@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+
+{% block title %}Audit History - {{ report.report_number }} | AIDEX{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --ra-panel: rgba(12, 25, 43, .95);
+        --ra-border: rgba(148, 163, 184, .15);
+        --ra-text: #eaf1f8;
+        --ra-muted: #8196ad;
+        --ra-cyan: #38bdf8;
+        --ra-blue: #2563eb;
+        --ra-green: #22c55e;
+        --ra-amber: #f59e0b;
+        --ra-red: #ef4444;
+        --ra-violet: #8b5cf6;
+        --ra-shadow: 0 22px 62px rgba(0,0,0,.23);
+    }
+
+    .report-audit-page {
+        min-height: calc(100vh - 70px);
+        padding: 27px 0 50px;
+        color: var(--ra-text);
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37,99,235,.10), transparent 27%),
+            radial-gradient(circle at 92% 6%, rgba(56,189,248,.07), transparent 23%);
+    }
+
+    .report-audit-shell {
+        width: min(1280px, calc(100% - 32px));
+        margin: 0 auto;
+    }
+
+    .report-audit-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 25px 26px;
+        border: 1px solid var(--ra-border);
+        border-radius: 21px;
+        background: linear-gradient(135deg, rgba(15,31,52,.98), rgba(8,19,34,.98));
+        box-shadow: var(--ra-shadow);
+    }
+
+    .report-audit-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 9px;
+        color: #7dd3fc;
+        font-size: .72rem;
+        font-weight: 850;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .report-audit-eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--ra-cyan);
+        box-shadow: 0 0 14px rgba(56,189,248,.7);
+    }
+
+    .report-audit-head h1 {
+        margin: 0;
+        color: #fff;
+        font-size: clamp(1.55rem, 3vw, 2.2rem);
+        letter-spacing: -.03em;
+    }
+
+    .report-audit-head p {
+        max-width: 760px;
+        margin: 9px 0 0;
+        color: var(--ra-muted);
+        font-size: .83rem;
+        line-height: 1.6;
+    }
+
+    .report-audit-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .report-audit-pill {
+        padding: 6px 9px;
+        border: 1px solid rgba(148,163,184,.14);
+        border-radius: 999px;
+        color: #a9bacd;
+        background: rgba(255,255,255,.03);
+        font-size: .69rem;
+        font-weight: 750;
+    }
+
+    .report-audit-actions {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .ra-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 41px;
+        padding: 0 14px;
+        border: 1px solid rgba(148,163,184,.18);
+        border-radius: 10px;
+        color: #eaf1f8;
+        background: rgba(255,255,255,.04);
+        font-size: .78rem;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .ra-btn:hover {
+        color: #fff;
+        border-color: rgba(56,189,248,.28);
+        background: rgba(56,189,248,.07);
+        text-decoration: none;
+    }
+
+    .report-audit-panel {
+        margin-top: 18px;
+        border: 1px solid var(--ra-border);
+        border-radius: 19px;
+        background: var(--ra-panel);
+        box-shadow: 0 18px 50px rgba(0,0,0,.16);
+        overflow: hidden;
+    }
+
+    .report-audit-filter {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        padding: 17px 19px;
+        border-bottom: 1px solid rgba(148,163,184,.09);
+    }
+
+    .report-audit-filter label {
+        display: block;
+        margin-bottom: 6px;
+        color: #91a6bc;
+        font-size: .68rem;
+        font-weight: 850;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .report-audit-filter select {
+        min-width: 250px;
+        min-height: 40px;
+        padding: 8px 10px;
+        border: 1px solid rgba(148,163,184,.17);
+        border-radius: 9px;
+        color: #eaf1f8;
+        background: #081322;
+        outline: none;
+        font-size: .78rem;
+    }
+
+    .report-audit-filter select option {
+        background: #081322;
+        color: #eaf1f8;
+    }
+
+    .report-audit-timeline {
+        padding: 6px 20px 12px;
+    }
+
+    .audit-event {
+        position: relative;
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr);
+        gap: 13px;
+        padding: 17px 0;
+        border-bottom: 1px solid rgba(148,163,184,.08);
+    }
+
+    .audit-event:last-child {
+        border-bottom: 0;
+    }
+
+    .audit-event-dot-wrap {
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+
+    .audit-event-dot {
+        position: relative;
+        z-index: 2;
+        width: 10px;
+        height: 10px;
+        margin-top: 4px;
+        border-radius: 50%;
+        background: var(--event-color, var(--ra-cyan));
+        box-shadow: 0 0 14px color-mix(in srgb, var(--event-color, var(--ra-cyan)) 55%, transparent);
+    }
+
+    .audit-event-dot-wrap::after {
+        content: "";
+        position: absolute;
+        top: 18px;
+        bottom: -18px;
+        width: 1px;
+        background: rgba(148,163,184,.13);
+    }
+
+    .audit-event:last-child .audit-event-dot-wrap::after {
+        display: none;
+    }
+
+    .audit-event-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .audit-event-title {
+        color: #e5eef7;
+        font-size: .84rem;
+        font-weight: 850;
+        line-height: 1.45;
+    }
+
+    .audit-event-time {
+        color: #7088a1;
+        font-size: .68rem;
+        white-space: nowrap;
+    }
+
+    .audit-event-message {
+        margin-top: 6px;
+        color: #9db0c3;
+        font-size: .76rem;
+        line-height: 1.6;
+    }
+
+    .audit-event-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 9px;
+    }
+
+    .audit-event-chip {
+        padding: 5px 8px;
+        border: 1px solid rgba(148,163,184,.11);
+        border-radius: 999px;
+        color: #8299b0;
+        background: rgba(255,255,255,.025);
+        font-size: .64rem;
+        font-weight: 750;
+    }
+
+    .audit-json {
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: 1px solid rgba(148,163,184,.09);
+        border-radius: 10px;
+        color: #8fa5bb;
+        background: rgba(0,0,0,.14);
+        font-size: .66rem;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+    }
+
+    .audit-empty {
+        padding: 48px 22px;
+        text-align: center;
+        color: #7188a2;
+        font-size: .8rem;
+    }
+
+    .audit-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 15px 19px;
+        border-top: 1px solid rgba(148,163,184,.09);
+    }
+
+    .audit-pagination-note {
+        color: #7188a2;
+        font-size: .72rem;
+    }
+
+    .audit-pagination-links {
+        display: flex;
+        gap: 7px;
+    }
+
+    @media (max-width: 720px) {
+        .report-audit-shell {
+            width: min(100% - 20px, 1280px);
+        }
+
+        .report-audit-head {
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .report-audit-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .report-audit-filter {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .report-audit-filter select {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .audit-event-top {
+            flex-direction: column;
+        }
+
+        .audit-pagination {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<section class="report-audit-page">
+    <div class="report-audit-shell">
+        <header class="report-audit-head">
+            <div>
+                <div class="report-audit-eyebrow">Append-Only Report History</div>
+                <h1>Audit History</h1>
+                <p>
+                    Review lifecycle events, responsible users, status changes and
+                    supporting audit metadata for this investigation report.
+                </p>
+
+                <div class="report-audit-meta">
+                    <span class="report-audit-pill">{{ report.report_number }}</span>
+                    <span class="report-audit-pill">{{ report.case.case_number }}</span>
+                    <span class="report-audit-pill">{{ report.get_status_display }}</span>
+                    <span class="report-audit-pill">v{{ report.version }}</span>
+                </div>
+            </div>
+
+            <div class="report-audit-actions">
+                <a
+                    class="ra-btn"
+                    href="{% url 'reports:report_detail' report_id=report.pk %}"
+                >
+                    ← Report Detail
+                </a>
+            </div>
+        </header>
+
+        <section class="report-audit-panel">
+            <form method="get" class="report-audit-filter">
+                <div>
+                    <label for="event_type">Event Type</label>
+                    <select name="event_type" id="event_type">
+                        <option value="">All Events</option>
+                        {% for value, label in event_type_choices %}
+                            <option
+                                value="{{ value }}"
+                                {% if selected_event_type == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button class="ra-btn" type="submit">Filter</button>
+
+                {% if selected_event_type %}
+                    <a
+                        class="ra-btn"
+                        href="{% url 'reports:report_audit' report_id=report.pk %}"
+                    >
+                        Reset
+                    </a>
+                {% endif %}
+            </form>
+
+            {% if audit_events %}
+                <div class="report-audit-timeline">
+                    {% for event in audit_events %}
+                        <article class="audit-event">
+                            <div class="audit-event-dot-wrap">
+                                <span
+                                    class="audit-event-dot"
+                                    {% if event.event_type == "APPROVED" %}
+                                        style="--event-color:#22c55e;"
+                                    {% elif event.event_type == "REJECTED" %}
+                                        style="--event-color:#ef4444;"
+                                    {% elif event.event_type == "PUBLISHED" %}
+                                        style="--event-color:#06b6d4;"
+                                    {% elif event.event_type == "ARCHIVED" %}
+                                        style="--event-color:#8b5cf6;"
+                                    {% elif event.event_type == "SUBMITTED" or event.event_type == "REVIEWED" %}
+                                        style="--event-color:#f59e0b;"
+                                    {% endif %}
+                                ></span>
+                            </div>
+
+                            <div>
+                                <div class="audit-event-top">
+                                    <div class="audit-event-title">
+                                        {{ event.get_event_type_display }}
+                                    </div>
+                                    <div class="audit-event-time">
+                                        {{ event.created_at|date:"d M Y, H:i:s" }}
+                                    </div>
+                                </div>
+
+                                <div class="audit-event-message">
+                                    {{ event.message }}
+                                </div>
+
+                                <div class="audit-event-meta">
+                                    <span class="audit-event-chip">
+                                        Actor:
+                                        {% if event.actor %}
+                                            {{ event.actor.full_name|default:event.actor.username }}
+                                        {% else %}
+                                            System
+                                        {% endif %}
+                                    </span>
+
+                                    {% if event.from_status %}
+                                        <span class="audit-event-chip">
+                                            From: {{ event.from_status }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if event.to_status %}
+                                        <span class="audit-event-chip">
+                                            To: {{ event.to_status }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                {% if event.metadata %}
+                                    <div class="audit-json">
+                                        Metadata: {{ event.metadata }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+
+                {% if page_obj.paginator.num_pages > 1 %}
+                    <div class="audit-pagination">
+                        <div class="audit-pagination-note">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            · {{ page_obj.paginator.count }} events
+                        </div>
+
+                        <div class="audit-pagination-links">
+                            {% if page_obj.has_previous %}
+                                <a
+                                    class="ra-btn"
+                                    href="?{% if selected_event_type %}event_type={{ selected_event_type|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                                >
+                                    ← Previous
+                                </a>
+                            {% endif %}
+
+                            {% if page_obj.has_next %}
+                                <a
+                                    class="ra-btn"
+                                    href="?{% if selected_event_type %}event_type={{ selected_event_type|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}"
+                                >
+                                    Next →
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="audit-empty">
+                    No audit events matched the current filter.
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</section>
+{% endblock %}

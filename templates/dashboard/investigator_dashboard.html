@@ -1,0 +1,1187 @@
+{% extends "base.html" %}
+
+{% block title %}
+Investigator Dashboard | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .investigator-dashboard {
+        padding: 32px 0 52px;
+    }
+
+    .dashboard-container {
+        max-width: 1420px;
+        margin: 0 auto;
+    }
+
+    .dashboard-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 38px;
+        border-radius: 26px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(167, 139, 250, 0.30),
+                transparent 34%
+            ),
+            linear-gradient(
+                135deg,
+                #111827 0%,
+                #312e81 52%,
+                #4f46e5 100%
+            );
+        box-shadow: 0 22px 60px rgba(49, 46, 129, 0.22);
+    }
+
+    .dashboard-hero::before,
+    .dashboard-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .dashboard-hero::before {
+        width: 230px;
+        height: 230px;
+        left: -90px;
+        bottom: -125px;
+    }
+
+    .dashboard-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 70px;
+        top: -100px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .dashboard-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .dashboard-title {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .dashboard-subtitle {
+        max-width: 780px;
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.74);
+        line-height: 1.7;
+    }
+
+    .hero-date-card {
+        min-width: 235px;
+        padding: 19px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+    }
+
+    .hero-date-label {
+        margin-bottom: 5px;
+        color: rgba(255, 255, 255, 0.68);
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+    }
+
+    .hero-date-value {
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 32px;
+        margin-bottom: 18px;
+    }
+
+    .section-heading h2 {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.28rem;
+        font-weight: 800;
+    }
+
+    .section-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.92rem;
+    }
+
+    .stat-card,
+    .content-card,
+    .chart-card {
+        height: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        padding: 24px;
+        transition: all 0.22s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: #c7d2fe;
+        box-shadow: 0 18px 38px rgba(79, 70, 229, 0.10);
+    }
+
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        width: 92px;
+        height: 92px;
+        right: -32px;
+        bottom: -35px;
+        border-radius: 50%;
+        background: #eef2ff;
+    }
+
+    .stat-card-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        border-radius: 15px;
+        font-size: 1.3rem;
+    }
+
+    .stat-icon.assigned {
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .stat-icon.active {
+        color: #0369a1;
+        background: #e0f2fe;
+    }
+
+    .stat-icon.priority {
+        color: #b45309;
+        background: #fef3c7;
+    }
+
+    .stat-icon.closed {
+        color: #15803d;
+        background: #dcfce7;
+    }
+
+    .stat-label {
+        margin-bottom: 7px;
+        color: #64748b;
+        font-size: 0.79rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.65px;
+    }
+
+    .stat-value {
+        margin-bottom: 8px;
+        color: #0f172a;
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .stat-detail {
+        color: #64748b;
+        font-size: 0.86rem;
+    }
+
+    .stat-detail strong {
+        color: #334155;
+    }
+
+    .quick-action-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        height: 100%;
+        padding: 20px;
+        color: inherit;
+        text-decoration: none;
+        border: 1px solid #e2e8f0;
+        border-radius: 17px;
+        background: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .quick-action-card:hover {
+        color: inherit;
+        transform: translateY(-3px);
+        border-color: #a5b4fc;
+        box-shadow: 0 14px 28px rgba(79, 70, 229, 0.09);
+    }
+
+    .quick-action-icon {
+        flex: 0 0 auto;
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        color: #4338ca;
+        background: #e0e7ff;
+        font-size: 1.2rem;
+    }
+
+    .quick-action-title {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-weight: 800;
+    }
+
+    .quick-action-text {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .quick-action-arrow {
+        margin-left: auto;
+        color: #94a3b8;
+    }
+
+    .content-card,
+    .chart-card {
+        padding: 24px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .card-heading h3 {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    .card-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .card-heading-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .dashboard-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .dashboard-table thead th {
+        padding: 13px 14px;
+        color: #64748b;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+        white-space: nowrap;
+    }
+
+    .dashboard-table tbody td {
+        padding: 14px;
+        color: #334155;
+        border-color: #edf2f7;
+        font-size: 0.88rem;
+    }
+
+    .record-title {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .record-subtitle {
+        margin-top: 2px;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .empty-state {
+        padding: 28px 15px;
+        text-align: center;
+        color: #64748b;
+    }
+
+    .empty-state i {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 2rem;
+        color: #94a3b8;
+    }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 14px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .activity-title {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-size: 0.9rem;
+        font-weight: 800;
+    }
+
+    .activity-text,
+    .activity-meta {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .activity-meta {
+        margin-top: 5px;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        min-height: 290px;
+    }
+
+    .progress-panel {
+        padding: 20px;
+        border-radius: 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .progress-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 0.86rem;
+        font-weight: 700;
+    }
+
+    .progress {
+        height: 9px;
+        border-radius: 999px;
+        background: #e2e8f0;
+    }
+
+    .progress-bar {
+        border-radius: 999px;
+    }
+
+    @media (max-width: 991.98px) {
+        .dashboard-hero {
+            padding: 30px;
+        }
+
+        .section-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .investigator-dashboard {
+            padding: 18px 0 35px;
+        }
+
+        .dashboard-hero {
+            padding: 28px 22px;
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: 1.7rem;
+        }
+
+        .dashboard-subtitle {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-date-card {
+            min-width: 100%;
+            margin-top: 18px;
+        }
+
+        .content-card,
+        .chart-card {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="investigator-dashboard">
+    <div class="dashboard-container">
+
+        <section class="dashboard-hero">
+            <div class="hero-content">
+                <div class="row align-items-center g-4">
+
+                    <div class="col-lg">
+                        <span class="dashboard-badge">
+                            <i class="bi bi-person-badge-fill"></i>
+                            Authorized Investigator
+                        </span>
+
+                        <h1 class="dashboard-title">
+                            {{ dashboard_title }}
+                        </h1>
+
+                        <p class="dashboard-subtitle">
+                            {{ dashboard_subtitle }}
+                        </p>
+                    </div>
+
+                    <div class="col-lg-auto">
+                        <div class="hero-date-card">
+                            <div class="hero-date-label">
+                                Investigation Session
+                            </div>
+
+                            <div class="hero-date-value">
+                                <i class="bi bi-calendar3 me-2"></i>
+                                {{ current_date|date:"d M Y" }}
+                            </div>
+
+                            <div class="small text-white-50 mt-2">
+                                Investigator
+                                <strong class="text-white">
+                                    {{ current_user.full_name|default:current_user.username }}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="section-heading">
+            <div>
+                <h2>Investigation Overview</h2>
+                <p>
+                    Summary of your assigned cases, evidence and report workload.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon assigned">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+
+                        <div class="stat-label">Assigned Cases</div>
+
+                        <div class="stat-value">
+                            {{ total_assigned_cases|default:0 }}
+                        </div>
+
+                        <div class="stat-detail">
+                            Cases assigned to your account
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon active">
+                            <i class="bi bi-activity"></i>
+                        </div>
+
+                        <div class="stat-label">Active Cases</div>
+
+                        <div class="stat-value">
+                            {{ active_assigned_cases|default:0 }}
+                        </div>
+
+                        <div class="stat-detail">
+                            Currently under investigation
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon priority">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+
+                        <div class="stat-label">High Priority</div>
+
+                        <div class="stat-value">
+                            {{ high_priority_cases|default:0 }}
+                        </div>
+
+                        <div class="stat-detail">
+                            High and critical priority cases
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon closed">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+
+                        <div class="stat-label">Closed Cases</div>
+
+                        <div class="stat-value">
+                            {{ closed_assigned_cases|default:0 }}
+                        </div>
+
+                        <div class="stat-detail">
+                            Completed investigation records
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-heading">
+            <div>
+                <h2>Quick Actions</h2>
+                <p>
+                    Open the tools used during investigation and evidence review.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 col-xl-3">
+                <a href="{% url 'cases:case_home' %}" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="bi bi-folder-check"></i>
+                    </div>
+
+                    <div>
+                        <div class="quick-action-title">Assigned Cases</div>
+                        <p class="quick-action-text">
+                            Review and manage investigations.
+                        </p>
+                    </div>
+
+                    <i class="bi bi-chevron-right quick-action-arrow"></i>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <a href="{% url 'evidence:evidence_home' %}" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="bi bi-file-earmark-lock"></i>
+                    </div>
+
+                    <div>
+                        <div class="quick-action-title">Evidence Center</div>
+                        <p class="quick-action-text">
+                            Review uploaded digital evidence.
+                        </p>
+                    </div>
+
+                    <i class="bi bi-chevron-right quick-action-arrow"></i>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <a href="{% url 'reports:report_home' %}" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <div>
+                        <div class="quick-action-title">Case Reports</div>
+                        <p class="quick-action-text">
+                            Draft and review investigation reports.
+                        </p>
+                    </div>
+
+                    <i class="bi bi-chevron-right quick-action-arrow"></i>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <a href="{% url 'ai_engine:dashboard' %}" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+
+                    <div>
+                        <div class="quick-action-title">AI Analysis</div>
+                        <p class="quick-action-text">
+                            Open AI-assisted investigation tools.
+                        </p>
+                    </div>
+
+                    <i class="bi bi-chevron-right quick-action-arrow"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="section-heading">
+            <div>
+                <h2>Case Analytics</h2>
+                <p>
+                    Distribution of assigned cases and evidence verification status.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <section class="chart-card">
+                    <div class="card-heading">
+                        <div>
+                            <h3>Assigned Case Status</h3>
+                            <p>Current progress of your investigations.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-pie-chart-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <canvas id="caseStatusChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-6">
+                <section class="chart-card">
+                    <div class="card-heading">
+                        <div>
+                            <h3>Evidence Verification</h3>
+                            <p>Verification status of evidence linked to your cases.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <canvas id="evidenceStatusChart"></canvas>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-lg-8">
+                <section class="content-card">
+                    <div class="card-heading">
+                        <div>
+                            <h3>Assigned Investigations</h3>
+                            <p>Your latest assigned cyber-crime cases.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Case</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Updated</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for case in assigned_cases %}
+                                    <tr>
+                                        <td>
+                                            <div class="record-title">
+                                                {{ case.case_title }}
+                                            </div>
+
+                                            <div class="record-subtitle">
+                                                {{ case.case_number }}
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <span class="status-badge">
+                                                {{ case.get_priority_display }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="status-badge">
+                                                {{ case.get_status_display }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            {{ case.created_by.full_name|default:case.created_by.username }}
+                                        </td>
+
+                                        <td>
+                                            {{ case.updated_date|date:"d M Y" }}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5">
+                                            <div class="empty-state">
+                                                <i class="bi bi-folder-x"></i>
+                                                No cases are currently assigned to you.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <section class="content-card">
+                    <div class="card-heading">
+                        <div>
+                            <h3>Investigation Progress</h3>
+                            <p>Your current operational workload.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-bar-chart-line-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="progress-panel">
+                        <div class="progress-label">
+                            <span>Active Cases</span>
+                            <strong>
+                                {{ active_assigned_cases|default:0 }}
+                            </strong>
+                        </div>
+
+                        <div class="progress mb-4">
+                            <div
+                                class="progress-bar"
+                                role="progressbar"
+                                style="width: {% if total_assigned_cases %}{% widthratio active_assigned_cases total_assigned_cases 100 %}{% else %}0{% endif %}%"
+                            ></div>
+                        </div>
+
+                        <div class="progress-label">
+                            <span>Verified Evidence</span>
+                            <strong>
+                                {{ verified_case_evidence|default:0 }}
+                            </strong>
+                        </div>
+
+                        <div class="progress mb-4">
+                            <div
+                                class="progress-bar"
+                                role="progressbar"
+                                style="width: {% if total_case_evidence %}{% widthratio verified_case_evidence total_case_evidence 100 %}{% else %}0{% endif %}%"
+                            ></div>
+                        </div>
+
+                        <div class="progress-label">
+                            <span>Reports Under Review</span>
+                            <strong>
+                                {{ reports_under_review|default:0 }}
+                            </strong>
+                        </div>
+
+                        <div class="progress">
+                            <div
+                                class="progress-bar"
+                                role="progressbar"
+                                style="width: {% if total_case_reports %}{% widthratio reports_under_review total_case_reports 100 %}{% else %}0{% endif %}%"
+                            ></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-lg-7">
+                <section class="content-card">
+                    <div class="card-heading">
+                        <div>
+                            <h3>Recent Evidence</h3>
+                            <p>Latest evidence linked to your assigned cases.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-file-earmark-lock-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Evidence</th>
+                                    <th>Case</th>
+                                    <th>Status</th>
+                                    <th>Uploaded By</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for evidence_item in recent_evidence %}
+                                    <tr>
+                                        <td>
+                                            <div class="record-title">
+                                                {{ evidence_item.evidence_title }}
+                                            </div>
+
+                                            <div class="record-subtitle">
+                                                {{ evidence_item.get_evidence_type_display }}
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            {{ evidence_item.case.case_number }}
+                                        </td>
+
+                                        <td>
+                                            <span class="status-badge">
+                                                {{ evidence_item.get_verification_status_display }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            {{ evidence_item.uploaded_by.full_name|default:evidence_item.uploaded_by.username }}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="empty-state">
+                                                <i class="bi bi-file-earmark-x"></i>
+                                                No evidence records are available.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-5">
+                <section class="content-card">
+                    <div class="card-heading">
+                        <div>
+                            <h3>Recent Activity</h3>
+                            <p>Latest actions across your investigation workload.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                    </div>
+
+                    <div class="activity-list">
+                        {% for activity in recent_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="bi {{ activity.icon }}"></i>
+                                </div>
+
+                                <div>
+                                    <div class="activity-title">
+                                        {{ activity.title }}
+                                    </div>
+
+                                    <div class="activity-text">
+                                        {{ activity.description }}
+                                    </div>
+
+                                    <div class="activity-meta">
+                                        {{ activity.performed_by }}
+                                        ·
+                                        {{ activity.timestamp|timesince }} ago
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="empty-state">
+                                <i class="bi bi-clock"></i>
+                                No recent activity is available.
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-1">
+            <div class="col-12">
+                <section class="content-card">
+                    <div class="card-heading">
+                        <div>
+                            <h3>Recent Reports</h3>
+                            <p>Latest reports connected to your assigned cases.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Report</th>
+                                    <th>Case</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Generated By</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for report in recent_reports %}
+                                    <tr>
+                                        <td>
+                                            <div class="record-title">
+                                                {{ report.report_title }}
+                                            </div>
+
+                                            <div class="record-subtitle">
+                                                {{ report.report_number }}
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            {{ report.case.case_number }}
+                                        </td>
+
+                                        <td>
+                                            {{ report.get_report_type_display }}
+                                        </td>
+
+                                        <td>
+                                            <span class="status-badge">
+                                                {{ report.get_status_display }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            {{ report.generated_by.full_name|default:report.generated_by.username }}
+                                        </td>
+
+                                        <td>
+                                            {{ report.generated_date|date:"d M Y" }}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6">
+                                            <div class="empty-state">
+                                                <i class="bi bi-file-earmark-x"></i>
+                                                No report records are available.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+    integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+    crossorigin="anonymous"
+></script>
+
+{{ case_status_chart|json_script:"investigator-case-status-data" }}
+{{ evidence_status_chart|json_script:"investigator-evidence-status-data" }}
+
+<script>
+    const investigatorCaseStatusData = JSON.parse(
+        document.getElementById("investigator-case-status-data").textContent
+    );
+
+    const investigatorEvidenceStatusData = JSON.parse(
+        document.getElementById("investigator-evidence-status-data").textContent
+    );
+
+    const investigatorChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: "bottom",
+                labels: {
+                    usePointStyle: true,
+                    boxWidth: 8,
+                    padding: 18
+                }
+            }
+        }
+    };
+
+    new Chart(
+        document.getElementById("caseStatusChart"),
+        {
+            type: "doughnut",
+            data: {
+                labels: investigatorCaseStatusData.map(item => item.label),
+                datasets: [
+                    {
+                        data: investigatorCaseStatusData.map(item => item.total),
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: investigatorChartOptions
+        }
+    );
+
+    new Chart(
+        document.getElementById("evidenceStatusChart"),
+        {
+            type: "bar",
+            data: {
+                labels: investigatorEvidenceStatusData.map(item => item.label),
+                datasets: [
+                    {
+                        label: "Evidence",
+                        data: investigatorEvidenceStatusData.map(item => item.total),
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                ...investigatorChartOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        }
+    );
+</script>
+{% endblock %}

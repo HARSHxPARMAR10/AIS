@@ -1,0 +1,862 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Investigation Reports | AIDEX{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --rl-bg: #07111f;
+        --rl-panel: rgba(12, 25, 43, 0.94);
+        --rl-panel-soft: rgba(15, 31, 52, 0.78);
+        --rl-border: rgba(148, 163, 184, 0.15);
+        --rl-text: #eaf1f8;
+        --rl-muted: #8398af;
+        --rl-cyan: #38bdf8;
+        --rl-blue: #2563eb;
+        --rl-green: #22c55e;
+        --rl-amber: #f59e0b;
+        --rl-red: #ef4444;
+        --rl-violet: #8b5cf6;
+        --rl-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .report-list-page {
+        min-height: calc(100vh - 70px);
+        padding: 26px 0 48px;
+        color: var(--rl-text);
+        background:
+            radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.11), transparent 28%),
+            radial-gradient(circle at 90% 6%, rgba(56, 189, 248, 0.07), transparent 22%);
+    }
+
+    .report-list-shell {
+        width: min(1460px, calc(100% - 32px));
+        margin: 0 auto;
+    }
+
+    .report-list-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 24px 26px;
+        border: 1px solid var(--rl-border);
+        border-radius: 20px;
+        background: linear-gradient(
+            135deg,
+            rgba(15, 31, 52, 0.97),
+            rgba(8, 19, 34, 0.97)
+        );
+        box-shadow: var(--rl-shadow);
+    }
+
+    .report-list-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 9px;
+        color: #7dd3fc;
+        font-size: .74rem;
+        font-weight: 850;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .report-list-eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--rl-cyan);
+        box-shadow: 0 0 13px rgba(56, 189, 248, .7);
+    }
+
+    .report-list-header h1 {
+        margin: 0;
+        color: #fff;
+        font-size: clamp(1.7rem, 3vw, 2.35rem);
+        line-height: 1.1;
+        letter-spacing: -.03em;
+    }
+
+    .report-list-header p {
+        max-width: 760px;
+        margin: 9px 0 0;
+        color: var(--rl-muted);
+        font-size: .9rem;
+        line-height: 1.65;
+    }
+
+    .report-list-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .rl-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 15px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        color: #eef7ff;
+        font-size: .85rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: 160ms ease;
+    }
+
+    .rl-btn:hover {
+        transform: translateY(-1px);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .rl-btn-primary {
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        box-shadow: 0 10px 26px rgba(37, 99, 235, .24);
+    }
+
+    .rl-btn-secondary {
+        border-color: rgba(148, 163, 184, .19);
+        background: rgba(255, 255, 255, .04);
+    }
+
+    .rl-btn-secondary:hover {
+        border-color: rgba(56, 189, 248, .28);
+        background: rgba(56, 189, 248, .07);
+    }
+
+    .report-filter-panel {
+        margin-top: 17px;
+        padding: 18px;
+        border: 1px solid var(--rl-border);
+        border-radius: 18px;
+        background: var(--rl-panel);
+        box-shadow: 0 15px 45px rgba(0, 0, 0, .14);
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(240px, 1.5fr)
+            repeat(3, minmax(150px, .8fr));
+        gap: 12px;
+    }
+
+    .filter-grid-secondary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .filter-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #91a6bc;
+        font-size: .7rem;
+        font-weight: 850;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .filter-field input,
+    .filter-field select {
+        width: 100%;
+        min-height: 42px;
+        padding: 9px 11px;
+        border: 1px solid rgba(148, 163, 184, .17);
+        border-radius: 10px;
+        color: #e8f0f8;
+        background: rgba(5, 14, 26, .7);
+        outline: none;
+        font-size: .82rem;
+    }
+
+    .filter-field input:focus,
+    .filter-field select:focus {
+        border-color: rgba(56, 189, 248, .5);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, .08);
+    }
+
+    .filter-field select option {
+        background: #0b1728;
+        color: #eaf1f8;
+    }
+
+    .filter-actions {
+        display: flex;
+        align-items: end;
+        gap: 9px;
+    }
+
+    .filter-actions .rl-btn {
+        flex: 1;
+    }
+
+    .report-register {
+        margin-top: 17px;
+        border: 1px solid var(--rl-border);
+        border-radius: 20px;
+        background: var(--rl-panel);
+        box-shadow: var(--rl-shadow);
+        overflow: hidden;
+    }
+
+    .report-register-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 17px 20px;
+        border-bottom: 1px solid rgba(148, 163, 184, .1);
+    }
+
+    .report-register-head h2 {
+        margin: 0;
+        color: #f5f8fc;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .report-register-meta {
+        color: #738aa5;
+        font-size: .77rem;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    .report-table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 14px 17px;
+        text-align: left;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(148, 163, 184, .08);
+    }
+
+    .report-table th {
+        color: #7188a2;
+        background: rgba(255, 255, 255, .018);
+        font-size: .68rem;
+        font-weight: 850;
+        letter-spacing: .075em;
+        text-transform: uppercase;
+    }
+
+    .report-table tbody tr {
+        transition: background-color 150ms ease;
+    }
+
+    .report-table tbody tr:hover {
+        background: rgba(56, 189, 248, .028);
+    }
+
+    .report-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .report-title-cell {
+        max-width: 330px;
+    }
+
+    .report-title-cell a {
+        display: block;
+        color: #eaf2fa;
+        font-size: .88rem;
+        font-weight: 800;
+        line-height: 1.35;
+        text-decoration: none;
+    }
+
+    .report-title-cell a:hover {
+        color: #7dd3fc;
+    }
+
+    .report-subline {
+        margin-top: 5px;
+        color: #7188a2;
+        font-size: .71rem;
+        line-height: 1.4;
+    }
+
+    .report-case-cell {
+        color: #c4d1df;
+        font-size: .8rem;
+        font-weight: 700;
+    }
+
+    .report-case-cell small {
+        display: block;
+        max-width: 220px;
+        margin-top: 4px;
+        color: #7188a2;
+        font-size: .7rem;
+        font-weight: 500;
+    }
+
+    .rl-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 9px;
+        margin: 2px 3px 2px 0;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        font-size: .66rem;
+        line-height: 1;
+        font-weight: 850;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .rl-draft {
+        color: #cbd5e1;
+        border-color: rgba(100, 116, 139, .24);
+        background: rgba(100, 116, 139, .11);
+    }
+
+    .rl-review {
+        color: #fde68a;
+        border-color: rgba(245, 158, 11, .22);
+        background: rgba(245, 158, 11, .1);
+    }
+
+    .rl-approved {
+        color: #86efac;
+        border-color: rgba(34, 197, 94, .22);
+        background: rgba(34, 197, 94, .1);
+    }
+
+    .rl-rejected {
+        color: #fca5a5;
+        border-color: rgba(239, 68, 68, .22);
+        background: rgba(239, 68, 68, .1);
+    }
+
+    .rl-published {
+        color: #a5f3fc;
+        border-color: rgba(6, 182, 212, .22);
+        background: rgba(6, 182, 212, .1);
+    }
+
+    .rl-archived {
+        color: #c4b5fd;
+        border-color: rgba(139, 92, 246, .22);
+        background: rgba(139, 92, 246, .1);
+    }
+
+    .rl-confidential {
+        color: #f0abfc;
+        border-color: rgba(192, 38, 211, .2);
+        background: rgba(192, 38, 211, .08);
+    }
+
+    .report-person {
+        color: #9dafc2;
+        font-size: .77rem;
+        white-space: nowrap;
+    }
+
+    .report-date {
+        color: #7890aa;
+        font-size: .73rem;
+        white-space: nowrap;
+    }
+
+    .report-action-cell {
+        white-space: nowrap;
+        text-align: right !important;
+    }
+
+    .report-open-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 11px;
+        border: 1px solid rgba(56, 189, 248, .17);
+        border-radius: 9px;
+        color: #8fdfff;
+        background: rgba(56, 189, 248, .055);
+        font-size: .71rem;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    .report-open-link:hover {
+        color: #fff;
+        border-color: rgba(56, 189, 248, .3);
+        background: rgba(56, 189, 248, .11);
+        text-decoration: none;
+    }
+
+    .report-empty {
+        padding: 52px 24px;
+        text-align: center;
+    }
+
+    .report-empty-icon {
+        display: grid;
+        place-items: center;
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 14px;
+        border: 1px solid rgba(56, 189, 248, .17);
+        border-radius: 17px;
+        color: #7dd3fc;
+        background: rgba(56, 189, 248, .055);
+        font-weight: 900;
+        font-size: 1.1rem;
+    }
+
+    .report-empty h3 {
+        margin: 0;
+        color: #eaf1f8;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .report-empty p {
+        max-width: 500px;
+        margin: 8px auto 0;
+        color: #7289a2;
+        font-size: .8rem;
+        line-height: 1.6;
+    }
+
+    .pagination-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        border-top: 1px solid rgba(148, 163, 184, .09);
+    }
+
+    .pagination-summary {
+        color: #7188a2;
+        font-size: .75rem;
+    }
+
+    .pagination-links {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .page-link-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        min-height: 34px;
+        padding: 0 9px;
+        border: 1px solid rgba(148, 163, 184, .15);
+        border-radius: 9px;
+        color: #b9c7d6;
+        background: rgba(255, 255, 255, .025);
+        text-decoration: none;
+        font-size: .75rem;
+        font-weight: 750;
+    }
+
+    .page-link-custom:hover {
+        color: #fff;
+        border-color: rgba(56, 189, 248, .28);
+        background: rgba(56, 189, 248, .07);
+        text-decoration: none;
+    }
+
+    .page-link-current {
+        color: #fff;
+        border-color: rgba(56, 189, 248, .32);
+        background: linear-gradient(
+            135deg,
+            rgba(37, 99, 235, .45),
+            rgba(8, 145, 178, .35)
+        );
+    }
+
+    @media (max-width: 1100px) {
+        .filter-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .filter-grid-secondary {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .report-list-shell {
+            width: min(100% - 20px, 1460px);
+        }
+
+        .report-list-header {
+            flex-direction: column;
+            padding: 21px;
+        }
+
+        .report-list-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .report-list-actions .rl-btn {
+            flex: 1 1 auto;
+        }
+
+        .filter-grid,
+        .filter-grid-secondary {
+            grid-template-columns: 1fr;
+        }
+
+        .pagination-wrap {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 500px) {
+        .report-list-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+
+<section class="report-list-page">
+    <div class="report-list-shell">
+
+        <header class="report-list-header">
+            <div>
+                <div class="report-list-eyebrow">
+                    Investigation Report Register
+                </div>
+
+                <h1>Investigation Reports</h1>
+
+                <p>
+                    Search, filter and review report records across your
+                    authorized cyber-crime cases. Workflow status, authorship,
+                    confidentiality and lifecycle state remain visible from one register.
+                </p>
+            </div>
+
+            <div class="report-list-actions">
+                <a
+                    class="rl-btn rl-btn-secondary"
+                    href="{% url 'reports:dashboard' %}"
+                >
+                    ← Dashboard
+                </a>
+
+                {% if can_create_report %}
+                    <a
+                        class="rl-btn rl-btn-primary"
+                        href="{% url 'reports:report_create' %}"
+                    >
+                        ＋ Create Report
+                    </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <section class="report-filter-panel">
+            <form method="get" novalidate>
+                <div class="filter-grid">
+                    <div class="filter-field">
+                        <label for="{{ filter_form.search.id_for_label }}">
+                            Search
+                        </label>
+                        {{ filter_form.search }}
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="{{ filter_form.case.id_for_label }}">
+                            Case
+                        </label>
+                        {{ filter_form.case }}
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="{{ filter_form.report_type.id_for_label }}">
+                            Report Type
+                        </label>
+                        {{ filter_form.report_type }}
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="{{ filter_form.status.id_for_label }}">
+                            Status
+                        </label>
+                        {{ filter_form.status }}
+                    </div>
+                </div>
+
+                <div class="filter-grid-secondary">
+                    <div class="filter-field">
+                        <label for="{{ filter_form.generated_by.id_for_label }}">
+                            Generated By
+                        </label>
+                        {{ filter_form.generated_by }}
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="{{ filter_form.confidentiality.id_for_label }}">
+                            Confidentiality
+                        </label>
+                        {{ filter_form.confidentiality }}
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="{{ filter_form.record_state.id_for_label }}">
+                            Record State
+                        </label>
+                        {{ filter_form.record_state }}
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="{{ filter_form.ordering.id_for_label }}">
+                            Sort By
+                        </label>
+                        {{ filter_form.ordering }}
+                    </div>
+                </div>
+
+                <div class="filter-actions" style="margin-top: 14px;">
+                    <button
+                        class="rl-btn rl-btn-primary"
+                        type="submit"
+                    >
+                        Apply Filters
+                    </button>
+
+                    <a
+                        class="rl-btn rl-btn-secondary"
+                        href="{% url 'reports:report_list' %}"
+                    >
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <section class="report-register">
+            <div class="report-register-head">
+                <div>
+                    <h2>Report Register</h2>
+                    <div class="report-register-meta">
+                        {{ result_count|default:0 }} report{{ result_count|pluralize }} found
+                        · Role: {{ user_role|default:"Authorized User" }}
+                    </div>
+                </div>
+            </div>
+
+            {% if reports %}
+                <div class="table-wrap">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Report</th>
+                                <th>Case</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Generated By</th>
+                                <th>Generated</th>
+                                <th>Updated</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for report in reports %}
+                                <tr>
+                                    <td class="report-title-cell">
+                                        <a
+                                            href="{% url 'reports:report_detail' report_id=report.pk %}"
+                                        >
+                                            {{ report.report_title }}
+                                        </a>
+
+                                        <div class="report-subline">
+                                            {{ report.report_number }}
+                                            · Version {{ report.version }}
+
+                                            {% if report.is_confidential %}
+                                                · Confidential
+                                            {% endif %}
+                                        </div>
+                                    </td>
+
+                                    <td class="report-case-cell">
+                                        {{ report.case.case_number }}
+
+                                        <small>
+                                            {{ report.case.case_title|truncatechars:38 }}
+                                        </small>
+                                    </td>
+
+                                    <td>
+                                        <span class="report-subline" style="margin-top: 0;">
+                                            {{ report.get_report_type_display }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if report.status == "DRAFT" %}
+                                            <span class="rl-badge rl-draft">
+                                                Draft
+                                            </span>
+                                        {% elif report.status == "UNDER_REVIEW" %}
+                                            <span class="rl-badge rl-review">
+                                                Under Review
+                                            </span>
+                                        {% elif report.status == "APPROVED" %}
+                                            <span class="rl-badge rl-approved">
+                                                Approved
+                                            </span>
+                                        {% elif report.status == "REJECTED" %}
+                                            <span class="rl-badge rl-rejected">
+                                                Rejected
+                                            </span>
+                                        {% elif report.status == "PUBLISHED" %}
+                                            <span class="rl-badge rl-published">
+                                                Published
+                                            </span>
+                                        {% elif report.status == "ARCHIVED" %}
+                                            <span class="rl-badge rl-archived">
+                                                Archived
+                                            </span>
+                                        {% else %}
+                                            <span class="rl-badge rl-draft">
+                                                {{ report.get_status_display }}
+                                            </span>
+                                        {% endif %}
+
+                                        {% if report.is_confidential %}
+                                            <span class="rl-badge rl-confidential">
+                                                Confidential
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="report-person">
+                                        {{ report.generated_by.full_name|default:report.generated_by.username }}
+                                    </td>
+
+                                    <td class="report-date">
+                                        {{ report.generated_date|date:"d M Y" }}
+                                        <br>
+                                        {{ report.generated_date|time:"H:i" }}
+                                    </td>
+
+                                    <td class="report-date">
+                                        {{ report.updated_date|date:"d M Y" }}
+                                        <br>
+                                        {{ report.updated_date|time:"H:i" }}
+                                    </td>
+
+                                    <td class="report-action-cell">
+                                        <a
+                                            class="report-open-link"
+                                            href="{% url 'reports:report_detail' report_id=report.pk %}"
+                                        >
+                                            Open →
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if page_obj.paginator.num_pages > 1 %}
+                    <div class="pagination-wrap">
+                        <div class="pagination-summary">
+                            Page {{ page_obj.number }}
+                            of {{ page_obj.paginator.num_pages }}
+                            · {{ page_obj.paginator.count }} total records
+                        </div>
+
+                        <div class="pagination-links">
+                            {% if page_obj.has_previous %}
+                                <a
+                                    class="page-link-custom"
+                                    href="?{% if request.GET.search %}search={{ request.GET.search|urlencode }}&{% endif %}{% if request.GET.case %}case={{ request.GET.case|urlencode }}&{% endif %}{% if request.GET.report_type %}report_type={{ request.GET.report_type|urlencode }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status|urlencode }}&{% endif %}{% if request.GET.generated_by %}generated_by={{ request.GET.generated_by|urlencode }}&{% endif %}{% if request.GET.confidentiality %}confidentiality={{ request.GET.confidentiality|urlencode }}&{% endif %}{% if request.GET.record_state %}record_state={{ request.GET.record_state|urlencode }}&{% endif %}{% if request.GET.ordering %}ordering={{ request.GET.ordering|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                                >
+                                    ←
+                                </a>
+                            {% endif %}
+
+                            <span class="page-link-custom page-link-current">
+                                {{ page_obj.number }}
+                            </span>
+
+                            {% if page_obj.has_next %}
+                                <a
+                                    class="page-link-custom"
+                                    href="?{% if request.GET.search %}search={{ request.GET.search|urlencode }}&{% endif %}{% if request.GET.case %}case={{ request.GET.case|urlencode }}&{% endif %}{% if request.GET.report_type %}report_type={{ request.GET.report_type|urlencode }}&{% endif %}{% if request.GET.status %}status={{ request.GET.status|urlencode }}&{% endif %}{% if request.GET.generated_by %}generated_by={{ request.GET.generated_by|urlencode }}&{% endif %}{% if request.GET.confidentiality %}confidentiality={{ request.GET.confidentiality|urlencode }}&{% endif %}{% if request.GET.record_state %}record_state={{ request.GET.record_state|urlencode }}&{% endif %}{% if request.GET.ordering %}ordering={{ request.GET.ordering|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}"
+                                >
+                                    →
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <div class="report-empty">
+                    <div class="report-empty-icon">R</div>
+
+                    <h3>No reports matched your current filters</h3>
+
+                    <p>
+                        Reset the filters or create a new investigation report
+                        for an authorized cyber-crime case.
+                    </p>
+
+                    <div style="margin-top: 17px;">
+                        <a
+                            class="rl-btn rl-btn-secondary"
+                            href="{% url 'reports:report_list' %}"
+                        >
+                            Reset Filters
+                        </a>
+
+                        {% if can_create_report %}
+                            <a
+                                class="rl-btn rl-btn-primary"
+                                href="{% url 'reports:report_create' %}"
+                                style="margin-left: 6px;"
+                            >
+                                Create Report
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+
+    </div>
+</section>
+{% endblock %}

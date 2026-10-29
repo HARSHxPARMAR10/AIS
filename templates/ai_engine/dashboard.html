@@ -1,0 +1,1593 @@
+{% extends "base.html" %}
+
+{% block title %}
+AI Engine Dashboard | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ai-bg: #f8fafc;
+        --ai-surface: #ffffff;
+        --ai-border: #e2e8f0;
+        --ai-text: #0f172a;
+        --ai-muted: #64748b;
+        --ai-primary: #4f46e5;
+        --ai-primary-dark: #3730a3;
+        --ai-secondary: #7c3aed;
+        --ai-success: #16a34a;
+        --ai-warning: #d97706;
+        --ai-danger: #dc2626;
+        --ai-info: #0284c7;
+        --ai-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+        --ai-radius-xl: 24px;
+        --ai-radius-lg: 18px;
+        --ai-radius-md: 14px;
+    }
+
+    .ai-dashboard-page {
+        padding: 30px 0 56px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(99, 102, 241, 0.08),
+                transparent 30%
+            ),
+            var(--ai-bg);
+        min-height: calc(100vh - 70px);
+    }
+
+    .ai-dashboard-container {
+        max-width: 1420px;
+        margin: 0 auto;
+    }
+
+    .ai-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 38px;
+        border-radius: var(--ai-radius-xl);
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at 90% 10%,
+                rgba(255, 255, 255, 0.18),
+                transparent 26%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #312e81 42%,
+                #4f46e5 72%,
+                #7c3aed 100%
+            );
+        box-shadow: 0 24px 60px rgba(67, 56, 202, 0.24);
+    }
+
+    .ai-hero::before,
+    .ai-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .ai-hero::before {
+        width: 280px;
+        height: 280px;
+        right: -120px;
+        bottom: -160px;
+    }
+
+    .ai-hero::after {
+        width: 180px;
+        height: 180px;
+        left: -80px;
+        top: -90px;
+    }
+
+    .ai-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .ai-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        background: rgba(255, 255, 255, 0.13);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .ai-hero-title {
+        margin: 16px 0 8px;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 900;
+        letter-spacing: -1.1px;
+    }
+
+    .ai-hero-subtitle {
+        max-width: 820px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+        font-size: 0.98rem;
+    }
+
+    .ai-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .ai-hero-actions .btn {
+        min-height: 46px;
+        padding: 10px 18px;
+        border-radius: 13px;
+        font-weight: 800;
+    }
+
+    .ai-health-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 24px;
+    }
+
+    .ai-health-item {
+        padding: 16px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(12px);
+    }
+
+    .ai-health-label {
+        color: rgba(255, 255, 255, 0.66);
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+    }
+
+    .ai-health-value {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+        font-weight: 900;
+    }
+
+    .ai-health-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.10);
+    }
+
+    .ai-dot-success {
+        background: #4ade80;
+    }
+
+    .ai-dot-warning {
+        background: #facc15;
+    }
+
+    .ai-dot-danger {
+        background: #fb7185;
+    }
+
+    .ai-dot-info {
+        background: #38bdf8;
+    }
+
+    .ai-section {
+        margin-top: 28px;
+    }
+
+    .ai-section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .ai-section-heading h2 {
+        margin: 0;
+        color: var(--ai-text);
+        font-size: 1.3rem;
+        font-weight: 900;
+    }
+
+    .ai-section-heading p {
+        margin: 5px 0 0;
+        color: var(--ai-muted);
+        font-size: 0.84rem;
+    }
+
+    .ai-link {
+        color: var(--ai-primary);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 0.84rem;
+    }
+
+    .ai-link:hover {
+        color: var(--ai-primary-dark);
+    }
+
+    .ai-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .ai-stat-card {
+        position: relative;
+        overflow: hidden;
+        padding: 20px;
+        border: 1px solid var(--ai-border);
+        border-radius: var(--ai-radius-lg);
+        background: var(--ai-surface);
+        box-shadow: var(--ai-shadow);
+    }
+
+    .ai-stat-card::after {
+        content: "";
+        position: absolute;
+        width: 76px;
+        height: 76px;
+        right: -20px;
+        bottom: -28px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.05;
+    }
+
+    .ai-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .ai-stat-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        font-size: 1.1rem;
+    }
+
+    .ai-stat-trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 800;
+    }
+
+    .ai-trend-positive {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .ai-trend-neutral {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .ai-stat-value {
+        margin-top: 18px;
+        color: var(--ai-text);
+        font-size: 1.9rem;
+        line-height: 1;
+        font-weight: 900;
+    }
+
+    .ai-stat-label {
+        margin-top: 7px;
+        color: var(--ai-muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .ai-icon-indigo {
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .ai-icon-blue {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .ai-icon-green {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .ai-icon-red {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .ai-icon-amber {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .ai-icon-purple {
+        color: #6d28d9;
+        background: #ede9fe;
+    }
+
+    .ai-main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(330px, 0.75fr);
+        gap: 20px;
+    }
+
+    .ai-panel {
+        border: 1px solid var(--ai-border);
+        border-radius: var(--ai-radius-lg);
+        background: var(--ai-surface);
+        box-shadow: var(--ai-shadow);
+    }
+
+    .ai-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 20px 22px;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .ai-panel-title {
+        margin: 0;
+        color: var(--ai-text);
+        font-size: 1rem;
+        font-weight: 900;
+    }
+
+    .ai-panel-subtitle {
+        margin: 4px 0 0;
+        color: var(--ai-muted);
+        font-size: 0.75rem;
+    }
+
+    .ai-panel-body {
+        padding: 22px;
+    }
+
+    .ai-progress-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .ai-progress-item {
+        display: grid;
+        grid-template-columns: 170px minmax(0, 1fr) 52px;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .ai-progress-label {
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .ai-progress-track {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #eef2ff;
+    }
+
+    .ai-progress-bar {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(
+            90deg,
+            #4f46e5,
+            #7c3aed
+        );
+    }
+
+    .ai-progress-value {
+        color: var(--ai-text);
+        font-size: 0.78rem;
+        font-weight: 900;
+        text-align: right;
+    }
+
+    .ai-usage-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .ai-usage-box {
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .ai-usage-label {
+        color: var(--ai-muted);
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+    }
+
+    .ai-usage-value {
+        margin-top: 6px;
+        color: var(--ai-text);
+        font-size: 1.25rem;
+        font-weight: 900;
+    }
+
+    .ai-quota-box {
+        margin-top: 16px;
+        padding: 16px;
+        border-radius: 15px;
+        color: #3730a3;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+    }
+
+    .ai-quota-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    .ai-quota-track {
+        height: 9px;
+        margin-top: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #c7d2fe;
+    }
+
+    .ai-quota-fill {
+        height: 100%;
+        width: 0;
+        border-radius: inherit;
+        background: linear-gradient(
+            90deg,
+            #4f46e5,
+            #7c3aed
+        );
+    }
+
+    .ai-table-wrap {
+        overflow-x: auto;
+    }
+
+    .ai-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .ai-table th {
+        padding: 13px 16px;
+        color: #64748b;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.7rem;
+        font-weight: 900;
+        letter-spacing: 0.45px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .ai-table td {
+        padding: 16px;
+        color: #334155;
+        border-bottom: 1px solid #eef2f7;
+        font-size: 0.8rem;
+        vertical-align: middle;
+    }
+
+    .ai-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .ai-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .ai-analysis-title {
+        color: var(--ai-text);
+        font-weight: 900;
+        text-decoration: none;
+    }
+
+    .ai-analysis-title:hover {
+        color: var(--ai-primary);
+    }
+
+    .ai-analysis-number {
+        margin-top: 3px;
+        color: var(--ai-muted);
+        font-size: 0.72rem;
+    }
+
+    .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 0.69rem;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .ai-badge-pending {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .ai-badge-queued {
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .ai-badge-processing {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .ai-badge-completed {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .ai-badge-failed {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .ai-badge-cancelled {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .ai-badge-threat-low {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .ai-badge-threat-medium {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .ai-badge-threat-high {
+        color: #9a3412;
+        background: #ffedd5;
+    }
+
+    .ai-badge-threat-critical {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .ai-score {
+        min-width: 44px;
+        display: inline-flex;
+        justify-content: center;
+        padding: 6px 8px;
+        border-radius: 10px;
+        color: #312e81;
+        background: #eef2ff;
+        font-weight: 900;
+    }
+
+    .ai-empty-state {
+        padding: 50px 20px;
+        text-align: center;
+    }
+
+    .ai-empty-icon {
+        width: 72px;
+        height: 72px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        color: #4338ca;
+        background: #e0e7ff;
+        font-size: 1.8rem;
+    }
+
+    .ai-empty-state h3 {
+        margin: 16px 0 6px;
+        color: var(--ai-text);
+        font-size: 1rem;
+        font-weight: 900;
+    }
+
+    .ai-empty-state p {
+        margin: 0 auto;
+        max-width: 460px;
+        color: var(--ai-muted);
+        font-size: 0.8rem;
+        line-height: 1.6;
+    }
+
+    .ai-activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .ai-activity-item {
+        display: flex;
+        gap: 12px;
+    }
+
+    .ai-activity-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .ai-activity-title {
+        color: var(--ai-text);
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    .ai-activity-text {
+        margin-top: 2px;
+        color: var(--ai-muted);
+        font-size: 0.73rem;
+        line-height: 1.45;
+    }
+
+    .ai-activity-time {
+        margin-top: 5px;
+        color: #94a3b8;
+        font-size: 0.68rem;
+        font-weight: 700;
+    }
+
+    .ai-quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .ai-quick-action {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 15px;
+        color: var(--ai-text);
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .ai-quick-action:hover {
+        transform: translateY(-2px);
+        color: var(--ai-text);
+        border-color: #a5b4fc;
+    }
+
+    .ai-quick-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .ai-quick-title {
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    .ai-quick-text {
+        margin-top: 2px;
+        color: var(--ai-muted);
+        font-size: 0.7rem;
+    }
+
+    @media (max-width: 1199.98px) {
+        .ai-stats-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .ai-main-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ai-health-strip {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .ai-dashboard-page {
+            padding: 18px 0 38px;
+        }
+
+        .ai-hero {
+            padding: 28px 22px;
+        }
+
+        .ai-hero-actions {
+            justify-content: flex-start;
+        }
+
+        .ai-health-strip,
+        .ai-stats-grid,
+        .ai-usage-summary,
+        .ai-quick-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .ai-progress-item {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .ai-progress-value {
+            text-align: left;
+        }
+
+        .ai-panel-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-dashboard-page">
+    <div class="container-fluid px-3 px-lg-4">
+        <div class="ai-dashboard-container">
+
+            <section class="ai-hero">
+                <div class="ai-hero-content">
+                    <div class="row align-items-center g-4">
+
+                        <div class="col-xl">
+                            <span class="ai-hero-badge">
+                                <i class="bi bi-cpu-fill"></i>
+                                AIDEX Artificial Intelligence Engine
+                            </span>
+
+                            <h1 class="ai-hero-title">
+                                AI Forensic Intelligence Dashboard
+                            </h1>
+
+                            <p class="ai-hero-subtitle">
+                                Monitor AI-assisted evidence analysis, Gemini usage,
+                                forensic risk findings, processing queues and extraction
+                                system health from one centralized investigation workspace.
+                            </p>
+                        </div>
+
+                        <div class="col-xl-auto">
+                            <div class="ai-hero-actions">
+                                {% if can_create_analysis %}
+                                    <a
+                                        href="{% url 'ai_engine:analysis_create' %}"
+                                        class="btn btn-light text-primary"
+                                    >
+                                        <i class="bi bi-stars me-2"></i>
+                                        New AI Analysis
+                                    </a>
+                                {% endif %}
+
+                                <a
+                                    href="{% url 'ai_engine:analysis_list' %}"
+                                    class="btn btn-outline-light"
+                                >
+                                    <i class="bi bi-list-ul me-2"></i>
+                                    View All Analyses
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="ai-health-strip">
+                        <div class="ai-health-item">
+                            <div class="ai-health-label">
+                                AI Provider
+                            </div>
+
+                            <div class="ai-health-value">
+                                <span class="ai-health-dot ai-dot-success"></span>
+                                {{ provider_name|default:"Gemini Flash" }}
+                            </div>
+                        </div>
+
+                        <div class="ai-health-item">
+                            <div class="ai-health-label">
+                                Model
+                            </div>
+
+                            <div class="ai-health-value">
+                                <span class="ai-health-dot ai-dot-info"></span>
+                                {{ model_name|default:"gemini-flash-latest" }}
+                            </div>
+                        </div>
+
+                        <div class="ai-health-item">
+                            <div class="ai-health-label">
+                                OCR Engine
+                            </div>
+
+                            <div class="ai-health-value">
+                                {% if ocr_available %}
+                                    <span class="ai-health-dot ai-dot-success"></span>
+                                    Operational
+                                {% else %}
+                                    <span class="ai-health-dot ai-dot-warning"></span>
+                                    Optional
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="ai-health-item">
+                            <div class="ai-health-label">
+                                Queue Status
+                            </div>
+
+                            <div class="ai-health-value">
+                                {% if processing_analyses %}
+                                    <span class="ai-health-dot ai-dot-info"></span>
+                                    {{ processing_analyses }} Processing
+                                {% else %}
+                                    <span class="ai-health-dot ai-dot-success"></span>
+                                    Ready
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="ai-section">
+                <div class="ai-section-heading">
+                    <div>
+                        <h2>Analysis Overview</h2>
+                        <p>
+                            Live operational metrics across accessible AI analysis records.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="ai-stats-grid">
+                    <article class="ai-stat-card">
+                        <div class="ai-stat-top">
+                            <div class="ai-stat-icon ai-icon-indigo">
+                                <i class="bi bi-cpu-fill"></i>
+                            </div>
+
+                            <span class="ai-stat-trend ai-trend-neutral">
+                                All
+                            </span>
+                        </div>
+
+                        <div class="ai-stat-value">
+                            {{ total_analyses|default:0 }}
+                        </div>
+
+                        <div class="ai-stat-label">
+                            Total Analyses
+                        </div>
+                    </article>
+
+                    <article class="ai-stat-card">
+                        <div class="ai-stat-top">
+                            <div class="ai-stat-icon ai-icon-blue">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+
+                            <span class="ai-stat-trend ai-trend-neutral">
+                                Queue
+                            </span>
+                        </div>
+
+                        <div class="ai-stat-value">
+                            {{ pending_analyses|default:0 }}
+                        </div>
+
+                        <div class="ai-stat-label">
+                            Pending & Queued
+                        </div>
+                    </article>
+
+                    <article class="ai-stat-card">
+                        <div class="ai-stat-top">
+                            <div class="ai-stat-icon ai-icon-green">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+
+                            <span class="ai-stat-trend ai-trend-positive">
+                                Complete
+                            </span>
+                        </div>
+
+                        <div class="ai-stat-value">
+                            {{ completed_analyses|default:0 }}
+                        </div>
+
+                        <div class="ai-stat-label">
+                            Completed
+                        </div>
+                    </article>
+
+                    <article class="ai-stat-card">
+                        <div class="ai-stat-top">
+                            <div class="ai-stat-icon ai-icon-red">
+                                <i class="bi bi-x-octagon-fill"></i>
+                            </div>
+
+                            <span class="ai-stat-trend ai-trend-neutral">
+                                Review
+                            </span>
+                        </div>
+
+                        <div class="ai-stat-value">
+                            {{ failed_analyses|default:0 }}
+                        </div>
+
+                        <div class="ai-stat-label">
+                            Failed
+                        </div>
+                    </article>
+
+                    <article class="ai-stat-card">
+                        <div class="ai-stat-top">
+                            <div class="ai-stat-icon ai-icon-amber">
+                                <i class="bi bi-shield-exclamation"></i>
+                            </div>
+
+                            <span class="ai-stat-trend ai-trend-neutral">
+                                Risk
+                            </span>
+                        </div>
+
+                        <div class="ai-stat-value">
+                            {{ high_risk_analyses|default:0 }}
+                        </div>
+
+                        <div class="ai-stat-label">
+                            High-Risk Findings
+                        </div>
+                    </article>
+
+                    <article class="ai-stat-card">
+                        <div class="ai-stat-top">
+                            <div class="ai-stat-icon ai-icon-purple">
+                                <i class="bi bi-database-check"></i>
+                            </div>
+
+                            <span class="ai-stat-trend ai-trend-positive">
+                                Saved
+                            </span>
+                        </div>
+
+                        <div class="ai-stat-value">
+                            {{ cached_analyses|default:0 }}
+                        </div>
+
+                        <div class="ai-stat-label">
+                            Cached Results
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="ai-section">
+                <div class="ai-main-grid">
+
+                    <div class="ai-panel">
+                        <div class="ai-panel-header">
+                            <div>
+                                <h3 class="ai-panel-title">
+                                    Analysis Status Distribution
+                                </h3>
+
+                                <p class="ai-panel-subtitle">
+                                    Current workload grouped by lifecycle status.
+                                </p>
+                            </div>
+
+                            <a
+                                href="{% url 'ai_engine:analysis_list' %}"
+                                class="ai-link"
+                            >
+                                Explore records
+                                <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+
+                        <div class="ai-panel-body">
+                            {% with total=total_analyses|default:0 %}
+                                <div class="ai-progress-list">
+
+                                    <div class="ai-progress-item">
+                                        <div class="ai-progress-label">
+                                            Completed
+                                        </div>
+
+                                        <div class="ai-progress-track">
+                                            <div
+                                                class="ai-progress-bar"
+                                                style="width:
+                                                    {% if total %}
+                                                        {% widthratio completed_analyses total 100 %}%
+                                                    {% else %}
+                                                        0%
+                                                    {% endif %};"
+                                            ></div>
+                                        </div>
+
+                                        <div class="ai-progress-value">
+                                            {{ completed_analyses|default:0 }}
+                                        </div>
+                                    </div>
+
+                                    <div class="ai-progress-item">
+                                        <div class="ai-progress-label">
+                                            Processing
+                                        </div>
+
+                                        <div class="ai-progress-track">
+                                            <div
+                                                class="ai-progress-bar"
+                                                style="width:
+                                                    {% if total %}
+                                                        {% widthratio processing_analyses total 100 %}%
+                                                    {% else %}
+                                                        0%
+                                                    {% endif %};"
+                                            ></div>
+                                        </div>
+
+                                        <div class="ai-progress-value">
+                                            {{ processing_analyses|default:0 }}
+                                        </div>
+                                    </div>
+
+                                    <div class="ai-progress-item">
+                                        <div class="ai-progress-label">
+                                            Pending / Queued
+                                        </div>
+
+                                        <div class="ai-progress-track">
+                                            <div
+                                                class="ai-progress-bar"
+                                                style="width:
+                                                    {% if total %}
+                                                        {% widthratio pending_analyses total 100 %}%
+                                                    {% else %}
+                                                        0%
+                                                    {% endif %};"
+                                            ></div>
+                                        </div>
+
+                                        <div class="ai-progress-value">
+                                            {{ pending_analyses|default:0 }}
+                                        </div>
+                                    </div>
+
+                                    <div class="ai-progress-item">
+                                        <div class="ai-progress-label">
+                                            Failed
+                                        </div>
+
+                                        <div class="ai-progress-track">
+                                            <div
+                                                class="ai-progress-bar"
+                                                style="width:
+                                                    {% if total %}
+                                                        {% widthratio failed_analyses total 100 %}%
+                                                    {% else %}
+                                                        0%
+                                                    {% endif %};"
+                                            ></div>
+                                        </div>
+
+                                        <div class="ai-progress-value">
+                                            {{ failed_analyses|default:0 }}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    <aside class="ai-panel">
+                        <div class="ai-panel-header">
+                            <div>
+                                <h3 class="ai-panel-title">
+                                    Gemini Usage
+                                </h3>
+
+                                <p class="ai-panel-subtitle">
+                                    Local usage tracking for cost-aware execution.
+                                </p>
+                            </div>
+
+                            <i class="bi bi-lightning-charge-fill text-warning"></i>
+                        </div>
+
+                        <div class="ai-panel-body">
+                            <div class="ai-usage-summary">
+                                <div class="ai-usage-box">
+                                    <div class="ai-usage-label">
+                                        Input Tokens
+                                    </div>
+
+                                    <div class="ai-usage-value">
+                                        {{ total_input_tokens|default:0 }}
+                                    </div>
+                                </div>
+
+                                <div class="ai-usage-box">
+                                    <div class="ai-usage-label">
+                                        Output Tokens
+                                    </div>
+
+                                    <div class="ai-usage-value">
+                                        {{ total_output_tokens|default:0 }}
+                                    </div>
+                                </div>
+
+                                <div class="ai-usage-box">
+                                    <div class="ai-usage-label">
+                                        Total Tokens
+                                    </div>
+
+                                    <div class="ai-usage-value">
+                                        {{ total_tokens_used|default:0 }}
+                                    </div>
+                                </div>
+
+                                <div class="ai-usage-box">
+                                    <div class="ai-usage-label">
+                                        Avg. Confidence
+                                    </div>
+
+                                    <div class="ai-usage-value">
+                                        {{ average_confidence|floatformat:1|default:"0.0" }}%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ai-quota-box">
+                                <div class="ai-quota-head">
+                                    <span>Local Daily Limit</span>
+                                    <span>
+                                        {{ daily_queue_count|default:0 }}
+                                        /
+                                        {{ daily_user_limit|default:"∞" }}
+                                    </span>
+                                </div>
+
+                                <div class="ai-quota-track">
+                                    <div
+                                        class="ai-quota-fill"
+                                        style="width: {{ daily_usage_percentage|default:0 }}%;"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                </div>
+            </section>
+
+            <section class="ai-section">
+                <div class="ai-section-heading">
+                    <div>
+                        <h2>Recent AI Analyses</h2>
+                        <p>
+                            Latest forensic analysis requests and results.
+                        </p>
+                    </div>
+
+                    <a
+                        href="{% url 'ai_engine:analysis_list' %}"
+                        class="ai-link"
+                    >
+                        View all
+                        <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+
+                <div class="ai-panel">
+                    {% if recent_analyses %}
+                        <div class="ai-table-wrap">
+                            <table class="ai-table">
+                                <thead>
+                                    <tr>
+                                        <th>Analysis</th>
+                                        <th>Evidence</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Threat</th>
+                                        <th>Risk</th>
+                                        <th>Confidence</th>
+                                        <th>Created</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for analysis in recent_analyses %}
+                                        <tr>
+                                            <td>
+                                                <a
+                                                    href="{% url 'ai_engine:analysis_detail' analysis.id %}"
+                                                    class="ai-analysis-title"
+                                                >
+                                                    {{ analysis.title }}
+                                                </a>
+
+                                                <div class="ai-analysis-number">
+                                                    {{ analysis.analysis_number }}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <strong>
+                                                    {{ analysis.evidence.evidence_title }}
+                                                </strong>
+
+                                                <div class="ai-analysis-number">
+                                                    {{ analysis.evidence.case.case_number }}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                {{ analysis.get_analysis_type_display }}
+                                            </td>
+
+                                            <td>
+                                                {% if analysis.status == "COMPLETED" %}
+                                                    <span class="ai-badge ai-badge-completed">
+                                                        <i class="bi bi-check-circle-fill"></i>
+                                                        Completed
+                                                    </span>
+                                                {% elif analysis.status == "PROCESSING" %}
+                                                    <span class="ai-badge ai-badge-processing">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                        Processing
+                                                    </span>
+                                                {% elif analysis.status == "QUEUED" %}
+                                                    <span class="ai-badge ai-badge-queued">
+                                                        <i class="bi bi-clock-fill"></i>
+                                                        Queued
+                                                    </span>
+                                                {% elif analysis.status == "FAILED" %}
+                                                    <span class="ai-badge ai-badge-failed">
+                                                        <i class="bi bi-x-octagon-fill"></i>
+                                                        Failed
+                                                    </span>
+                                                {% elif analysis.status == "CANCELLED" %}
+                                                    <span class="ai-badge ai-badge-cancelled">
+                                                        <i class="bi bi-slash-circle"></i>
+                                                        Cancelled
+                                                    </span>
+                                                {% else %}
+                                                    <span class="ai-badge ai-badge-pending">
+                                                        <i class="bi bi-hourglass-split"></i>
+                                                        Pending
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                {% if analysis.threat_level == "CRITICAL" %}
+                                                    <span class="ai-badge ai-badge-threat-critical">
+                                                        Critical
+                                                    </span>
+                                                {% elif analysis.threat_level == "HIGH" %}
+                                                    <span class="ai-badge ai-badge-threat-high">
+                                                        High
+                                                    </span>
+                                                {% elif analysis.threat_level == "MEDIUM" %}
+                                                    <span class="ai-badge ai-badge-threat-medium">
+                                                        Medium
+                                                    </span>
+                                                {% else %}
+                                                    <span class="ai-badge ai-badge-threat-low">
+                                                        {{ analysis.get_threat_level_display }}
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                <span class="ai-score">
+                                                    {% if analysis.risk_score != None %}
+                                                        {{ analysis.risk_score|floatformat:0 }}%
+                                                    {% else %}
+                                                        —
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="ai-score">
+                                                    {% if analysis.confidence_score != None %}
+                                                        {{ analysis.confidence_score|floatformat:0 }}%
+                                                    {% else %}
+                                                        —
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                {{ analysis.created_date|date:"d M Y" }}
+
+                                                <div class="ai-analysis-number">
+                                                    {{ analysis.created_date|date:"h:i A" }}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <a
+                                                    href="{% url 'ai_engine:analysis_detail' analysis.id %}"
+                                                    class="btn btn-sm btn-outline-primary rounded-3"
+                                                >
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="ai-empty-state">
+                            <div class="ai-empty-icon">
+                                <i class="bi bi-stars"></i>
+                            </div>
+
+                            <h3>No AI analyses yet</h3>
+
+                            <p>
+                                Create the first AI-assisted forensic analysis
+                                from an active evidence record.
+                            </p>
+
+                            {% if can_create_analysis %}
+                                <a
+                                    href="{% url 'ai_engine:analysis_create' %}"
+                                    class="btn btn-primary mt-3 rounded-3"
+                                >
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Create Analysis
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="ai-section">
+                <div class="ai-main-grid">
+
+                    <div class="ai-panel">
+                        <div class="ai-panel-header">
+                            <div>
+                                <h3 class="ai-panel-title">
+                                    Recent AI Activity
+                                </h3>
+
+                                <p class="ai-panel-subtitle">
+                                    Audit events from analysis creation, execution and review.
+                                </p>
+                            </div>
+
+                            <i class="bi bi-clock-history text-primary"></i>
+                        </div>
+
+                        <div class="ai-panel-body">
+                            {% if recent_logs %}
+                                <div class="ai-activity-list">
+                                    {% for log in recent_logs %}
+                                        <div class="ai-activity-item">
+                                            <div class="ai-activity-icon">
+                                                {% if log.event_type == "COMPLETED" %}
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                {% elif log.event_type == "FAILED" %}
+                                                    <i class="bi bi-x-octagon-fill"></i>
+                                                {% elif log.event_type == "QUEUED" %}
+                                                    <i class="bi bi-clock-fill"></i>
+                                                {% elif log.event_type == "REVIEWED" %}
+                                                    <i class="bi bi-person-check-fill"></i>
+                                                {% else %}
+                                                    <i class="bi bi-cpu-fill"></i>
+                                                {% endif %}
+                                            </div>
+
+                                            <div>
+                                                <div class="ai-activity-title">
+                                                    {{ log.get_event_type_display }}
+                                                    ·
+                                                    {{ log.analysis.analysis_number }}
+                                                </div>
+
+                                                <div class="ai-activity-text">
+                                                    {{ log.message }}
+                                                </div>
+
+                                                <div class="ai-activity-time">
+                                                    {{ log.created_date|timesince }} ago
+                                                    {% if log.actor %}
+                                                        ·
+                                                        {{ log.actor.full_name|default:log.actor.username }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="ai-empty-state py-4">
+                                    <div class="ai-empty-icon">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+
+                                    <h3>No activity recorded</h3>
+
+                                    <p>
+                                        AI audit events will appear here after analyses are created.
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <aside class="ai-panel">
+                        <div class="ai-panel-header">
+                            <div>
+                                <h3 class="ai-panel-title">
+                                    Quick Actions
+                                </h3>
+
+                                <p class="ai-panel-subtitle">
+                                    Common AI Engine workflows.
+                                </p>
+                            </div>
+
+                            <i class="bi bi-grid-fill text-primary"></i>
+                        </div>
+
+                        <div class="ai-panel-body">
+                            <div class="ai-quick-actions">
+                                {% if can_create_analysis %}
+                                    <a
+                                        href="{% url 'ai_engine:analysis_create' %}"
+                                        class="ai-quick-action"
+                                    >
+                                        <div class="ai-quick-icon">
+                                            <i class="bi bi-stars"></i>
+                                        </div>
+
+                                        <div>
+                                            <div class="ai-quick-title">
+                                                New Analysis
+                                            </div>
+
+                                            <div class="ai-quick-text">
+                                                Analyze evidence
+                                            </div>
+                                        </div>
+                                    </a>
+                                {% endif %}
+
+                                <a
+                                    href="{% url 'ai_engine:analysis_list' %}?status=QUEUED"
+                                    class="ai-quick-action"
+                                >
+                                    <div class="ai-quick-icon">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="ai-quick-title">
+                                            Queue
+                                        </div>
+
+                                        <div class="ai-quick-text">
+                                            Pending requests
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <a
+                                    href="{% url 'ai_engine:analysis_list' %}?status=FAILED"
+                                    class="ai-quick-action"
+                                >
+                                    <div class="ai-quick-icon">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="ai-quick-title">
+                                            Retry Review
+                                        </div>
+
+                                        <div class="ai-quick-text">
+                                            Failed analyses
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <a
+                                    href="{% url 'evidence:evidence_list' %}"
+                                    class="ai-quick-action"
+                                >
+                                    <div class="ai-quick-icon">
+                                        <i class="bi bi-file-earmark-lock-fill"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="ai-quick-title">
+                                            Evidence
+                                        </div>
+
+                                        <div class="ai-quick-text">
+                                            Browse records
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </aside>
+
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

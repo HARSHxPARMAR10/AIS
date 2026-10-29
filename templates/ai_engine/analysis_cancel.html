@@ -1,0 +1,1105 @@
+{% extends "base.html" %}
+
+{% block title %}
+Cancel AI Analysis | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --cancel-bg: #f8fafc;
+        --cancel-surface: #ffffff;
+        --cancel-border: #e2e8f0;
+        --cancel-text: #0f172a;
+        --cancel-muted: #64748b;
+        --cancel-danger: #dc2626;
+        --cancel-danger-dark: #991b1b;
+        --cancel-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+        --cancel-radius-xl: 24px;
+        --cancel-radius-lg: 18px;
+    }
+
+    .analysis-cancel-page {
+        min-height: calc(100vh - 140px);
+        padding: 30px 0 56px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(239, 68, 68, 0.08),
+                transparent 28%
+            ),
+            var(--cancel-bg);
+    }
+
+    .analysis-cancel-container {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .cancel-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px;
+        border-radius: var(--cancel-radius-xl);
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at 90% 12%,
+                rgba(255, 255, 255, 0.15),
+                transparent 24%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #7f1d1d 48%,
+                #dc2626 100%
+            );
+        box-shadow: 0 24px 60px rgba(127, 29, 29, 0.22);
+    }
+
+    .cancel-hero::before,
+    .cancel-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .cancel-hero::before {
+        width: 240px;
+        height: 240px;
+        left: -105px;
+        bottom: -140px;
+    }
+
+    .cancel-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 50px;
+        top: -105px;
+    }
+
+    .cancel-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .cancel-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.13);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.35px;
+    }
+
+    .cancel-hero-title {
+        margin: 16px 0 8px;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        font-weight: 900;
+        letter-spacing: -0.8px;
+    }
+
+    .cancel-hero-subtitle {
+        max-width: 800px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+    }
+
+    .cancel-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .cancel-hero-actions .btn {
+        min-height: 44px;
+        padding: 9px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .cancel-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+        gap: 22px;
+        margin-top: 26px;
+    }
+
+    .cancel-card,
+    .info-card {
+        border: 1px solid var(--cancel-border);
+        border-radius: var(--cancel-radius-lg);
+        background: var(--cancel-surface);
+        box-shadow: var(--cancel-shadow);
+    }
+
+    .cancel-card {
+        padding: 28px;
+    }
+
+    .info-card {
+        padding: 22px;
+    }
+
+    .sticky-sidebar {
+        position: sticky;
+        top: 24px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin: 0;
+        color: var(--cancel-text);
+        font-size: 1.08rem;
+        font-weight: 900;
+    }
+
+    .card-heading p {
+        margin: 5px 0 0;
+        color: var(--cancel-muted);
+        font-size: 0.78rem;
+        line-height: 1.55;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fee2e2;
+        font-size: 1.1rem;
+    }
+
+    .analysis-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .summary-item {
+        padding: 15px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .summary-label {
+        margin-bottom: 6px;
+        color: var(--cancel-muted);
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+        color: var(--cancel-text);
+        font-size: 0.84rem;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        color: #4338ca;
+        background: #e0e7ff;
+        font-size: 0.69rem;
+        font-weight: 900;
+    }
+
+    .warning-panel {
+        margin-bottom: 22px;
+        padding: 17px;
+        border-radius: 15px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.6;
+    }
+
+    .warning-panel strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #78350f;
+    }
+
+    .form-errors {
+        margin-bottom: 20px;
+        padding: 15px 17px;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 0.8rem;
+    }
+
+    .form-errors strong {
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    .form-errors ul,
+    .field-error ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .form-field {
+        margin-bottom: 18px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .required-mark {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    .form-control {
+        min-height: 48px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+        color: var(--cancel-text);
+    }
+
+    textarea.form-control {
+        min-height: 160px;
+        resize: vertical;
+    }
+
+    .form-control:focus {
+        border-color: #f87171;
+        box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.12);
+    }
+
+    .confirmation-card {
+        margin-bottom: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #7f1d1d;
+        background: #fff7f7;
+        border: 1px solid #fecaca;
+    }
+
+    .confirmation-card .form-check {
+        margin: 0;
+    }
+
+    .confirmation-card .form-check-input {
+        margin-top: 0.22rem;
+    }
+
+    .confirmation-card .form-check-label {
+        font-size: 0.82rem;
+        font-weight: 800;
+        line-height: 1.5;
+    }
+
+    .form-text {
+        margin-top: 7px;
+        color: var(--cancel-muted);
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    .field-error {
+        margin-top: 7px;
+        color: #b91c1c;
+        font-size: 0.76rem;
+        font-weight: 700;
+    }
+
+    .character-counter {
+        margin-top: 7px;
+        text-align: right;
+        color: #94a3b8;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+
+    .cancel-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid #edf2f7;
+    }
+
+    .cancel-actions .btn {
+        min-width: 165px;
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .info-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .info-title {
+        margin-bottom: 3px;
+        color: var(--cancel-text);
+        font-size: 0.82rem;
+        font-weight: 900;
+    }
+
+    .info-text {
+        margin: 0;
+        color: var(--cancel-muted);
+        font-size: 0.75rem;
+        line-height: 1.55;
+    }
+
+    .audit-note {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #475569;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.77rem;
+        line-height: 1.55;
+    }
+
+    .audit-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #334155;
+    }
+
+    @media (max-width: 991.98px) {
+        .cancel-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sticky-sidebar {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .analysis-cancel-page {
+            padding: 18px 0 38px;
+        }
+
+        .cancel-hero {
+            padding: 28px 22px;
+        }
+
+        .cancel-hero-actions {
+            justify-content: flex-start;
+        }
+
+        .cancel-card,
+        .info-card {
+            padding: 20px;
+        }
+
+        .analysis-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .cancel-actions {
+            flex-direction: column-reverse;
+        }
+
+        .cancel-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-cancel-page">
+    <div class="container-fluid px-3 px-lg-4">
+        <div class="analysis-cancel-container">
+
+            <section class="cancel-hero">
+                <div class="cancel-hero-content">
+                    <div class="row align-items-center g-4">
+
+                        <div class="col-lg">
+                            <span class="cancel-hero-badge">
+                                <i class="bi bi-slash-circle-fill"></i>
+                                AI Analysis Cancellation
+                            </span>
+
+                            <h1 class="cancel-hero-title">
+                                {{ page_title|default:"Cancel AI Analysis" }}
+                            </h1>
+
+                            <p class="cancel-hero-subtitle">
+                                Stop this pending or queued analysis before provider execution.
+                                The analysis record and audit history will remain preserved.
+                            </p>
+                        </div>
+
+                        <div class="col-lg-auto">
+                            <div class="cancel-hero-actions">
+                                <a
+                                    href="{% url 'ai_engine:analysis_detail' analysis.id %}"
+                                    class="btn btn-outline-light"
+                                >
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Back to Analysis
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <div class="cancel-layout">
+
+                <main class="cancel-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Cancellation Confirmation</h2>
+
+                            <p>
+                                Review the analysis details, tick the confirmation box
+                                and provide a clear cancellation reason.
+                            </p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="analysis-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Analysis</div>
+
+                            <div class="summary-value">
+                                {{ analysis.title }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Analysis Number</div>
+
+                            <div class="summary-value">
+                                {{ analysis.analysis_number }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Evidence</div>
+
+                            <div class="summary-value">
+                                {{ analysis.evidence.evidence_title }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Related Case</div>
+
+                            <div class="summary-value">
+                                {{ analysis.evidence.case.case_number }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Current Status</div>
+
+                            <div class="summary-value">
+                                <span class="status-badge">
+                                    <i class="bi bi-clock-fill"></i>
+                                    {{ analysis.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Requested By</div>
+
+                            <div class="summary-value">
+                                {{ analysis.created_by.full_name|default:analysis.created_by.username }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="warning-panel">
+                        <strong>
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Cancellation Effect
+                        </strong>
+
+                        Cancelling this request prevents it from being processed in its current
+                        lifecycle. Existing metadata and audit logs remain stored. A new analysis
+                        request can be created later when required.
+                    </div>
+
+                    {% if form.errors %}
+                        <div
+                            class="form-errors"
+                            id="cancelFormErrors"
+                            role="alert"
+                        >
+                            <strong>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Cancellation could not be completed. Please correct:
+                            </strong>
+
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>
+                                            <strong>{{ field.label }}:</strong>
+                                            {{ error }}
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form
+                        method="post"
+                        id="analysisCancelForm"
+                        novalidate
+                    >
+                        {% csrf_token %}
+
+                        <div class="confirmation-card">
+                            <div class="form-check">
+                                {{ form.confirmation }}
+
+                                <label
+                                    class="form-check-label"
+                                    for="{{ form.confirmation.id_for_label }}"
+                                >
+                                    {{ form.confirmation.label }}
+
+                                    {% if form.confirmation.field.required %}
+                                        <span class="required-mark">*</span>
+                                    {% endif %}
+                                </label>
+                            </div>
+
+                            {% if form.confirmation.help_text %}
+                                <div class="form-text">
+                                    {{ form.confirmation.help_text }}
+                                </div>
+                            {% endif %}
+
+                            {% if form.confirmation.errors %}
+                                <div class="field-error">
+                                    {{ form.confirmation.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-field">
+                            <label
+                                for="{{ form.cancellation_reason.id_for_label }}"
+                                class="form-label"
+                            >
+                                {{ form.cancellation_reason.label }}
+
+                                {% if form.cancellation_reason.field.required %}
+                                    <span class="required-mark">*</span>
+                                {% endif %}
+                            </label>
+
+                            {{ form.cancellation_reason }}
+
+                            {% if form.cancellation_reason.help_text %}
+                                <div class="form-text">
+                                    {{ form.cancellation_reason.help_text }}
+                                </div>
+                            {% endif %}
+
+                            {% if form.cancellation_reason.errors %}
+                                <div class="field-error">
+                                    {{ form.cancellation_reason.errors }}
+                                </div>
+                            {% endif %}
+
+                            <div
+                                class="character-counter"
+                                id="reasonCounter"
+                            >
+                                0 characters
+                            </div>
+                        </div>
+
+                        <div class="cancel-actions">
+                            <a
+                                href="{% url 'ai_engine:analysis_detail' analysis.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Keep Analysis
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger"
+                                id="cancelAnalysisButton"
+                            >
+                                <i class="bi bi-slash-circle-fill me-2"></i>
+                                Confirm Cancellation
+                            </button>
+                        </div>
+                    </form>
+                </main>
+
+                <aside class="sticky-sidebar">
+                    <section class="info-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Before You Cancel</h3>
+
+                                <p>
+                                    Important points for maintaining a clear forensic audit trail.
+                                </p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-list-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-check2-square"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Confirm the Action
+                                    </div>
+
+                                    <p class="info-text">
+                                        Tick the confirmation checkbox before submitting
+                                        the cancellation request.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-journal-text"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        State a Clear Reason
+                                    </div>
+
+                                    <p class="info-text">
+                                        Enter at least 10 meaningful characters explaining
+                                        why this analysis should be cancelled.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Audit History Remains
+                                    </div>
+
+                                    <p class="info-text">
+                                        Cancellation is recorded with the authenticated user
+                                        and timestamp for accountability.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-shield-lock-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Evidence Is Unchanged
+                                    </div>
+
+                                    <p class="info-text">
+                                        This action does not delete, modify or archive
+                                        the linked digital evidence.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="audit-note">
+                            <strong>
+                                <i class="bi bi-fingerprint me-2"></i>
+                                Audit Notice
+                            </strong>
+
+                            The cancellation reason, acting user and timestamp are preserved
+                            in the AI analysis audit log.
+                        </div>
+                    </section>
+                </aside>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (() => {
+        const form = document.getElementById("analysisCancelForm");
+        const submitButton = document.getElementById("cancelAnalysisButton");
+        const reasonField = document.getElementById(
+            "{{ form.cancellation_reason.id_for_label|escapejs }}"
+        );
+        const confirmationField = document.getElementById(
+            "{{ form.confirmation.id_for_label|escapejs }}"
+        );
+        const reasonCounter = document.getElementById("reasonCounter");
+        const errorSummary = document.getElementById("cancelFormErrors");
+
+        if (!form) {
+            return;
+        }
+
+        const updateReasonCounter = () => {
+            if (!reasonField || !reasonCounter) {
+                return;
+            }
+
+            const count = String(reasonField.value || "").length;
+            reasonCounter.textContent =
+                count + (count === 1 ? " character" : " characters");
+        };
+
+        if (reasonField) {
+            reasonField.addEventListener("input", updateReasonCounter);
+            updateReasonCounter();
+        }
+
+        let popup = document.getElementById("aiCancelValidationPopup");
+
+        if (!popup) {
+            popup = document.createElement("div");
+            popup.id = "aiCancelValidationPopup";
+            popup.setAttribute("role", "dialog");
+            popup.setAttribute("aria-modal", "true");
+            popup.style.cssText = [
+                "position:fixed",
+                "inset:0",
+                "z-index:99999",
+                "display:none",
+                "align-items:center",
+                "justify-content:center",
+                "padding:20px",
+                "background:rgba(15,23,42,.58)",
+                "backdrop-filter:blur(3px)"
+            ].join(";");
+
+            popup.innerHTML = `
+                <div style="
+                    width:min(100%,470px);
+                    padding:24px;
+                    border-radius:18px;
+                    background:#fff;
+                    border:1px solid #e2e8f0;
+                    box-shadow:0 24px 70px rgba(15,23,42,.24);
+                    font-family:inherit;
+                ">
+                    <h3 style="
+                        margin:0 0 8px;
+                        color:#0f172a;
+                        font-size:1.05rem;
+                        font-weight:900;
+                    ">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Please correct the following
+                    </h3>
+                    <p id="aiCancelPopupMessage" style="
+                        margin:0 0 12px;
+                        color:#64748b;
+                        font-size:.82rem;
+                        line-height:1.55;
+                    "></p>
+                    <ul id="aiCancelPopupList" style="
+                        margin:0;
+                        padding-left:20px;
+                        color:#b91c1c;
+                        font-size:.82rem;
+                        line-height:1.7;
+                    "></ul>
+                    <div style="
+                        display:flex;
+                        justify-content:flex-end;
+                        margin-top:20px;
+                    ">
+                        <button type="button" id="aiCancelPopupOk" style="
+                            min-width:90px;
+                            min-height:42px;
+                            border:0;
+                            border-radius:11px;
+                            color:#fff;
+                            background:#475569;
+                            font-weight:800;
+                            cursor:pointer;
+                        ">OK</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+        }
+
+        const popupList = document.getElementById("aiCancelPopupList");
+        const popupMessage = document.getElementById("aiCancelPopupMessage");
+        const popupOk = document.getElementById("aiCancelPopupOk");
+
+        const closePopup = () => {
+            popup.style.display = "none";
+        };
+
+        const showPopup = (items, message) => {
+            popupList.innerHTML = "";
+
+            items.forEach((item) => {
+                const li = document.createElement("li");
+                li.textContent = item;
+                popupList.appendChild(li);
+            });
+
+            popupMessage.textContent = message;
+            popup.style.display = "flex";
+            popupOk.focus();
+        };
+
+        popupOk.addEventListener("click", closePopup);
+
+        popup.addEventListener("click", (event) => {
+            if (event.target === popup) {
+                closePopup();
+            }
+        });
+
+        const getLabel = (field) => {
+            if (field && field.id) {
+                const label = form.querySelector(
+                    'label[for="' + field.id.replace(/"/g, '\\"') + '"]'
+                );
+
+                if (label) {
+                    return label.textContent
+                        .replace(/\*/g, "")
+                        .replace(/\s+/g, " ")
+                        .trim();
+                }
+            }
+
+            return field && field.name
+                ? field.name.replace(/_/g, " ")
+                : "Required field";
+        };
+
+        const markInvalid = (field) => {
+            if (!field) {
+                return;
+            }
+
+            field.classList.add("is-invalid");
+            field.setAttribute("aria-invalid", "true");
+        };
+
+        const clearInvalid = (field) => {
+            if (!field) {
+                return;
+            }
+
+            field.classList.remove("is-invalid");
+            field.removeAttribute("aria-invalid");
+        };
+
+        const getServerErrors = () => {
+            const items = [];
+            const seen = new Set();
+
+            if (errorSummary) {
+                errorSummary.querySelectorAll("li").forEach((li) => {
+                    const text = li.textContent
+                        .replace(/\s+/g, " ")
+                        .trim();
+
+                    if (text && !seen.has(text)) {
+                        seen.add(text);
+                        items.push(text);
+                    }
+                });
+            }
+
+            if (reasonField && reasonField.classList.contains("is-invalid")) {
+                markInvalid(reasonField);
+            }
+
+            return items;
+        };
+
+        if (reasonField) {
+            reasonField.addEventListener("input", () => {
+                clearInvalid(reasonField);
+            });
+        }
+
+        if (confirmationField) {
+            confirmationField.addEventListener("change", () => {
+                if (confirmationField.checked) {
+                    clearInvalid(confirmationField);
+                }
+            });
+        }
+
+        const serverErrors = getServerErrors();
+
+        if (serverErrors.length > 0) {
+            showPopup(
+                serverErrors,
+                "Please correct the following validation error(s):"
+            );
+        }
+
+        if (!submitButton) {
+            return;
+        }
+
+        form.addEventListener("submit", (event) => {
+            const missingFields = [];
+
+            if (
+                confirmationField &&
+                confirmationField.required &&
+                !confirmationField.checked
+            ) {
+                markInvalid(confirmationField);
+                missingFields.push(getLabel(confirmationField) + " is required.");
+            }
+
+            if (
+                reasonField &&
+                reasonField.required &&
+                String(reasonField.value || "").trim() === ""
+            ) {
+                markInvalid(reasonField);
+                missingFields.push(getLabel(reasonField) + " is required.");
+            }
+
+            const trimmedReason = reasonField
+                ? String(reasonField.value || "").trim()
+                : "";
+
+            if (
+                reasonField &&
+                trimmedReason !== "" &&
+                trimmedReason.length < 10
+            ) {
+                markInvalid(reasonField);
+                missingFields.push(
+                    getLabel(reasonField)
+                    + " must contain at least 10 characters."
+                );
+            }
+
+            if (missingFields.length > 0) {
+                event.preventDefault();
+                event.stopPropagation();
+                form.classList.add("was-validated");
+
+                showPopup(
+                    missingFields,
+                    "Please complete or correct the following field(s):"
+                );
+
+                const firstInvalid = form.querySelector(".is-invalid");
+
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                }
+
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = (
+                '<span class="spinner-border spinner-border-sm me-2" '
+                + 'role="status" aria-hidden="true"></span>'
+                + "Cancelling Analysis"
+            );
+        });
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,1563 @@
+{% extends "base.html" %}
+
+{% block title %}
+Verify Evidence | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evidence-verify-page {
+        padding: 32px 0 56px;
+    }
+
+    .evidence-verify-container {
+        max-width: 1240px;
+        margin: 0 auto;
+    }
+
+    .page-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px;
+        border-radius: 24px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(74, 222, 128, 0.26),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #166534 52%,
+                #22c55e 100%
+            );
+        box-shadow: 0 22px 60px rgba(22, 101, 52, 0.22);
+    }
+
+    .page-hero::before,
+    .page-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .page-hero::before {
+        width: 230px;
+        height: 230px;
+        left: -95px;
+        bottom: -125px;
+    }
+
+    .page-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 65px;
+        top: -105px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .page-title {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 2.08rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        max-width: 780px;
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .hero-actions .btn {
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 11px 18px;
+    }
+
+    .content-layout {
+        margin-top: 28px;
+    }
+
+    .verify-card,
+    .info-card,
+    .preview-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .verify-card {
+        padding: 28px;
+    }
+
+    .info-card,
+    .preview-card {
+        padding: 24px;
+    }
+
+    .sticky-stack {
+        position: sticky;
+        top: 24px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.18rem;
+        font-weight: 800;
+    }
+
+    .card-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.87rem;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #166534;
+        background: #dcfce7;
+        font-size: 1.15rem;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .summary-item {
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+    }
+
+    .summary-label {
+        margin-bottom: 6px;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+    }
+
+    .summary-value {
+        color: #0f172a;
+        font-size: 0.9rem;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+    }
+
+    .badge-type {
+        color: #0f766e;
+        background: #ccfbf1;
+    }
+
+    .badge-pending {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .badge-review {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .badge-verified {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .badge-rejected {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .badge-corrupted {
+        color: #9a3412;
+        background: #ffedd5;
+    }
+
+    .file-panel {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 18px;
+    }
+
+    .file-icon {
+        width: 54px;
+        height: 54px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 16px;
+        color: #166534;
+        background: #dcfce7;
+        font-size: 1.35rem;
+    }
+
+    .file-name {
+        color: #0f172a;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .file-meta {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .hash-box {
+        padding: 16px;
+        border-radius: 14px;
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-family: monospace;
+        font-size: 0.78rem;
+        word-break: break-all;
+        margin-bottom: 24px;
+    }
+
+    .form-errors {
+        margin-bottom: 22px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 0.85rem;
+    }
+
+    .form-errors-title {
+        margin-bottom: 6px;
+        font-weight: 800;
+    }
+
+    .form-errors ul,
+    .field-error ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .form-section {
+        padding: 22px 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .form-section:first-of-type {
+        padding-top: 0;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        margin-bottom: 16px;
+        color: #0f172a;
+        font-size: 0.98rem;
+        font-weight: 800;
+    }
+
+    .form-label {
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+
+    .required-mark {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 48px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+        color: #0f172a;
+    }
+
+    textarea.form-control {
+        min-height: 160px;
+        resize: vertical;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #4ade80;
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.12);
+    }
+
+    .form-text {
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 0.77rem;
+    }
+
+    .field-error {
+        margin-top: 7px;
+        color: #b91c1c;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .decision-guide {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .decision-item {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .decision-item strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.82rem;
+    }
+
+    .decision-item p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.76rem;
+        line-height: 1.5;
+    }
+
+    .decision-review strong {
+        color: #1d4ed8;
+    }
+
+    .decision-verified strong {
+        color: #166534;
+    }
+
+    .decision-rejected strong {
+        color: #991b1b;
+    }
+
+    .decision-corrupted strong {
+        color: #9a3412;
+    }
+
+    .verification-warning {
+        padding: 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .verification-warning strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+    .verify-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid #edf2f7;
+    }
+
+    .verify-actions .btn {
+        min-width: 155px;
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .preview-wrapper {
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background: #0f172a;
+    }
+
+    .preview-wrapper img,
+    .preview-wrapper video,
+    .preview-wrapper audio {
+        width: 100%;
+        max-height: 360px;
+        display: block;
+        object-fit: contain;
+        background: #0f172a;
+    }
+
+    .preview-fallback {
+        padding: 42px 20px;
+        text-align: center;
+        color: #cbd5e1;
+    }
+
+    .preview-fallback i {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 2rem;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .info-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .info-title {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-size: 0.86rem;
+        font-weight: 800;
+    }
+
+    .info-text {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.79rem;
+        line-height: 1.55;
+    }
+
+    .audit-note {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .audit-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+    @media (max-width: 991.98px) {
+        .page-hero {
+            padding: 30px;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+
+        .sticky-stack {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .evidence-verify-page {
+            padding: 18px 0 35px;
+        }
+
+        .page-hero {
+            padding: 27px 22px;
+        }
+
+        .page-title {
+            font-size: 1.72rem;
+        }
+
+        .verify-card,
+        .info-card,
+        .preview-card {
+            padding: 20px;
+        }
+
+        .summary-grid,
+        .decision-guide {
+            grid-template-columns: 1fr;
+        }
+
+        .file-panel {
+            align-items: flex-start;
+        }
+
+        .verify-actions {
+            flex-direction: column-reverse;
+        }
+
+        .verify-actions .btn {
+            width: 100%;
+        }
+    }
+
+
+    /* AIDEX professional validation / action popup */
+    .aidex-popup-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(15, 23, 42, 0.50);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .aidex-popup-backdrop.is-visible {
+        display: flex;
+        opacity: 1;
+    }
+
+    .aidex-popup {
+        width: min(100%, 520px);
+        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.92);
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+        transform: translateY(10px) scale(0.98);
+        transition: transform 0.2s ease;
+    }
+
+    .aidex-popup-backdrop.is-visible .aidex-popup {
+        transform: translateY(0) scale(1);
+    }
+
+    .aidex-popup-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 22px 24px 18px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .aidex-popup-icon {
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        color: #b91c1c;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 1.25rem;
+    }
+
+    .aidex-popup-icon.is-warning {
+        color: #92400e;
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .aidex-popup-icon.is-success {
+        color: #166534;
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .aidex-popup-heading {
+        margin: 1px 0 4px;
+        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 800;
+        letter-spacing: -0.15px;
+    }
+
+    .aidex-popup-subheading {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.5;
+    }
+
+    .aidex-popup-close {
+        margin-left: auto;
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 36px;
+        border: 0;
+        border-radius: 10px;
+        color: #64748b;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+
+    .aidex-popup-close:hover {
+        color: #0f172a;
+        background: #eef2f7;
+    }
+
+    .aidex-popup-body {
+        padding: 20px 24px 8px;
+    }
+
+    .aidex-popup-message {
+        margin: 0;
+        padding: 15px 16px;
+        border: 1px solid #fee2e2;
+        border-radius: 14px;
+        color: #7f1d1d;
+        background: #fff7f7;
+        font-size: 0.9rem;
+        line-height: 1.65;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+        white-space: pre-line;
+    }
+
+    .aidex-popup-message.is-neutral {
+        color: #334155;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+    .aidex-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 24px 22px;
+    }
+
+    .aidex-popup-btn {
+        min-width: 96px;
+        border: 0;
+        border-radius: 11px;
+        padding: 10px 18px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #991b1b, #dc2626);
+        box-shadow: 0 8px 20px rgba(220, 38, 38, 0.18);
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .aidex-popup-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(220, 38, 38, 0.24);
+    }
+
+    .aidex-popup-btn.secondary {
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #dbe3ee;
+        box-shadow: none;
+    }
+
+    .aidex-popup-btn.secondary:hover {
+        background: #eef2f7;
+        box-shadow: none;
+    }
+
+    .aidex-popup-btn.success {
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.18);
+    }
+
+    body.aidex-popup-open {
+        overflow: hidden;
+    }
+
+    @media (max-width: 576px) {
+        .aidex-popup-backdrop { padding: 14px; }
+        .aidex-popup-top,
+        .aidex-popup-body,
+        .aidex-popup-actions { padding-left: 18px; padding-right: 18px; }
+    }
+
+</style>
+<script>
+(function () {
+    "use strict";
+    function initRequiredValidation() {
+        var form=document.getElementById("verificationForm"), status=document.getElementById("{{ form.verification_status.id_for_label }}"), notes=document.getElementById("{{ form.verification_notes.id_for_label }}");
+        var mark=document.getElementById("verificationNotesRequiredMark");
+        if(!form||!status||!notes) return;
+        function notesRequired(){ return ["REJECTED","CORRUPTED"].indexOf(status.value) !== -1; }
+        function refresh(){ if(mark) mark.style.display=notesRequired()?"inline":"none"; }
+        status.addEventListener("change",refresh); refresh();
+        form.addEventListener("submit",function(e){
+            status.classList.remove("is-invalid"); notes.classList.remove("is-invalid");
+            var miss=[];
+            if(!String(status.value||"").trim()) miss.push("{{ form.verification_status.label|escapejs }}");
+            if(notesRequired() && !String(notes.value||"").trim()) miss.push("{{ form.verification_notes.label|escapejs }}");
+            if(!miss.length) return;
+            e.preventDefault();
+            if(!String(status.value||"").trim()) status.classList.add("is-invalid");
+            if(notesRequired() && !String(notes.value||"").trim()) notes.classList.add("is-invalid");
+            var msg=miss.length===1 ? miss[0]+" is required. Please complete this field." : "Please complete the following required fields:\n\n• "+miss.join("\n• ");
+            if(window.aidexShowPopup) window.aidexShowPopup(msg,"Required Fields Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initRequiredValidation); else initRequiredValidation();
+})();
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="evidence-verify-page">
+    <div class="evidence-verify-container">
+
+        <section class="page-hero">
+            <div class="hero-content">
+                <div class="row align-items-center g-4">
+
+                    <div class="col-lg">
+                        <span class="hero-badge">
+                            <i class="bi bi-shield-check"></i>
+                            Evidence Verification Review
+                        </span>
+
+                        <h1 class="page-title">
+                            {{ page_title }}
+                        </h1>
+
+                        <p class="page-subtitle">
+                            {{ page_subtitle }}
+                        </p>
+                    </div>
+
+                    <div class="col-lg-auto">
+                        <div class="hero-actions">
+                            <a
+                                href="{% url 'evidence:evidence_detail' evidence.id %}"
+                                class="btn btn-outline-light"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Back to Evidence
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="row g-4 content-layout">
+
+            <div class="col-lg-8">
+                <section class="verify-card">
+
+                    <div class="card-heading">
+                        <div>
+                            <h2>Verification Decision</h2>
+                            <p>
+                                Review the evidence record and document the final outcome.
+                            </p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-label">Evidence Title</div>
+                            <div class="summary-value">
+                                {{ evidence.evidence_title }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Related Case</div>
+                            <div class="summary-value">
+                                {{ evidence.case.case_number }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Evidence Type</div>
+                            <div class="summary-value">
+                                <span class="badge-soft badge-type">
+                                    {{ evidence.get_evidence_type_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Current Status</div>
+                            <div class="summary-value">
+                                {% if evidence.verification_status == "VERIFIED" %}
+                                    <span class="badge-soft badge-verified">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% elif evidence.verification_status == "REJECTED" %}
+                                    <span class="badge-soft badge-rejected">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% elif evidence.verification_status == "CORRUPTED" %}
+                                    <span class="badge-soft badge-corrupted">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% elif evidence.verification_status == "IN_REVIEW" %}
+                                    <span class="badge-soft badge-review">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge-soft badge-pending">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Uploaded By</div>
+                            <div class="summary-value">
+                                {{ evidence.uploaded_by.full_name|default:evidence.uploaded_by.username }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Uploaded Date</div>
+                            <div class="summary-value">
+                                {{ evidence.uploaded_date|date:"d M Y, h:i A" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="file-panel">
+                        <div class="file-icon">
+                            <i class="bi bi-file-earmark-lock-fill"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="file-name">
+                                {{ evidence.original_filename|default:evidence.filename }}
+                            </div>
+
+                            <div class="file-meta">
+                                {{ evidence.file_extension|upper }}
+                                ·
+                                {{ evidence.file_size_mb }} MB
+                            </div>
+                        </div>
+
+                        {% if can_download_evidence %}
+                            <a
+                                href="{% url 'evidence:evidence_download' evidence.id %}"
+                                class="btn btn-outline-success"
+                            >
+                                <i class="bi bi-download me-2"></i>
+                                Download
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="summary-label">SHA-256 Hash</div>
+
+                    <div class="hash-box">
+                        {{ evidence.sha256_hash|default:"Hash not available" }}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="form-errors">
+                            <div class="form-errors-title">
+                                Please correct the following:
+                            </div>
+
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" id="verificationForm" novalidate>
+                        {% csrf_token %}
+                        <input
+                            type="hidden"
+                            name="verification_version"
+                            value="{{ verification_version }}"
+                        >
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                Review Outcome
+                            </div>
+
+                            <div class="mb-3">
+                                <label
+                                    for="{{ form.verification_status.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    {{ form.verification_status.label }}
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {{ form.verification_status }}
+
+                                {% if form.verification_status.help_text %}
+                                    <div class="form-text">
+                                        {{ form.verification_status.help_text }}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.verification_status.errors %}
+                                    <div class="field-error">
+                                        {{ form.verification_status.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="decision-guide">
+                                <div class="decision-item decision-review">
+                                    <strong>
+                                        <i class="bi bi-search me-1"></i>
+                                        Under Review
+                                    </strong>
+                                    <p>
+                                        Use while examination is still in progress and no final
+                                        decision has been reached.
+                                    </p>
+                                </div>
+
+                                <div class="decision-item decision-verified">
+                                    <strong>
+                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                        Verified
+                                    </strong>
+                                    <p>
+                                        Use when file integrity and investigation relevance have
+                                        been satisfactorily confirmed.
+                                    </p>
+                                </div>
+
+                                <div class="decision-item decision-rejected">
+                                    <strong>
+                                        <i class="bi bi-x-octagon-fill me-1"></i>
+                                        Rejected
+                                    </strong>
+                                    <p>
+                                        Use when the record is unsuitable, invalid or unsupported
+                                        as investigation evidence.
+                                    </p>
+                                </div>
+
+                                <div class="decision-item decision-corrupted">
+                                    <strong>
+                                        <i class="bi bi-exclamation-diamond-fill me-1"></i>
+                                        Corrupted
+                                    </strong>
+                                    <p>
+                                        Use when the file is damaged or its integrity cannot be
+                                        trusted.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                Verification Notes
+                            </div>
+
+                            <label
+                                for="{{ form.verification_notes.id_for_label }}"
+                                class="form-label"
+                            >
+                                {{ form.verification_notes.label }}
+                                <span class="required-mark" id="verificationNotesRequiredMark" style="display:none;">*</span>
+                            </label>
+
+                            {{ form.verification_notes }}
+
+                            {% if form.verification_notes.help_text %}
+                                <div class="form-text">
+                                    {{ form.verification_notes.help_text }}
+                                </div>
+                            {% endif %}
+
+                            {% if form.verification_notes.errors %}
+                                <div class="field-error">
+                                    {{ form.verification_notes.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="verification-warning">
+                            <strong>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Audit Trail Notice
+                            </strong>
+
+                            A final verification decision stores the reviewer and verification
+                            timestamp. Rejected and corrupted decisions should include clear,
+                            factual notes explaining the reason.
+                        </div>
+
+                        <div class="verify-actions">
+                            <a
+                                href="{% url 'evidence:evidence_detail' evidence.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                <i class="bi bi-x-circle me-2"></i>
+                                Cancel
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-success"
+                                id="verifyButton"
+                            >
+                                <i class="bi bi-shield-check me-2"></i>
+                                Save Verification
+                            </button>
+                        </div>
+                    </form>
+
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sticky-stack">
+
+                    <section class="preview-card mb-4">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Evidence Preview</h3>
+                                <p>Inspect supported media before making a decision.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-eye-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="preview-wrapper">
+                            {% if evidence.evidence_type == "IMAGE" or evidence.evidence_type == "SCREENSHOT" %}
+                                <img
+                                    src="{{ evidence.evidence_file.url }}"
+                                    alt="{{ evidence.evidence_title }}"
+                                >
+                            {% elif evidence.evidence_type == "VIDEO" %}
+                                <video controls preload="metadata">
+                                    <source src="{{ evidence.evidence_file.url }}">
+                                    Your browser does not support video preview.
+                                </video>
+                            {% elif evidence.evidence_type == "AUDIO" %}
+                                <audio controls preload="metadata">
+                                    <source src="{{ evidence.evidence_file.url }}">
+                                    Your browser does not support audio preview.
+                                </audio>
+                            {% else %}
+                                <div class="preview-fallback">
+                                    <i class="bi bi-file-earmark-text-fill"></i>
+                                    Browser preview is unavailable for this file type.
+                                    Download the original file for examination.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <aside class="info-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Verification Checklist</h3>
+                                <p>Recommended review points before submission.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-list-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-fingerprint"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Confirm File Integrity
+                                    </div>
+
+                                    <p class="info-text">
+                                        Review the SHA-256 hash and run the integrity check from
+                                        the evidence detail page when required.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-file-earmark-check"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Inspect the Original File
+                                    </div>
+
+                                    <p class="info-text">
+                                        Open or download the source file and confirm that it is
+                                        readable and complete.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-link-45deg"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Check Case Relevance
+                                    </div>
+
+                                    <p class="info-text">
+                                        Confirm that the evidence belongs to the linked case and
+                                        supports the investigation context.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-journal-text"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Record Clear Notes
+                                    </div>
+
+                                    <p class="info-text">
+                                        Document objective findings, especially for rejection or
+                                        corruption decisions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="audit-note">
+                            <strong>
+                                <i class="bi bi-shield-lock-fill me-2"></i>
+                                Reviewer Accountability
+                            </strong>
+
+                            Final verification outcomes are linked to the authenticated reviewer
+                            and preserved as part of the evidence audit history.
+                        </div>
+                    </aside>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+    function initRequiredValidation() {
+        var form=document.getElementById("verificationForm"), status=document.getElementById("{{ form.verification_status.id_for_label }}"), notes=document.getElementById("{{ form.verification_notes.id_for_label }}");
+        var mark=document.getElementById("verificationNotesRequiredMark");
+        if(!form||!status||!notes) return;
+        function notesRequired(){ return ["REJECTED","CORRUPTED"].indexOf(status.value) !== -1; }
+        function refresh(){ if(mark) mark.style.display=notesRequired()?"inline":"none"; }
+        status.addEventListener("change",refresh); refresh();
+        form.addEventListener("submit",function(e){
+            status.classList.remove("is-invalid"); notes.classList.remove("is-invalid");
+            var miss=[];
+            if(!String(status.value||"").trim()) miss.push("{{ form.verification_status.label|escapejs }}");
+            if(notesRequired() && !String(notes.value||"").trim()) miss.push("{{ form.verification_notes.label|escapejs }}");
+            if(!miss.length) return;
+            e.preventDefault();
+            if(!String(status.value||"").trim()) status.classList.add("is-invalid");
+            if(notesRequired() && !String(notes.value||"").trim()) notes.classList.add("is-invalid");
+            var msg=miss.length===1 ? miss[0]+" is required. Please complete this field." : "Please complete the following required fields:\n\n• "+miss.join("\n• ");
+            if(window.aidexShowPopup) window.aidexShowPopup(msg,"Required Fields Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initRequiredValidation); else initRequiredValidation();
+})();
+</script>
+
+{% endblock %}
+
+
+
+<div
+    class="aidex-popup-backdrop"
+    id="aidexPopupBackdrop"
+    role="presentation"
+    aria-hidden="true"
+>
+    <div
+        class="aidex-popup"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="aidexPopupTitle"
+        aria-describedby="aidexPopupMessage"
+    >
+        <div class="aidex-popup-top">
+            <div class="aidex-popup-icon" id="aidexPopupIcon" aria-hidden="true">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <div>
+                <h2 class="aidex-popup-heading" id="aidexPopupTitle">
+                    Validation Required
+                </h2>
+                <p class="aidex-popup-subheading" id="aidexPopupSubtitle">
+                    Please review the information before continuing.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="aidex-popup-close"
+                id="aidexPopupClose"
+                aria-label="Close message"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="aidex-popup-body">
+            <p class="aidex-popup-message" id="aidexPopupMessage"></p>
+        </div>
+
+        <div class="aidex-popup-actions">
+            <button
+                type="button"
+                class="aidex-popup-btn secondary"
+                id="aidexPopupCancel"
+                style="display:none;"
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                class="aidex-popup-btn"
+                id="aidexPopupOk"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    (() => {
+        const form = document.getElementById("verificationForm");
+        const statusField = document.getElementById("{{ form.verification_status.id_for_label }}");
+        const notesField = document.getElementById("{{ form.verification_notes.id_for_label }}");
+        const verifyButton = document.getElementById("verifyButton");
+        const popup = document.getElementById("aidexPopupBackdrop");
+        const popupMessage = document.getElementById("aidexPopupMessage");
+        const popupClose = document.getElementById("aidexPopupClose");
+        const popupOk = document.getElementById("aidexPopupOk");
+        const popupCancel = document.getElementById("aidexPopupCancel");
+        const popupTitle = document.getElementById("aidexPopupTitle");
+        const popupSubtitle = document.getElementById("aidexPopupSubtitle");
+        const popupIcon = document.getElementById("aidexPopupIcon");
+
+        const closePopup = () => { popup.classList.remove("is-visible"); popup.setAttribute("aria-hidden", "true"); document.body.classList.remove("aidex-popup-open"); };
+        const showPopup = (message) => {
+            popupTitle.textContent = "Verification Validation Failed";
+            popupSubtitle.textContent = "Please review the verification decision and notes before saving.";
+            popupMessage.textContent = String(message).trim();
+            popupMessage.classList.remove("is-neutral"); popupIcon.classList.remove("is-warning", "is-success");
+            popupIcon.querySelector("i").className = "bi bi-shield-exclamation";
+            popupCancel.style.display = "none"; popupOk.textContent = "OK"; popupOk.onclick = closePopup;
+            popup.classList.add("is-visible"); popup.setAttribute("aria-hidden", "false"); document.body.classList.add("aidex-popup-open");
+            window.setTimeout(() => popupOk.focus(), 0);
+        };
+        const collectErrors = () => Array.from(document.querySelectorAll(".form-errors, .field-error")).map(n => n.innerText.replace(/\s+/g, " ").trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join("\n\n");
+
+        popupClose.addEventListener("click", closePopup); popupOk.addEventListener("click", closePopup);
+        popup.addEventListener("click", e => { if (e.target === popup) closePopup(); });
+        document.addEventListener("keydown", e => { if (e.key === "Escape" && popup.classList.contains("is-visible")) closePopup(); });
+
+        const updateNotesRequirement = () => {
+            const selectedStatus = statusField.value;
+            const requiresNotes = selectedStatus === "REJECTED" || selectedStatus === "CORRUPTED";
+            notesField.required = requiresNotes;
+            if (requiresNotes) notesField.setAttribute("aria-required", "true");
+            else notesField.removeAttribute("aria-required");
+        };
+
+        statusField.addEventListener("change", updateNotesRequirement);
+        updateNotesRequirement();
+
+        form.addEventListener("submit", (event) => {
+            if (!form.checkValidity()) {
+                event.preventDefault(); event.stopPropagation(); form.classList.add("was-validated");
+                showPopup("Verification notes are required when the decision is Rejected or Corrupted. Please complete the required fields.");
+                return;
+            }
+            const serverErrors = collectErrors();
+            if (serverErrors) { event.preventDefault(); showPopup(serverErrors); return; }
+            verifyButton.disabled = true;
+            verifyButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving Verification';
+        });
+
+        const serverErrors = collectErrors();
+        if (serverErrors) showPopup(serverErrors);
+    })();
+</script>
+
+
+<script>
+(function () {
+    "use strict";
+
+    function initAidexPopup() {
+        if (document.getElementById("aidexHardValidationPopup")) return;
+
+        var style = document.createElement("style");
+        style.textContent = `
+            #aidexHardValidationPopup {
+                position: fixed; inset: 0; z-index: 2147483647;
+                display: none; align-items: center; justify-content: center;
+                background: rgba(8, 15, 30, .58); backdrop-filter: blur(5px);
+                padding: 20px;
+            }
+            #aidexHardValidationPopup.aidex-open { display: flex !important; }
+            #aidexHardValidationPopup .aidex-box {
+                width: min(460px, 100%); background: #fff; border-radius: 18px;
+                box-shadow: 0 24px 80px rgba(0,0,0,.28); overflow: hidden;
+                animation: aidexPop .18s ease-out;
+            }
+            #aidexHardValidationPopup .aidex-top {
+                display:flex; gap:14px; align-items:center; padding:22px 22px 12px;
+            }
+            #aidexHardValidationPopup .aidex-icon {
+                width:46px; height:46px; border-radius:14px; display:grid;
+                place-items:center; background:#fff1f2; color:#dc2626; font-size:22px;
+                flex:0 0 46px;
+            }
+            #aidexHardValidationPopup .aidex-title { margin:0; font-size:18px; font-weight:700; color:#111827; }
+            #aidexHardValidationPopup .aidex-subtitle { margin:3px 0 0; font-size:12px; color:#6b7280; }
+            #aidexHardValidationPopup .aidex-message {
+                padding:0 22px 20px; color:#374151; font-size:14px; line-height:1.6;
+                white-space:pre-line;
+            }
+            #aidexHardValidationPopup .aidex-actions {
+                padding:14px 22px 20px; display:flex; justify-content:flex-end;
+                border-top:1px solid #eef0f4;
+            }
+            #aidexHardValidationPopup button {
+                border:0; border-radius:10px; padding:9px 22px; background:#111827;
+                color:#fff; font-weight:600; cursor:pointer;
+            }
+            @keyframes aidexPop { from { opacity:0; transform:translateY(8px) scale(.98) } to { opacity:1; transform:none } }
+        `;
+        document.head.appendChild(style);
+
+        var popup = document.createElement("div");
+        popup.id = "aidexHardValidationPopup";
+        popup.setAttribute("role", "alertdialog");
+        popup.setAttribute("aria-modal", "true");
+        popup.innerHTML = `
+            <div class="aidex-box">
+                <div class="aidex-top">
+                    <div class="aidex-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <div>
+                        <h3 class="aidex-title">Action Required</h3>
+                        <div class="aidex-subtitle">AIDEX validation notice</div>
+                    </div>
+                </div>
+                <div class="aidex-message" id="aidexHardValidationMessage"></div>
+                <div class="aidex-actions"><button type="button" id="aidexHardValidationOk">OK</button></div>
+            </div>`;
+        document.body.appendChild(popup);
+
+        var messageBox = document.getElementById("aidexHardValidationMessage");
+        var ok = document.getElementById("aidexHardValidationOk");
+
+        window.aidexShowPopup = function (message, title) {
+            if (!message) return;
+            document.querySelectorAll(".aidex-popup-backdrop").forEach(function (el) {
+                if (el.id !== "aidexHardValidationPopup") el.style.display = "none";
+            });
+            document.querySelector("#aidexHardValidationPopup .aidex-title").textContent =
+                title || "Action Required";
+            messageBox.textContent = String(message).replace(/\\s*\\n\\s*/g, "\\n");
+            popup.classList.add("aidex-open");
+            ok.focus();
+        };
+
+        window.aidexClosePopup = function () {
+            popup.classList.remove("aidex-open");
+        };
+
+        ok.addEventListener("click", window.aidexClosePopup);
+        popup.addEventListener("click", function (e) {
+            if (e.target === popup) window.aidexClosePopup();
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") window.aidexClosePopup();
+        });
+
+        // Pick up Django/server-side validation errors already rendered on the page.
+        function collectErrors() {
+            var selectors = [
+                ".field-error", ".invalid-feedback", ".errorlist",
+                ".form-error", ".alert-danger", "[role='alert']"
+            ];
+            var found = [];
+            document.querySelectorAll(selectors.join(",")).forEach(function (el) {
+                if (el.id === "aidexHardValidationPopup") return;
+                var text = (el.innerText || el.textContent || "").replace(/\\s+/g, " ").trim();
+                if (text && !found.includes(text)) found.push(text);
+            });
+            return found;
+        }
+
+        setTimeout(function () {
+            var errors = collectErrors();
+            if (errors.length) aidexShowPopup(errors.join("\\n\\n"), "Please check the highlighted fields");
+        }, 80);
+
+        // Also catch validation messages inserted dynamically after submit/AJAX.
+        var observer = new MutationObserver(function () {
+            if (popup.classList.contains("aidex-open")) return;
+            var errors = collectErrors();
+            if (errors.length) aidexShowPopup(errors.join("\\n\\n"), "Please check the highlighted fields");
+        });
+        observer.observe(document.body, {childList:true, subtree:true});
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initAidexPopup);
+    } else {
+        initAidexPopup();
+    }
+})();
+</script>
+
+<script>
+(function () {
+    "use strict";
+    function initRequiredValidation() {
+        var form=document.getElementById("verificationForm"), status=document.getElementById("{{ form.verification_status.id_for_label }}"), notes=document.getElementById("{{ form.verification_notes.id_for_label }}");
+        var mark=document.getElementById("verificationNotesRequiredMark");
+        if(!form||!status||!notes) return;
+        function notesRequired(){ return ["REJECTED","CORRUPTED"].indexOf(status.value) !== -1; }
+        function refresh(){ if(mark) mark.style.display=notesRequired()?"inline":"none"; }
+        status.addEventListener("change",refresh); refresh();
+        form.addEventListener("submit",function(e){
+            status.classList.remove("is-invalid"); notes.classList.remove("is-invalid");
+            var miss=[];
+            if(!String(status.value||"").trim()) miss.push("{{ form.verification_status.label|escapejs }}");
+            if(notesRequired() && !String(notes.value||"").trim()) miss.push("{{ form.verification_notes.label|escapejs }}");
+            if(!miss.length) return;
+            e.preventDefault();
+            if(!String(status.value||"").trim()) status.classList.add("is-invalid");
+            if(notesRequired() && !String(notes.value||"").trim()) notes.classList.add("is-invalid");
+            var msg=miss.length===1 ? miss[0]+" is required. Please complete this field." : "Please complete the following required fields:\n\n• "+miss.join("\n• ");
+            if(window.aidexShowPopup) window.aidexShowPopup(msg,"Required Fields Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initRequiredValidation); else initRequiredValidation();
+})();
+</script>
+
+{% endblock %}

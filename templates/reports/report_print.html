@@ -1,0 +1,549 @@
+{% extends "base.html" %}
+
+{% block title %}{{ report.report_number }} - Print View | AIDEX{% endblock %}
+
+{% block content %}
+<style>
+    .rp-toolbar {
+        max-width: 980px;
+        margin: 20px auto 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+    }
+
+    .rp-toolbar a,
+    .rp-toolbar button {
+        min-height: 38px;
+        padding: 0 13px;
+        border: 1px solid rgba(148, 163, 184, .2);
+        border-radius: 9px;
+        color: #e8eef6;
+        background: #102034;
+        font-size: .78rem;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .rp-sheet {
+        width: min(960px, calc(100% - 24px));
+        margin: 0 auto 40px;
+        padding: 48px 54px;
+        color: #111827;
+        background: #fff;
+        box-shadow: 0 20px 60px rgba(0,0,0,.2);
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .rp-brand {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 18px;
+        border-bottom: 2px solid #0f2742;
+    }
+
+    .rp-brand-mark {
+        color: #0b4f76;
+        font-size: 1.35rem;
+        font-weight: 900;
+        letter-spacing: .08em;
+    }
+
+    .rp-brand-sub {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .rp-classification {
+        align-self: flex-start;
+        padding: 6px 9px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        color: #475569;
+        font-size: .68rem;
+        font-weight: 850;
+        text-transform: uppercase;
+    }
+
+    .rp-classification.confidential {
+        color: #7e22ce;
+        border-color: #d8b4fe;
+        background: #faf5ff;
+    }
+
+    .rp-title-block {
+        padding: 28px 0 20px;
+    }
+
+    .rp-kicker {
+        color: #64748b;
+        font-size: .7rem;
+        font-weight: 850;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+    }
+
+    .rp-title-block h1 {
+        margin: 8px 0 0;
+        color: #0f172a;
+        font-size: 1.9rem;
+        line-height: 1.18;
+    }
+
+    .rp-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1px;
+        margin-top: 22px;
+        border: 1px solid #dbe3ec;
+        background: #dbe3ec;
+    }
+
+    .rp-meta-item {
+        padding: 11px 12px;
+        background: #f8fafc;
+    }
+
+    .rp-meta-label {
+        color: #64748b;
+        font-size: .62rem;
+        font-weight: 850;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .rp-meta-value {
+        margin-top: 4px;
+        color: #1e293b;
+        font-size: .76rem;
+        font-weight: 750;
+        line-height: 1.45;
+        word-break: break-word;
+    }
+
+    .rp-section {
+        padding: 20px 0;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .rp-section h2 {
+        margin: 0 0 9px;
+        color: #0f2742;
+        font-size: .93rem;
+        font-weight: 900;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+    }
+
+    .rp-section-content {
+        color: #334155;
+        font-size: .82rem;
+        line-height: 1.72;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-empty {
+        color: #94a3b8;
+        font-size: .78rem;
+        font-style: italic;
+    }
+
+    .rp-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 9px;
+    }
+
+    .rp-table th,
+    .rp-table td {
+        padding: 9px 10px;
+        border: 1px solid #dbe3ec;
+        text-align: left;
+        vertical-align: top;
+        font-size: .72rem;
+    }
+
+    .rp-table th {
+        color: #475569;
+        background: #f1f5f9;
+        font-size: .63rem;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .rp-signature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        margin-top: 24px;
+    }
+
+    .rp-signature {
+        padding-top: 38px;
+        border-top: 1px solid #94a3b8;
+    }
+
+    .rp-signature strong {
+        display: block;
+        color: #1e293b;
+        font-size: .72rem;
+    }
+
+    .rp-signature span {
+        color: #64748b;
+        font-size: .66rem;
+    }
+
+    .rp-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 30px;
+        padding-top: 12px;
+        border-top: 1px solid #cbd5e1;
+        color: #64748b;
+        font-size: .62rem;
+        line-height: 1.5;
+    }
+
+    .rp-hash {
+        max-width: 60%;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 760px) {
+        .rp-sheet {
+            padding: 30px 24px;
+        }
+
+        .rp-meta-grid,
+        .rp-signature-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media print {
+        body {
+            background: #fff !important;
+        }
+
+        header,
+        nav,
+        footer,
+        .navbar,
+        .sidebar,
+        .rp-toolbar {
+            display: none !important;
+        }
+
+        .rp-sheet {
+            width: 100%;
+            margin: 0;
+            padding: 18mm 16mm;
+            box-shadow: none;
+        }
+
+        .rp-section,
+        .rp-table,
+        .rp-signature-grid {
+            break-inside: avoid;
+        }
+
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+    }
+</style>
+
+<div class="rp-toolbar">
+    <a href="{% url 'reports:report_detail' report_id=report.pk %}">
+        ← Back to Report
+    </a>
+
+    <button type="button" onclick="window.print()">
+        Print / Save as PDF
+    </button>
+</div>
+
+<article class="rp-sheet">
+    <header class="rp-brand">
+        <div>
+            <div class="rp-brand-mark">AIDEX</div>
+            <div class="rp-brand-sub">
+                AI Digital Evidence Intelligence System
+            </div>
+        </div>
+
+        <div class="rp-classification {% if report.is_confidential %}confidential{% endif %}">
+            {% if report.is_confidential %}
+                Confidential
+            {% else %}
+                Investigation Record
+            {% endif %}
+        </div>
+    </header>
+
+    <section class="rp-title-block">
+        <div class="rp-kicker">
+            {{ report.get_report_type_display }}
+        </div>
+
+        <h1>{{ report.report_title }}</h1>
+
+        <div class="rp-meta-grid">
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Report Number</div>
+                <div class="rp-meta-value">{{ report.report_number }}</div>
+            </div>
+
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Version</div>
+                <div class="rp-meta-value">v{{ report.version }}</div>
+            </div>
+
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Status</div>
+                <div class="rp-meta-value">{{ report.get_status_display }}</div>
+            </div>
+
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Generated</div>
+                <div class="rp-meta-value">
+                    {{ report.generated_date|date:"d M Y, H:i" }}
+                </div>
+            </div>
+
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Case Number</div>
+                <div class="rp-meta-value">{{ report.case.case_number }}</div>
+            </div>
+
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Case Title</div>
+                <div class="rp-meta-value">{{ report.case.case_title }}</div>
+            </div>
+
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Generated By</div>
+                <div class="rp-meta-value">
+                    {{ report.generated_by.full_name|default:report.generated_by.username }}
+                </div>
+            </div>
+
+            <div class="rp-meta-item">
+                <div class="rp-meta-label">Updated</div>
+                <div class="rp-meta-value">
+                    {{ report.updated_date|date:"d M Y, H:i" }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="rp-section">
+        <h2>Executive Summary</h2>
+        {% if report.summary %}
+            <div class="rp-section-content">{{ report.summary }}</div>
+        {% else %}
+            <div class="rp-empty">No executive summary recorded.</div>
+        {% endif %}
+    </section>
+
+    <section class="rp-section">
+        <h2>Investigation Findings</h2>
+        {% if report.findings %}
+            <div class="rp-section-content">{{ report.findings }}</div>
+        {% else %}
+            <div class="rp-empty">No investigation findings recorded.</div>
+        {% endif %}
+    </section>
+
+    <section class="rp-section">
+        <h2>Evidence Summary</h2>
+        {% if report.evidence_summary %}
+            <div class="rp-section-content">{{ report.evidence_summary }}</div>
+        {% else %}
+            <div class="rp-empty">No evidence summary recorded.</div>
+        {% endif %}
+    </section>
+
+    {% if evidence_items %}
+        <section class="rp-section">
+            <h2>Referenced Evidence</h2>
+
+            <table class="rp-table">
+                <thead>
+                    <tr>
+                        <th>Evidence</th>
+                        <th>Type</th>
+                        <th>Verification</th>
+                        <th>Uploaded</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for evidence in evidence_items %}
+                        <tr>
+                            <td>
+                                {{ evidence.evidence_title }}<br>
+                                <small>{{ evidence.evidence_number|default:evidence.pk }}</small>
+                            </td>
+                            <td>{{ evidence.get_evidence_type_display }}</td>
+                            <td>{{ evidence.get_verification_status_display }}</td>
+                            <td>{{ evidence.uploaded_date|date:"d M Y, H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    <section class="rp-section">
+        <h2>AI Analysis Summary</h2>
+        {% if report.ai_analysis_summary %}
+            <div class="rp-section-content">{{ report.ai_analysis_summary }}</div>
+        {% else %}
+            <div class="rp-empty">No reviewed AI analysis summary recorded.</div>
+        {% endif %}
+    </section>
+
+    {% if analysis_items %}
+        <section class="rp-section">
+            <h2>Referenced AI Analyses</h2>
+
+            <table class="rp-table">
+                <thead>
+                    <tr>
+                        <th>Analysis</th>
+                        <th>Type</th>
+                        <th>Threat</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for analysis in analysis_items %}
+                        <tr>
+                            <td>
+                                {{ analysis.title }}<br>
+                                <small>{{ analysis.analysis_number }}</small>
+                            </td>
+                            <td>{{ analysis.get_analysis_type_display }}</td>
+                            <td>{{ analysis.get_threat_level_display }}</td>
+                            <td>
+                                {% if analysis.risk_score is not None %}
+                                    {{ analysis.risk_score }}%
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    <section class="rp-section">
+        <h2>Conclusion</h2>
+        {% if report.conclusion %}
+            <div class="rp-section-content">{{ report.conclusion }}</div>
+        {% else %}
+            <div class="rp-empty">No conclusion recorded.</div>
+        {% endif %}
+    </section>
+
+    <section class="rp-section">
+        <h2>Recommendations</h2>
+        {% if report.recommendations %}
+            <div class="rp-section-content">{{ report.recommendations }}</div>
+        {% else %}
+            <div class="rp-empty">No recommendations recorded.</div>
+        {% endif %}
+    </section>
+
+    {% if report.review_notes or report.approval_notes or report.rejection_reason %}
+        <section class="rp-section">
+            <h2>Review Record</h2>
+
+            {% if report.review_notes %}
+                <div class="rp-section-content">
+                    <strong>Review Notes:</strong><br>
+                    {{ report.review_notes }}
+                </div>
+            {% endif %}
+
+            {% if report.approval_notes %}
+                <div class="rp-section-content" style="margin-top:12px;">
+                    <strong>Approval Notes:</strong><br>
+                    {{ report.approval_notes }}
+                </div>
+            {% endif %}
+
+            {% if report.rejection_reason %}
+                <div class="rp-section-content" style="margin-top:12px;">
+                    <strong>Rejection Reason:</strong><br>
+                    {{ report.rejection_reason }}
+                </div>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    <section class="rp-section">
+        <h2>Workflow Attribution</h2>
+
+        <div class="rp-signature-grid">
+            <div class="rp-signature">
+                <strong>
+                    {{ report.generated_by.full_name|default:report.generated_by.username }}
+                </strong>
+                <span>Report Generated By</span>
+            </div>
+
+            <div class="rp-signature">
+                <strong>
+                    {% if report.reviewed_by %}
+                        {{ report.reviewed_by.full_name|default:report.reviewed_by.username }}
+                    {% else %}
+                        Not Reviewed
+                    {% endif %}
+                </strong>
+                <span>Formal Reviewer</span>
+            </div>
+
+            <div class="rp-signature">
+                <strong>
+                    {% if report.approved_by %}
+                        {{ report.approved_by.full_name|default:report.approved_by.username }}
+                    {% else %}
+                        Not Approved
+                    {% endif %}
+                </strong>
+                <span>Approving Authority</span>
+            </div>
+        </div>
+    </section>
+
+    <footer class="rp-footer">
+        <div>
+            AIDEX investigation reporting record.<br>
+            Generated from controlled application data.
+        </div>
+
+        <div class="rp-hash">
+            {% if report.file_sha256 %}
+                Report File SHA-256: {{ report.file_sha256 }}
+            {% else %}
+                Report File SHA-256: Not available
+            {% endif %}
+        </div>
+    </footer>
+</article>
+{% endblock %}

@@ -1,0 +1,1964 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ analysis.title }} | AI Analysis | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --detail-bg: #f8fafc;
+        --detail-surface: #ffffff;
+        --detail-border: #e2e8f0;
+        --detail-text: #0f172a;
+        --detail-muted: #64748b;
+        --detail-primary: #4f46e5;
+        --detail-primary-dark: #3730a3;
+        --detail-success: #15803d;
+        --detail-warning: #b45309;
+        --detail-danger: #b91c1c;
+        --detail-info: #0369a1;
+        --detail-purple: #7c3aed;
+        --detail-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+        --detail-radius-xl: 24px;
+        --detail-radius-lg: 18px;
+        --detail-radius-md: 14px;
+    }
+
+    .analysis-detail-page {
+        min-height: calc(100vh - 140px);
+        padding: 30px 0 56px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(99, 102, 241, 0.08),
+                transparent 28%
+            ),
+            var(--detail-bg);
+    }
+
+    .analysis-detail-container {
+        max-width: 1480px;
+        margin: 0 auto;
+    }
+
+    .detail-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 38px;
+        border-radius: var(--detail-radius-xl);
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at 90% 12%,
+                rgba(255, 255, 255, 0.18),
+                transparent 24%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #312e81 45%,
+                #4f46e5 72%,
+                #7c3aed 100%
+            );
+        box-shadow: 0 24px 62px rgba(67, 56, 202, 0.22);
+    }
+
+    .detail-hero::before,
+    .detail-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .detail-hero::before {
+        width: 260px;
+        height: 260px;
+        left: -115px;
+        bottom: -150px;
+    }
+
+    .detail-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 60px;
+        top: -105px;
+    }
+
+    .detail-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .detail-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.13);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.35px;
+    }
+
+    .detail-hero-title {
+        margin: 16px 0 8px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 900;
+        letter-spacing: -1px;
+        word-break: break-word;
+    }
+
+    .detail-hero-subtitle {
+        max-width: 850px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+    }
+
+    .detail-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .detail-hero-actions .btn {
+        min-height: 44px;
+        padding: 9px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .detail-status-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 24px;
+    }
+
+    .detail-status-item {
+        padding: 15px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(10px);
+    }
+
+    .detail-status-label {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-status-value {
+        margin-top: 6px;
+        font-size: 0.88rem;
+        font-weight: 900;
+        word-break: break-word;
+    }
+
+    .detail-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.58fr) minmax(350px, 0.72fr);
+        gap: 22px;
+        margin-top: 26px;
+    }
+
+    .detail-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+    }
+
+    .detail-card {
+        border: 1px solid var(--detail-border);
+        border-radius: var(--detail-radius-lg);
+        background: var(--detail-surface);
+        box-shadow: var(--detail-shadow);
+    }
+
+    .detail-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 21px 24px;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .detail-card-title {
+        margin: 0;
+        color: var(--detail-text);
+        font-size: 1.05rem;
+        font-weight: 900;
+    }
+
+    .detail-card-subtitle {
+        margin: 4px 0 0;
+        color: var(--detail-muted);
+        font-size: 0.77rem;
+        line-height: 1.5;
+    }
+
+    .detail-card-icon {
+        width: 43px;
+        height: 43px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #4338ca;
+        background: #e0e7ff;
+        font-size: 1.08rem;
+    }
+
+    .detail-card-body {
+        padding: 24px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .summary-item {
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .summary-label {
+        margin-bottom: 6px;
+        color: var(--detail-muted);
+        font-size: 0.71rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+        color: var(--detail-text);
+        font-size: 0.86rem;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .status-badge,
+    .threat-badge,
+    .cache-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 900;
+    }
+
+    .status-pending {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .status-queued {
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .status-processing {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .status-completed {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .status-failed {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .status-cancelled {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .threat-none,
+    .threat-low {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .threat-medium {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .threat-high {
+        color: #9a3412;
+        background: #ffedd5;
+    }
+
+    .threat-critical {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .cache-fresh {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .cache-hit {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .cache-invalid {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .score-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .score-card {
+        padding: 18px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .score-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .score-title {
+        color: var(--detail-text);
+        font-size: 0.82rem;
+        font-weight: 900;
+    }
+
+    .score-value {
+        color: #312e81;
+        font-size: 1.35rem;
+        font-weight: 900;
+    }
+
+    .score-track {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e0e7ff;
+    }
+
+    .score-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(
+            90deg,
+            #4f46e5,
+            #7c3aed
+        );
+    }
+
+    .content-block {
+        padding: 18px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .content-block.empty {
+        color: var(--detail-muted);
+        font-style: italic;
+    }
+
+    .keyword-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .keyword-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        color: #4338ca;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+
+    .entity-list,
+    .finding-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .entity-item,
+    .finding-item {
+        padding: 15px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .entity-top,
+    .finding-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .entity-type,
+    .finding-severity {
+        display: inline-flex;
+        padding: 5px 8px;
+        border-radius: 999px;
+        font-size: 0.66rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.35px;
+    }
+
+    .entity-type {
+        color: #0369a1;
+        background: #e0f2fe;
+    }
+
+    .severity-info,
+    .severity-low {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .severity-medium {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .severity-high {
+        color: #9a3412;
+        background: #ffedd5;
+    }
+
+    .severity-critical {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .entity-value,
+    .finding-title {
+        color: var(--detail-text);
+        font-size: 0.86rem;
+        font-weight: 900;
+        word-break: break-word;
+    }
+
+    .entity-context,
+    .finding-description {
+        margin-top: 6px;
+        color: var(--detail-muted);
+        font-size: 0.76rem;
+        line-height: 1.6;
+    }
+
+    .usage-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .usage-item {
+        padding: 15px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .usage-label {
+        color: var(--detail-muted);
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+    }
+
+    .usage-value {
+        margin-top: 6px;
+        color: var(--detail-text);
+        font-size: 1.05rem;
+        font-weight: 900;
+        word-break: break-word;
+    }
+
+    .hash-box {
+        padding: 15px;
+        border-radius: 14px;
+        background: #0f172a;
+        color: #cbd5e1;
+        font-family: monospace;
+        font-size: 0.74rem;
+        word-break: break-all;
+    }
+
+    .integrity-alert {
+        margin-top: 14px;
+        padding: 14px;
+        border-radius: 13px;
+        font-size: 0.76rem;
+        line-height: 1.55;
+    }
+
+    .integrity-good {
+        color: #166534;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+    }
+
+    .integrity-bad {
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+
+    .error-panel {
+        padding: 16px;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        word-break: break-word;
+    }
+
+    .action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .action-stack .btn,
+    .action-stack form .btn {
+        width: 100%;
+        min-height: 44px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .timeline {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .timeline::before {
+        content: "";
+        position: absolute;
+        left: 19px;
+        top: 4px;
+        bottom: 4px;
+        width: 2px;
+        background: #e2e8f0;
+    }
+
+    .timeline-item {
+        position: relative;
+        display: flex;
+        gap: 13px;
+    }
+
+    .timeline-icon {
+        position: relative;
+        z-index: 2;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        color: #4338ca;
+        background: #e0e7ff;
+        border: 4px solid #ffffff;
+    }
+
+    .timeline-content {
+        flex: 1;
+        padding: 13px 14px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .timeline-title {
+        color: var(--detail-text);
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    .timeline-message {
+        margin-top: 4px;
+        color: var(--detail-muted);
+        font-size: 0.74rem;
+        line-height: 1.55;
+    }
+
+    .timeline-meta {
+        margin-top: 6px;
+        color: #94a3b8;
+        font-size: 0.68rem;
+        font-weight: 700;
+    }
+
+    .empty-state {
+        padding: 32px 18px;
+        text-align: center;
+        color: var(--detail-muted);
+    }
+
+    .empty-state i {
+        display: block;
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 1.8rem;
+    }
+
+    @media (max-width: 1199.98px) {
+        .detail-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-status-strip {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .analysis-detail-page {
+            padding: 18px 0 38px;
+        }
+
+        .detail-hero {
+            padding: 28px 22px;
+        }
+
+        .detail-hero-actions {
+            justify-content: flex-start;
+        }
+
+        .detail-status-strip,
+        .summary-grid,
+        .score-grid,
+        .usage-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-card-header {
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-detail-page">
+    <div class="container-fluid px-3 px-lg-4">
+        <div class="analysis-detail-container">
+
+            <section class="detail-hero">
+                <div class="detail-hero-content">
+                    <div class="row align-items-center g-4">
+
+                        <div class="col-xl">
+                            <span class="detail-hero-badge">
+                                <i class="bi bi-cpu-fill"></i>
+                                {{ analysis.analysis_number }}
+                            </span>
+
+                            <h1 class="detail-hero-title">
+                                {{ analysis.title }}
+                            </h1>
+
+                            <p class="detail-hero-subtitle">
+                                {{ analysis.get_analysis_type_display }}
+                                analysis for
+                                {{ analysis.evidence.evidence_title }}
+                                under case
+                                {{ analysis.evidence.case.case_number }}.
+                            </p>
+                        </div>
+
+                        <div class="col-xl-auto">
+                            <div class="detail-hero-actions">
+                                <a
+                                    href="{% url 'ai_engine:analysis_list' %}"
+                                    class="btn btn-outline-light"
+                                >
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Analysis List
+                                </a>
+
+                                <a
+                                    href="{% url 'evidence:evidence_detail' analysis.evidence.id %}"
+                                    class="btn btn-light text-primary"
+                                >
+                                    <i class="bi bi-file-earmark-lock-fill me-2"></i>
+                                    View Evidence
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-status-strip">
+                        <div class="detail-status-item">
+                            <div class="detail-status-label">
+                                Status
+                            </div>
+
+                            <div class="detail-status-value">
+                                {{ analysis.get_status_display }}
+                            </div>
+                        </div>
+
+                        <div class="detail-status-item">
+                            <div class="detail-status-label">
+                                Provider
+                            </div>
+
+                            <div class="detail-status-value">
+                                {{ analysis.get_provider_display }}
+                            </div>
+                        </div>
+
+                        <div class="detail-status-item">
+                            <div class="detail-status-label">
+                                Model
+                            </div>
+
+                            <div class="detail-status-value">
+                                {{ analysis.model_name|default:"Not executed" }}
+                            </div>
+                        </div>
+
+                        <div class="detail-status-item">
+                            <div class="detail-status-label">
+                                Created By
+                            </div>
+
+                            <div class="detail-status-value">
+                                {{ analysis.created_by.full_name|default:analysis.created_by.username }}
+                            </div>
+                        </div>
+
+                        <div class="detail-status-item">
+                            <div class="detail-status-label">
+                                Created
+                            </div>
+
+                            <div class="detail-status-value">
+                                {{ analysis.created_date|date:"d M Y, h:i A" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="detail-layout">
+
+                <main class="detail-stack">
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h2 class="detail-card-title">
+                                    Analysis Overview
+                                </h2>
+
+                                <p class="detail-card-subtitle">
+                                    Core analysis, evidence and execution metadata.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-info-circle-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Analysis Type
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {{ analysis.get_analysis_type_display }}
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Priority
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {{ analysis.get_priority_display }}
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Current Status
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {% if analysis.status == "COMPLETED" %}
+                                            <span class="status-badge status-completed">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Completed
+                                            </span>
+                                        {% elif analysis.status == "PROCESSING" %}
+                                            <span class="status-badge status-processing">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                                Processing
+                                            </span>
+                                        {% elif analysis.status == "QUEUED" %}
+                                            <span class="status-badge status-queued">
+                                                <i class="bi bi-clock-fill"></i>
+                                                Queued
+                                            </span>
+                                        {% elif analysis.status == "FAILED" %}
+                                            <span class="status-badge status-failed">
+                                                <i class="bi bi-x-octagon-fill"></i>
+                                                Failed
+                                            </span>
+                                        {% elif analysis.status == "CANCELLED" %}
+                                            <span class="status-badge status-cancelled">
+                                                <i class="bi bi-slash-circle"></i>
+                                                Cancelled
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-pending">
+                                                <i class="bi bi-hourglass-split"></i>
+                                                Pending
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Threat Level
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {% if analysis.threat_level == "CRITICAL" %}
+                                            <span class="threat-badge threat-critical">
+                                                Critical
+                                            </span>
+                                        {% elif analysis.threat_level == "HIGH" %}
+                                            <span class="threat-badge threat-high">
+                                                High
+                                            </span>
+                                        {% elif analysis.threat_level == "MEDIUM" %}
+                                            <span class="threat-badge threat-medium">
+                                                Medium
+                                            </span>
+                                        {% elif analysis.threat_level == "LOW" %}
+                                            <span class="threat-badge threat-low">
+                                                Low
+                                            </span>
+                                        {% else %}
+                                            <span class="threat-badge threat-none">
+                                                {{ analysis.get_threat_level_display }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Evidence
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {{ analysis.evidence.evidence_title }}
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Case
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {{ analysis.evidence.case.case_number }}
+                                        ·
+                                        {{ analysis.evidence.case.case_title }}
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Prompt Version
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {{ analysis.prompt_version }}
+                                    </div>
+                                </div>
+
+                                <div class="summary-item">
+                                    <div class="summary-label">
+                                        Record State
+                                    </div>
+
+                                    <div class="summary-value">
+                                        {% if analysis.is_active %}
+                                            Active
+                                        {% else %}
+                                            Archived
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h2 class="detail-card-title">
+                                    Risk & Confidence
+                                </h2>
+
+                                <p class="detail-card-subtitle">
+                                    AI-generated assessment values requiring human interpretation.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-speedometer2"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            <div class="score-grid">
+                                <div class="score-card">
+                                    <div class="score-head">
+                                        <div class="score-title">
+                                            Risk Score
+                                        </div>
+
+                                        <div class="score-value">
+                                            {% if analysis.risk_score != None %}
+                                                {{ analysis.risk_score|floatformat:1 }}%
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="score-track">
+                                        <div
+                                            class="score-fill"
+                                            style="width:{% if analysis.risk_score != None %}{{ analysis.risk_score|floatformat:0 }}{% else %}0{% endif %}%;"
+                                        ></div>
+                                    </div>
+                                </div>
+
+                                <div class="score-card">
+                                    <div class="score-head">
+                                        <div class="score-title">
+                                            Confidence Score
+                                        </div>
+
+                                        <div class="score-value">
+                                            {% if analysis.confidence_score != None %}
+                                                {{ analysis.confidence_score|floatformat:1 }}%
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="score-track">
+                                        <div
+                                            class="score-fill"
+                                            style="width:{% if analysis.confidence_score != None %}{{ analysis.confidence_score|floatformat:0 }}{% else %}0{% endif %}%;"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h2 class="detail-card-title">
+                                    AI Summary
+                                </h2>
+
+                                <p class="detail-card-subtitle">
+                                    Concise evidence-grounded analysis summary.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-stars"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            {% if analysis.ai_summary %}
+                                <div class="content-block">
+                                    {{ analysis.ai_summary }}
+                                </div>
+                            {% else %}
+                                <div class="content-block empty">
+                                    AI summary is not available yet.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h2 class="detail-card-title">
+                                    Extracted Text
+                                </h2>
+
+                                <p class="detail-card-subtitle">
+                                    OCR, transcription or normalized evidence text used by the analysis.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-file-earmark-text-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            {% if analysis.extracted_text %}
+                                <div class="content-block">
+                                    {{ analysis.extracted_text }}
+                                </div>
+                            {% else %}
+                                <div class="content-block empty">
+                                    No extracted text is stored for this analysis.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h2 class="detail-card-title">
+                                    Keywords & Entities
+                                </h2>
+
+                                <p class="detail-card-subtitle">
+                                    Investigation-relevant terms and detected entities.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-tags-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            {% if analysis.extracted_keywords %}
+                                <div class="keyword-list mb-4">
+                                    {% for keyword in analysis.extracted_keywords %}
+                                        <span class="keyword-chip">
+                                            {{ keyword }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="content-block empty mb-4">
+                                    No keywords were extracted.
+                                </div>
+                            {% endif %}
+
+                            {% if analysis.detected_entities %}
+                                <div class="entity-list">
+                                    {% for entity in analysis.detected_entities %}
+                                        <div class="entity-item">
+                                            <div class="entity-top">
+                                                <div class="entity-value">
+                                                    {{ entity.value|default:"Unknown entity" }}
+                                                </div>
+
+                                                <span class="entity-type">
+                                                    {{ entity.type|default:"OTHER" }}
+                                                </span>
+                                            </div>
+
+                                            {% if entity.context %}
+                                                <div class="entity-context">
+                                                    {{ entity.context }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="content-block empty">
+                                    No entities were detected.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h2 class="detail-card-title">
+                                    Findings
+                                </h2>
+
+                                <p class="detail-card-subtitle">
+                                    Structured forensic observations and AI-supported inferences.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-search-heart-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            {% if analysis.findings %}
+                                <div class="finding-list">
+                                    {% for finding in analysis.findings %}
+                                        <div class="finding-item">
+                                            <div class="finding-top">
+                                                <div class="finding-title">
+                                                    {{ finding.title|default:"Finding" }}
+                                                </div>
+
+                                                {% with severity=finding.severity|default:"INFO"|upper %}
+                                                    <span
+                                                        class="finding-severity
+                                                        {% if severity == 'CRITICAL' %}
+                                                            severity-critical
+                                                        {% elif severity == 'HIGH' %}
+                                                            severity-high
+                                                        {% elif severity == 'MEDIUM' %}
+                                                            severity-medium
+                                                        {% else %}
+                                                            severity-info
+                                                        {% endif %}"
+                                                    >
+                                                        {{ severity }}
+                                                    </span>
+                                                {% endwith %}
+                                            </div>
+
+                                            <div class="finding-description">
+                                                {{ finding.description|default:"No description provided." }}
+                                            </div>
+
+                                            {% if finding.confidence != None %}
+                                                <div class="timeline-meta">
+                                                    Confidence:
+                                                    {{ finding.confidence }}%
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="content-block empty">
+                                    No structured findings are available.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h2 class="detail-card-title">
+                                    Recommendations
+                                </h2>
+
+                                <p class="detail-card-subtitle">
+                                    Suggested next investigation steps and verification actions.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-lightbulb-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            {% if analysis.recommendations %}
+                                <div class="content-block">
+                                    {{ analysis.recommendations }}
+                                </div>
+                            {% else %}
+                                <div class="content-block empty">
+                                    No recommendations are available yet.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    {% if analysis.last_error or analysis.provider_error_code %}
+                        <section class="detail-card">
+                            <div class="detail-card-header">
+                                <div>
+                                    <h2 class="detail-card-title">
+                                        Error Diagnostics
+                                    </h2>
+
+                                    <p class="detail-card-subtitle">
+                                        Provider and execution failure details.
+                                    </p>
+                                </div>
+
+                                <div class="detail-card-icon">
+                                    <i class="bi bi-exclamation-octagon-fill"></i>
+                                </div>
+                            </div>
+
+                            <div class="detail-card-body">
+                                <div class="error-panel">
+                                    {% if analysis.provider_error_code %}
+                                        <strong>
+                                            {{ analysis.provider_error_code }}
+                                        </strong>
+                                        <br>
+                                    {% endif %}
+
+                                    {{ analysis.last_error|default:"No detailed error message is available." }}
+                                </div>
+                            </div>
+                        </section>
+                    {% endif %}
+
+                </main>
+
+                <aside class="detail-stack">
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h3 class="detail-card-title">
+                                    Actions
+                                </h3>
+
+                                <p class="detail-card-subtitle">
+                                    Available workflow actions for this analysis.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            <div class="action-stack">
+                                {% if can_run_this_analysis %}
+                                    <form
+                                        method="post"
+                                        action="{% url 'ai_engine:analysis_run' analysis.id %}"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success"
+                                            id="runAnalysisButton"
+                                        >
+                                            <i class="bi bi-play-fill me-2"></i>
+                                            Run with {{ analysis.get_provider_display }}
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if can_retry_this_analysis %}
+                                    <form
+                                        method="post"
+                                        action="{% url 'ai_engine:analysis_retry' analysis.id %}"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-warning"
+                                        >
+                                            <i class="bi bi-arrow-repeat me-2"></i>
+                                            Retry Analysis
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if can_cancel_this_analysis %}
+                                    <a
+                                        href="{% url 'ai_engine:analysis_cancel' analysis.id %}"
+                                        class="btn btn-outline-danger"
+                                    >
+                                        <i class="bi bi-slash-circle me-2"></i>
+                                        Cancel Analysis
+                                    </a>
+                                {% endif %}
+
+                                {% if can_review_this_analysis %}
+                                    <a
+                                        href="{% url 'ai_engine:analysis_review' analysis.id %}"
+                                        class="btn btn-outline-primary"
+                                    >
+                                        <i class="bi bi-person-check-fill me-2"></i>
+                                        Human Review
+                                    </a>
+                                {% endif %}
+
+                                {% if can_archive_this_analysis %}
+                                    <a
+                                        href="{% url 'ai_engine:analysis_archive' analysis.id %}"
+                                        class="btn btn-outline-secondary"
+                                    >
+                                        <i class="bi bi-archive me-2"></i>
+                                        Archive Analysis
+                                    </a>
+                                {% endif %}
+
+                                {% if can_restore_this_analysis %}
+                                    <form
+                                        method="post"
+                                        action="{% url 'ai_engine:analysis_restore' analysis.id %}"
+                                        id="restoreAnalysisForm"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-outline-success"
+                                            id="restoreAnalysisButton"
+                                        >
+                                            <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                            Restore Analysis
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                <a
+                                    href="{% url 'ai_engine:analysis_list' %}"
+                                    class="btn btn-outline-dark"
+                                >
+                                    <i class="bi bi-list-ul me-2"></i>
+                                    Back to List
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h3 class="detail-card-title">
+                                    Provider Usage
+                                </h3>
+
+                                <p class="detail-card-subtitle">
+                                    Token, timing and request attempt information.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-bar-chart-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            <div class="usage-grid">
+                                <div class="usage-item">
+                                    <div class="usage-label">
+                                        Input Tokens
+                                    </div>
+
+                                    <div class="usage-value">
+                                        {{ analysis.input_tokens|default:0 }}
+                                    </div>
+                                </div>
+
+                                <div class="usage-item">
+                                    <div class="usage-label">
+                                        Output Tokens
+                                    </div>
+
+                                    <div class="usage-value">
+                                        {{ analysis.output_tokens|default:0 }}
+                                    </div>
+                                </div>
+
+                                <div class="usage-item">
+                                    <div class="usage-label">
+                                        Total Tokens
+                                    </div>
+
+                                    <div class="usage-value">
+                                        {{ analysis.total_tokens|default:0 }}
+                                    </div>
+                                </div>
+
+                                <div class="usage-item">
+                                    <div class="usage-label">
+                                        API Attempts
+                                    </div>
+
+                                    <div class="usage-value">
+                                        {{ analysis.api_attempts|default:0 }}
+                                        /
+                                        {{ analysis.max_api_attempts|default:0 }}
+                                    </div>
+                                </div>
+
+                                <div class="usage-item">
+                                    <div class="usage-label">
+                                        Processing Time
+                                    </div>
+
+                                    <div class="usage-value">
+                                        {% if analysis.processing_time_seconds != None %}
+                                            {{ analysis.processing_time_seconds }} sec
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="usage-item">
+                                    <div class="usage-label">
+                                        Quota Flag
+                                    </div>
+
+                                    <div class="usage-value">
+                                        {% if analysis.quota_exceeded %}
+                                            Yes
+                                        {% else %}
+                                            No
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h3 class="detail-card-title">
+                                    Cache & Integrity
+                                </h3>
+
+                                <p class="detail-card-subtitle">
+                                    Evidence hash and cache validity information.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            <div class="mb-3">
+                                {% if analysis.cached_result %}
+                                    <span class="cache-badge cache-hit">
+                                        <i class="bi bi-database-check"></i>
+                                        Cached Result
+                                    </span>
+                                {% elif analysis.cache_status == "INVALIDATED" %}
+                                    <span class="cache-badge cache-invalid">
+                                        <i class="bi bi-database-x"></i>
+                                        Cache Invalidated
+                                    </span>
+                                {% else %}
+                                    <span class="cache-badge cache-fresh">
+                                        <i class="bi bi-database"></i>
+                                        Fresh Result
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="summary-label">
+                                Evidence Hash at Analysis
+                            </div>
+
+                            <div class="hash-box">
+                                {{ analysis.evidence_hash_at_analysis|default:"Not recorded" }}
+                            </div>
+
+                            <div class="summary-label mt-3">
+                                Current Evidence Hash
+                            </div>
+
+                            <div class="hash-box">
+                                {{ analysis.evidence.sha256_hash|default:"Not available" }}
+                            </div>
+
+                            {% if analysis.result_is_stale %}
+                                <div class="integrity-alert integrity-bad">
+                                    <strong>
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        Stale Analysis Result
+                                    </strong>
+
+                                    The current evidence hash differs from the hash stored
+                                    when this analysis was created.
+                                </div>
+                            {% else %}
+                                <div class="integrity-alert integrity-good">
+                                    <strong>
+                                        <i class="bi bi-check-circle-fill me-2"></i>
+                                        Integrity Consistent
+                                    </strong>
+
+                                    The stored analysis hash matches the current evidence hash.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h3 class="detail-card-title">
+                                    Human Review
+                                </h3>
+
+                                <p class="detail-card-subtitle">
+                                    Authorized officer review information.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-person-check-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            {% if analysis.reviewed_by %}
+                                <div class="summary-grid">
+                                    <div class="summary-item">
+                                        <div class="summary-label">
+                                            Reviewed By
+                                        </div>
+
+                                        <div class="summary-value">
+                                            {{ analysis.reviewed_by.full_name|default:analysis.reviewed_by.username }}
+                                        </div>
+                                    </div>
+
+                                    <div class="summary-item">
+                                        <div class="summary-label">
+                                            Reviewed At
+                                        </div>
+
+                                        <div class="summary-value">
+                                            {{ analysis.reviewed_at|date:"d M Y, h:i A" }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="content-block mt-3">
+                                    {{ analysis.review_notes|default:"No review notes provided." }}
+                                </div>
+                            {% else %}
+                                <div class="empty-state py-3">
+                                    <i class="bi bi-person-x"></i>
+                                    No human review has been recorded.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <section class="detail-card">
+                        <div class="detail-card-header">
+                            <div>
+                                <h3 class="detail-card-title">
+                                    Audit Timeline
+                                </h3>
+
+                                <p class="detail-card-subtitle">
+                                    Latest analysis lifecycle events.
+                                </p>
+                            </div>
+
+                            <div class="detail-card-icon">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-card-body">
+                            {% if logs %}
+                                <div class="timeline">
+                                    {% for log in logs %}
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon">
+                                                {% if log.event_type == "COMPLETED" %}
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                {% elif log.event_type == "FAILED" %}
+                                                    <i class="bi bi-x-octagon-fill"></i>
+                                                {% elif log.event_type == "QUEUED" %}
+                                                    <i class="bi bi-clock-fill"></i>
+                                                {% elif log.event_type == "REVIEWED" %}
+                                                    <i class="bi bi-person-check-fill"></i>
+                                                {% elif log.event_type == "ARCHIVED" %}
+                                                    <i class="bi bi-archive-fill"></i>
+                                                {% elif log.event_type == "RESTORED" %}
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                {% else %}
+                                                    <i class="bi bi-cpu-fill"></i>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="timeline-content">
+                                                <div class="timeline-title">
+                                                    {{ log.get_event_type_display }}
+                                                </div>
+
+                                                <div class="timeline-message">
+                                                    {{ log.message }}
+                                                </div>
+
+                                                <div class="timeline-meta">
+                                                    {{ log.created_date|date:"d M Y, h:i A" }}
+                                                    {% if log.actor %}
+                                                        ·
+                                                        {{ log.actor.full_name|default:log.actor.username }}
+                                                    {% else %}
+                                                        · System
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="bi bi-clock"></i>
+                                    No audit events are available.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                </aside>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (() => {
+        /*
+         * Workflow-action confirmation popup.
+         * Existing action forms, URLs, permissions and loading states are
+         * preserved; only a confirmation step is added.
+         */
+        let popup = document.getElementById("aiDetailActionPopup");
+
+        if (!popup) {
+            popup = document.createElement("div");
+            popup.id = "aiDetailActionPopup";
+            popup.setAttribute("role", "dialog");
+            popup.setAttribute("aria-modal", "true");
+            popup.style.cssText = [
+                "position:fixed",
+                "inset:0",
+                "z-index:99999",
+                "display:none",
+                "align-items:center",
+                "justify-content:center",
+                "padding:20px",
+                "background:rgba(15,23,42,.58)",
+                "backdrop-filter:blur(3px)"
+            ].join(";");
+
+            popup.innerHTML = `
+                <div style="
+                    width:min(100%,470px);
+                    padding:24px;
+                    border-radius:18px;
+                    background:#fff;
+                    border:1px solid #e2e8f0;
+                    box-shadow:0 24px 70px rgba(15,23,42,.24);
+                    font-family:inherit;
+                ">
+                    <h3 style="
+                        margin:0 0 8px;
+                        color:#0f172a;
+                        font-size:1.05rem;
+                        font-weight:900;
+                    ">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Confirm Action
+                    </h3>
+                    <p id="aiDetailActionPopupMessage" style="
+                        margin:0;
+                        color:#64748b;
+                        font-size:.84rem;
+                        line-height:1.6;
+                    "></p>
+                    <div style="
+                        display:flex;
+                        justify-content:flex-end;
+                        gap:10px;
+                        margin-top:20px;
+                    ">
+                        <button type="button" id="aiDetailActionPopupCancel" style="
+                            min-width:90px;
+                            min-height:42px;
+                            border:1px solid #cbd5e1;
+                            border-radius:11px;
+                            color:#334155;
+                            background:#fff;
+                            font-weight:800;
+                            cursor:pointer;
+                        ">Cancel</button>
+                        <button type="button" id="aiDetailActionPopupConfirm" style="
+                            min-width:100px;
+                            min-height:42px;
+                            border:0;
+                            border-radius:11px;
+                            color:#fff;
+                            background:#4f46e5;
+                            font-weight:800;
+                            cursor:pointer;
+                        ">Confirm</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+        }
+
+        const message = document.getElementById(
+            "aiDetailActionPopupMessage"
+        );
+        const cancelButton = document.getElementById(
+            "aiDetailActionPopupCancel"
+        );
+        const confirmButton = document.getElementById(
+            "aiDetailActionPopupConfirm"
+        );
+
+        let pendingAction = null;
+
+        const closePopup = () => {
+            popup.style.display = "none";
+            pendingAction = null;
+        };
+
+        const openPopup = (
+            text,
+            action,
+            confirmText
+        ) => {
+            message.textContent = text;
+            confirmButton.textContent = confirmText || "Confirm";
+            pendingAction = action;
+            popup.style.display = "flex";
+            cancelButton.focus();
+        };
+
+        cancelButton.addEventListener("click", closePopup);
+
+        popup.addEventListener("click", (event) => {
+            if (event.target === popup) {
+                closePopup();
+            }
+        });
+
+        confirmButton.addEventListener("click", () => {
+            if (!pendingAction) {
+                closePopup();
+                return;
+            }
+
+            const action = pendingAction;
+            pendingAction = null;
+            popup.style.display = "none";
+            action();
+        });
+
+        const configureSubmittingButton = (
+            buttonId,
+            loadingText,
+            confirmationText,
+            confirmText
+        ) => {
+            const button = document.getElementById(buttonId);
+
+            if (!button) {
+                return;
+            }
+
+            const form = button.closest("form");
+
+            if (!form) {
+                return;
+            }
+
+            let confirmed = false;
+
+            form.addEventListener("submit", (event) => {
+                if (!confirmed) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    openPopup(
+                        confirmationText,
+                        () => {
+                            confirmed = true;
+                            button.disabled = true;
+                            button.innerHTML = (
+                                '<span class="spinner-border '
+                                + 'spinner-border-sm me-2" '
+                                + 'role="status" aria-hidden="true"></span>'
+                                + loadingText
+                            );
+                            form.submit();
+                        },
+                        confirmText
+                    );
+
+                    return;
+                }
+
+                button.disabled = true;
+                button.innerHTML = (
+                    '<span class="spinner-border spinner-border-sm me-2" '
+                    + 'role="status" aria-hidden="true"></span>'
+                    + loadingText
+                );
+            });
+        };
+
+        configureSubmittingButton(
+            "runAnalysisButton",
+            "Queuing Analysis",
+            "Run this AI analysis now? The request will be sent to the configured AI provider.",
+            "Run Analysis"
+        );
+        configureSubmittingButton(
+            "restoreAnalysisButton",
+            "Restoring Analysis",
+            "Restore this AI analysis to the active workflow?",
+            "Restore Analysis"
+        );
+
+        const retryButton = document.querySelector(
+            'form[action*="analysis_retry"] button[type="submit"]'
+        );
+
+        if (retryButton && retryButton.id === "") {
+            const retryForm = retryButton.closest("form");
+            let confirmed = false;
+
+            retryForm.addEventListener("submit", (event) => {
+                if (!confirmed) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    openPopup(
+                        "Retry this AI analysis? A new execution attempt will be submitted.",
+                        () => {
+                            confirmed = true;
+                            retryButton.disabled = true;
+                            retryButton.innerHTML = (
+                                '<span class="spinner-border spinner-border-sm me-2" '
+                                + 'role="status" aria-hidden="true"></span>'
+                                + "Retrying Analysis"
+                            );
+                            retryForm.submit();
+                        },
+                        "Retry Analysis"
+                    );
+                }
+            });
+        }
+
+        const linkActions = [
+            {
+                selector: 'a[href*="analysis_cancel"]',
+                message: "Open the cancellation workflow for this AI analysis?",
+                confirmText: "Continue"
+            },
+            {
+                selector: 'a[href*="analysis_archive"]',
+                message: "Open the archive workflow for this AI analysis?",
+                confirmText: "Continue"
+            }
+        ];
+
+        linkActions.forEach((item) => {
+            const link = document.querySelector(item.selector);
+
+            if (!link) {
+                return;
+            }
+
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+
+                const target = link.href;
+
+                openPopup(
+                    item.message,
+                    () => {
+                        window.location.href = target;
+                    },
+                    item.confirmText
+                );
+            });
+        });
+    })();
+</script>
+{% endblock %}

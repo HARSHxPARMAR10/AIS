@@ -1,0 +1,1226 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if form_mode == "update" %}
+        Edit {{ report.report_number }} | AIDEX
+    {% else %}
+        Create Investigation Report | AIDEX
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --rf-panel: rgba(12, 25, 43, 0.95);
+        --rf-panel-soft: rgba(15, 31, 52, 0.78);
+        --rf-border: rgba(148, 163, 184, 0.15);
+        --rf-border-focus: rgba(56, 189, 248, 0.5);
+        --rf-text: #eaf1f8;
+        --rf-muted: #8298af;
+        --rf-cyan: #38bdf8;
+        --rf-blue: #2563eb;
+        --rf-green: #22c55e;
+        --rf-amber: #f59e0b;
+        --rf-red: #ef4444;
+        --rf-violet: #8b5cf6;
+        --rf-shadow: 0 22px 62px rgba(0, 0, 0, 0.23);
+    }
+
+    .report-form-page {
+        min-height: calc(100vh - 70px);
+        padding: 26px 0 52px;
+        color: var(--rf-text);
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.10), transparent 27%),
+            radial-gradient(circle at 92% 6%, rgba(56, 189, 248, 0.07), transparent 23%);
+    }
+
+    .report-form-shell {
+        width: min(1320px, calc(100% - 32px));
+        margin: 0 auto;
+    }
+
+    .report-form-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 25px 26px;
+        border: 1px solid var(--rf-border);
+        border-radius: 21px;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(15, 31, 52, 0.97),
+                rgba(8, 19, 34, 0.97)
+            );
+        box-shadow: var(--rf-shadow);
+    }
+
+    .report-form-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 9px;
+        color: #7dd3fc;
+        font-size: .73rem;
+        font-weight: 850;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .report-form-eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--rf-cyan);
+        box-shadow: 0 0 14px rgba(56, 189, 248, .72);
+    }
+
+    .report-form-header h1 {
+        margin: 0;
+        color: #fff;
+        font-size: clamp(1.65rem, 3vw, 2.35rem);
+        line-height: 1.1;
+        letter-spacing: -.03em;
+    }
+
+    .report-form-header p {
+        max-width: 760px;
+        margin: 9px 0 0;
+        color: var(--rf-muted);
+        font-size: .88rem;
+        line-height: 1.65;
+    }
+
+    .report-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 9px;
+    }
+
+    .rf-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 15px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        color: #eef7ff;
+        background: transparent;
+        font-size: .8rem;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 150ms ease;
+    }
+
+    .rf-btn:hover {
+        transform: translateY(-1px);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .rf-btn-primary {
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        box-shadow: 0 9px 25px rgba(37, 99, 235, .24);
+    }
+
+    .rf-btn-secondary {
+        border-color: rgba(148, 163, 184, .18);
+        background: rgba(255, 255, 255, .04);
+    }
+
+    .rf-btn-secondary:hover {
+        border-color: rgba(56, 189, 248, .28);
+        background: rgba(56, 189, 248, .07);
+    }
+
+    .report-form-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(280px, .7fr);
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    .rf-panel {
+        border: 1px solid var(--rf-border);
+        border-radius: 19px;
+        background: var(--rf-panel);
+        box-shadow: 0 18px 52px rgba(0, 0, 0, .16);
+        overflow: hidden;
+    }
+
+    .rf-panel + .rf-panel {
+        margin-top: 18px;
+    }
+
+    .rf-panel-head {
+        padding: 17px 19px;
+        border-bottom: 1px solid rgba(148, 163, 184, .09);
+    }
+
+    .rf-panel-head h2 {
+        margin: 0;
+        color: #f4f8fc;
+        font-size: .98rem;
+        font-weight: 850;
+    }
+
+    .rf-panel-head p {
+        margin: 5px 0 0;
+        color: #7289a2;
+        font-size: .73rem;
+        line-height: 1.5;
+    }
+
+    .rf-panel-body {
+        padding: 19px;
+    }
+
+    .rf-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .rf-field {
+        margin-bottom: 16px;
+    }
+
+    .rf-field:last-child {
+        margin-bottom: 0;
+    }
+
+    .rf-field label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 7px;
+        color: #b6c6d6;
+        font-size: .76rem;
+        font-weight: 800;
+    }
+
+    .rf-required {
+        color: #fca5a5;
+        font-size: .66rem;
+        font-weight: 850;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .rf-field input[type="text"],
+    .rf-field input[type="file"],
+    .rf-field select,
+    .rf-field textarea {
+        width: 100%;
+        border: 1px solid rgba(148, 163, 184, .17);
+        border-radius: 10px;
+        color: #eaf1f8;
+        background: rgba(5, 14, 26, .72);
+        outline: none;
+        font-size: .82rem;
+        transition: 150ms ease;
+    }
+
+    .rf-field input[type="text"],
+    .rf-field input[type="file"],
+    .rf-field select {
+        min-height: 43px;
+        padding: 9px 11px;
+    }
+
+    .rf-field textarea {
+        min-height: 120px;
+        padding: 11px 12px;
+        line-height: 1.6;
+        resize: vertical;
+    }
+
+    .rf-field select[multiple] {
+        min-height: 190px;
+        padding: 8px;
+    }
+
+    .rf-field input:focus,
+    .rf-field select:focus,
+    .rf-field textarea:focus {
+        border-color: var(--rf-border-focus);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, .08);
+    }
+
+    .rf-field select option {
+        background: #0b1728;
+        color: #eaf1f8;
+    }
+
+    .rf-help {
+        margin-top: 6px;
+        color: #6f879f;
+        font-size: .69rem;
+        line-height: 1.5;
+    }
+
+    .rf-error {
+        margin-top: 6px;
+        padding: 8px 10px;
+        border: 1px solid rgba(239, 68, 68, .18);
+        border-radius: 9px;
+        color: #fecaca;
+        background: rgba(239, 68, 68, .06);
+        font-size: .72rem;
+        line-height: 1.45;
+    }
+
+    .rf-global-errors {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border: 1px solid rgba(239, 68, 68, .2);
+        border-radius: 13px;
+        color: #fecaca;
+        background: rgba(239, 68, 68, .065);
+        font-size: .78rem;
+        line-height: 1.55;
+    }
+
+    .rf-global-errors strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #fee2e2;
+    }
+
+    .rf-switch-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding: 14px;
+        border: 1px solid rgba(148, 163, 184, .11);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .025);
+    }
+
+    .rf-switch-card input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        accent-color: #0ea5e9;
+        cursor: pointer;
+    }
+
+    .rf-switch-title {
+        color: #dbe7f2;
+        font-size: .79rem;
+        font-weight: 800;
+    }
+
+    .rf-switch-note {
+        margin-top: 4px;
+        color: #7188a2;
+        font-size: .69rem;
+        line-height: 1.5;
+    }
+
+    .rf-side-note {
+        padding: 14px;
+        border: 1px solid rgba(56, 189, 248, .13);
+        border-radius: 12px;
+        background: rgba(56, 189, 248, .035);
+    }
+
+    .rf-side-note + .rf-side-note {
+        margin-top: 10px;
+    }
+
+    .rf-side-note-title {
+        color: #bfe9fb;
+        font-size: .76rem;
+        font-weight: 850;
+    }
+
+    .rf-side-note-text {
+        margin-top: 6px;
+        color: #7188a2;
+        font-size: .7rem;
+        line-height: 1.55;
+    }
+
+    .rf-summary-list {
+        display: grid;
+        gap: 9px;
+    }
+
+    .rf-summary-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 12px;
+        border: 1px solid rgba(148, 163, 184, .1);
+        border-radius: 11px;
+        background: rgba(255, 255, 255, .02);
+    }
+
+    .rf-summary-label {
+        color: #879db3;
+        font-size: .7rem;
+        font-weight: 750;
+    }
+
+    .rf-summary-value {
+        color: #e6eef6;
+        font-size: .74rem;
+        font-weight: 850;
+        text-align: right;
+    }
+
+    .rf-file-preview {
+        display: none;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: 1px solid rgba(34, 197, 94, .15);
+        border-radius: 10px;
+        color: #bbf7d0;
+        background: rgba(34, 197, 94, .05);
+        font-size: .71rem;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .rf-selection-count {
+        margin-top: 6px;
+        color: #7dd3fc;
+        font-size: .68rem;
+        font-weight: 750;
+    }
+
+    .rf-footer-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 18px;
+        padding: 16px 18px;
+        border: 1px solid var(--rf-border);
+        border-radius: 16px;
+        background: var(--rf-panel);
+        box-shadow: 0 16px 46px rgba(0, 0, 0, .14);
+    }
+
+    .rf-footer-note {
+        color: #7289a2;
+        font-size: .72rem;
+        line-height: 1.5;
+    }
+
+    .rf-footer-buttons {
+        display: flex;
+        gap: 9px;
+    }
+
+    /* Required-field validation popup: added without changing existing form styling */
+    #aidexRequiredValidationBackdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(2, 8, 23, .72);
+        backdrop-filter: blur(5px);
+    }
+
+    #aidexRequiredValidationBackdrop.is-open {
+        display: flex;
+    }
+
+    #aidexRequiredValidationBox {
+        width: min(520px, 100%);
+        border: 1px solid rgba(248, 113, 113, .28);
+        border-radius: 16px;
+        background: #0c192b;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+        overflow: hidden;
+    }
+
+    #aidexRequiredValidationHead {
+        padding: 15px 18px;
+        color: #fff;
+        background: rgba(239, 68, 68, .10);
+        border-bottom: 1px solid rgba(248, 113, 113, .16);
+        font-weight: 850;
+    }
+
+    #aidexRequiredValidationMessage {
+        padding: 17px 18px;
+        color: #dbe7f2;
+        font-size: .82rem;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+    #aidexRequiredValidationOk {
+        display: block;
+        margin: 0 18px 17px auto;
+        min-height: 39px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 9px;
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    @media (max-width: 1000px) {
+        .report-form-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .report-form-shell {
+            width: min(100% - 20px, 1320px);
+        }
+
+        .report-form-header {
+            flex-direction: column;
+            padding: 21px;
+        }
+
+        .report-form-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .report-form-actions .rf-btn {
+            flex: 1 1 auto;
+        }
+
+        .rf-grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .rf-footer-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .rf-footer-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="report-form-page">
+    <div class="report-form-shell">
+
+        <header class="report-form-header">
+            <div>
+                <div class="report-form-eyebrow">
+                    AIDEX Investigation Reporting
+                </div>
+
+                {% if form_mode == "update" %}
+                    <h1>Edit Investigation Report</h1>
+                    <p>
+                        Update the editable content of
+                        <strong>{{ report.report_number }}</strong>.
+                        Workflow status changes are handled separately through
+                        controlled review actions.
+                    </p>
+                {% else %}
+                    <h1>Create Investigation Report</h1>
+                    <p>
+                        Build a structured cyber-crime investigation report,
+                        link supporting evidence and completed AI analyses,
+                        and save it as a controlled Draft record.
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="report-form-actions">
+                {% if form_mode == "update" and report %}
+                    <a
+                        class="rf-btn rf-btn-secondary"
+                        href="{% url 'reports:report_detail' report_id=report.pk %}"
+                    >
+                        ← Back to Report
+                    </a>
+                {% else %}
+                    <a
+                        class="rf-btn rf-btn-secondary"
+                        href="{% url 'reports:report_list' %}"
+                    >
+                        ← Reports
+                    </a>
+                {% endif %}
+            </div>
+        </header>
+
+        {% if form.non_field_errors %}
+            <div class="rf-global-errors">
+                <strong>Report could not be saved.</strong>
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+            novalidate
+            id="reportForm"
+        >
+            {% csrf_token %}
+            {% if form_mode == "update" %}
+                <input
+                    type="hidden"
+                    name="edit_version"
+                    value="{{ edit_version }}"
+                >
+            {% endif %}
+
+            <div class="report-form-layout">
+                <main>
+                    <section class="rf-panel">
+                        <div class="rf-panel-head">
+                            <h2>Report Identity</h2>
+                            <p>
+                                Select the related case and define the report title and category.
+                            </p>
+                        </div>
+
+                        <div class="rf-panel-body">
+                            <div class="rf-grid-2">
+                                <div class="rf-field">
+                                    <label for="{{ form.case.id_for_label }}">
+                                        Related Case
+                                        <span class="rf-required" aria-label="Required">*</span>
+                                    </label>
+                                    {{ form.case }}
+
+                                    {% if form.case.help_text %}
+                                        <div class="rf-help">{{ form.case.help_text }}</div>
+                                    {% endif %}
+
+                                    {% for error in form.case.errors %}
+                                        <div class="rf-error">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="rf-field">
+                                    <label for="{{ form.report_type.id_for_label }}">
+                                        Report Type
+                                        <span class="rf-required" aria-label="Required">*</span>
+                                    </label>
+                                    {{ form.report_type }}
+
+                                    {% if form.report_type.help_text %}
+                                        <div class="rf-help">{{ form.report_type.help_text }}</div>
+                                    {% endif %}
+
+                                    {% for error in form.report_type.errors %}
+                                        <div class="rf-error">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="rf-field">
+                                <label for="{{ form.report_title.id_for_label }}">
+                                    Report Title
+                                    <span class="rf-required" aria-label="Required">*</span>
+                                </label>
+                                {{ form.report_title }}
+
+                                {% if form.report_title.help_text %}
+                                    <div class="rf-help">{{ form.report_title.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in form.report_title.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="rf-panel">
+                        <div class="rf-panel-head">
+                            <h2>Investigation Narrative</h2>
+                            <p>
+                                Record evidence-grounded report content. Blank sections can remain
+                                incomplete while the report is still a Draft.
+                            </p>
+                        </div>
+
+                        <div class="rf-panel-body">
+                            <div class="rf-field">
+                                <label for="{{ form.summary.id_for_label }}">
+                                    Executive Summary
+                                </label>
+                                {{ form.summary }}
+
+                                {% if form.summary.help_text %}
+                                    <div class="rf-help">{{ form.summary.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in form.summary.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="rf-field">
+                                <label for="{{ form.findings.id_for_label }}">
+                                    Investigation Findings
+                                </label>
+                                {{ form.findings }}
+
+                                {% if form.findings.help_text %}
+                                    <div class="rf-help">{{ form.findings.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in form.findings.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="rf-field">
+                                <label for="{{ form.evidence_summary.id_for_label }}">
+                                    Evidence Summary
+                                </label>
+                                {{ form.evidence_summary }}
+
+                                {% if form.evidence_summary.help_text %}
+                                    <div class="rf-help">{{ form.evidence_summary.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in form.evidence_summary.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="rf-field">
+                                <label for="{{ form.ai_analysis_summary.id_for_label }}">
+                                    AI Analysis Summary
+                                </label>
+                                {{ form.ai_analysis_summary }}
+
+                                {% if form.ai_analysis_summary.help_text %}
+                                    <div class="rf-help">{{ form.ai_analysis_summary.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in form.ai_analysis_summary.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="rf-field">
+                                <label for="{{ form.conclusion.id_for_label }}">
+                                    Conclusion
+                                </label>
+                                {{ form.conclusion }}
+
+                                {% if form.conclusion.help_text %}
+                                    <div class="rf-help">{{ form.conclusion.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in form.conclusion.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="rf-field">
+                                <label for="{{ form.recommendations.id_for_label }}">
+                                    Recommendations
+                                </label>
+                                {{ form.recommendations }}
+
+                                {% if form.recommendations.help_text %}
+                                    <div class="rf-help">{{ form.recommendations.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in form.recommendations.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="rf-panel">
+                        <div class="rf-panel-head">
+                            <h2>Evidence & AI Traceability</h2>
+                            <p>
+                                Explicitly link active evidence and completed AI analyses that support
+                                this report version.
+                            </p>
+                        </div>
+
+                        <div class="rf-panel-body">
+                            <div class="rf-grid-2">
+                                <div class="rf-field">
+                                    <label for="{{ form.included_evidence.id_for_label }}">
+                                        Included Evidence
+                                    </label>
+
+                                    {{ form.included_evidence }}
+
+                                    <div
+                                        class="rf-selection-count"
+                                        id="evidenceSelectionCount"
+                                    >
+                                        0 evidence items selected
+                                    </div>
+
+                                    {% if form.included_evidence.help_text %}
+                                        <div class="rf-help">
+                                            {{ form.included_evidence.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% for error in form.included_evidence.errors %}
+                                        <div class="rf-error">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="rf-field">
+                                    <label for="{{ form.included_analyses.id_for_label }}">
+                                        Included AI Analyses
+                                    </label>
+
+                                    {{ form.included_analyses }}
+
+                                    <div
+                                        class="rf-selection-count"
+                                        id="analysisSelectionCount"
+                                    >
+                                        0 AI analyses selected
+                                    </div>
+
+                                    {% if form.included_analyses.help_text %}
+                                        <div class="rf-help">
+                                            {{ form.included_analyses.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% for error in form.included_analyses.errors %}
+                                        <div class="rf-error">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="rf-panel">
+                        <div class="rf-panel-head">
+                            <h2>Report File & Confidentiality</h2>
+                            <p>
+                                Attach an optional draft/final file and set report confidentiality.
+                            </p>
+                        </div>
+
+                        <div class="rf-panel-body">
+                            <div class="rf-field">
+                                <label for="{{ form.report_file.id_for_label }}">
+                                    Report File
+                                </label>
+
+                                {{ form.report_file }}
+
+                                <div
+                                    class="rf-file-preview"
+                                    id="reportFilePreview"
+                                ></div>
+
+                                {% if form.report_file.help_text %}
+                                    <div class="rf-help">
+                                        {{ form.report_file.help_text }}
+                                    </div>
+                                {% endif %}
+
+                                {% for error in form.report_file.errors %}
+                                    <div class="rf-error">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="rf-switch-card">
+                                {{ form.is_confidential }}
+
+                                <div>
+                                    <div class="rf-switch-title">
+                                        Confidential Investigation Report
+                                    </div>
+
+                                    <div class="rf-switch-note">
+                                        Restrict this report to authorized users with
+                                        appropriate case/report access.
+                                    </div>
+
+                                    {% for error in form.is_confidential.errors %}
+                                        <div class="rf-error">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+
+                <aside>
+                    <section class="rf-panel">
+                        <div class="rf-panel-head">
+                            <h2>Workflow Control</h2>
+                            <p>
+                                Report lifecycle is protected by dedicated actions.
+                            </p>
+                        </div>
+
+                        <div class="rf-panel-body">
+                            <div class="rf-side-note">
+                                <div class="rf-side-note-title">
+                                    Draft-first workflow
+                                </div>
+                                <div class="rf-side-note-text">
+                                    New reports are always created as Draft. Status is
+                                    intentionally not editable from this form.
+                                </div>
+                            </div>
+
+                            <div class="rf-side-note">
+                                <div class="rf-side-note-title">
+                                    Evidence-grounded content
+                                </div>
+                                <div class="rf-side-note-text">
+                                    Link only evidence and completed AI analyses relevant
+                                    to the selected case. AI output should be human-reviewed
+                                    before it is summarized in an investigation report.
+                                </div>
+                            </div>
+
+                            <div class="rf-side-note">
+                                <div class="rf-side-note-title">
+                                    Publication rule
+                                </div>
+                                <div class="rf-side-note-text">
+                                    Published reports require the formal review/approval
+                                    workflow and a final PDF report file.
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {% if form_mode == "update" and report %}
+                        <section class="rf-panel">
+                            <div class="rf-panel-head">
+                                <h2>Current Record</h2>
+                                <p>
+                                    Existing report metadata.
+                                </p>
+                            </div>
+
+                            <div class="rf-panel-body">
+                                <div class="rf-summary-list">
+                                    <div class="rf-summary-item">
+                                        <span class="rf-summary-label">Report Number</span>
+                                        <span class="rf-summary-value">
+                                            {{ report.report_number }}
+                                        </span>
+                                    </div>
+
+                                    <div class="rf-summary-item">
+                                        <span class="rf-summary-label">Version</span>
+                                        <span class="rf-summary-value">
+                                            v{{ report.version }}
+                                        </span>
+                                    </div>
+
+                                    <div class="rf-summary-item">
+                                        <span class="rf-summary-label">Status</span>
+                                        <span class="rf-summary-value">
+                                            {{ report.get_status_display }}
+                                        </span>
+                                    </div>
+
+                                    <div class="rf-summary-item">
+                                        <span class="rf-summary-label">Generated</span>
+                                        <span class="rf-summary-value">
+                                            {{ report.generated_date|date:"d M Y" }}
+                                        </span>
+                                    </div>
+
+                                    {% if report.original_filename %}
+                                        <div class="rf-summary-item">
+                                            <span class="rf-summary-label">Current File</span>
+                                            <span class="rf-summary-value">
+                                                {{ report.original_filename|truncatechars:30 }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </section>
+                    {% endif %}
+                </aside>
+            </div>
+
+            <div class="rf-footer-actions">
+                <div class="rf-footer-note">
+                    {% if form_mode == "update" %}
+                        Saving updates report content only. Workflow actions remain separate.
+                    {% else %}
+                        The new report will be saved as <strong>Draft</strong>.
+                    {% endif %}
+                </div>
+
+                <div class="rf-footer-buttons">
+                    {% if form_mode == "update" and report %}
+                        <a
+                            class="rf-btn rf-btn-secondary"
+                            href="{% url 'reports:report_detail' report_id=report.pk %}"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            class="rf-btn rf-btn-primary"
+                            type="submit"
+                            id="reportSubmitButton"
+                        >
+                            Save Changes
+                        </button>
+                    {% else %}
+                        <a
+                            class="rf-btn rf-btn-secondary"
+                            href="{% url 'reports:report_list' %}"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            class="rf-btn rf-btn-primary"
+                            type="submit"
+                            id="reportSubmitButton"
+                        >
+                            Create Draft Report
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+
+    </div>
+</section>
+
+<div id="aidexRequiredValidationBackdrop" aria-hidden="true">
+    <div id="aidexRequiredValidationBox" role="alertdialog"
+         aria-modal="true" aria-labelledby="aidexRequiredValidationHead">
+        <div id="aidexRequiredValidationHead">Required fields missing</div>
+        <div id="aidexRequiredValidationMessage"></div>
+        <button type="button" id="aidexRequiredValidationOk">OK</button>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    const reportForm = document.getElementById("reportForm");
+    const submitButton = document.getElementById("reportSubmitButton");
+
+    const evidenceSelect = document.getElementById("{{ form.included_evidence.id_for_label }}");
+    const analysisSelect = document.getElementById("{{ form.included_analyses.id_for_label }}");
+    const evidenceCounter = document.getElementById("evidenceSelectionCount");
+    const analysisCounter = document.getElementById("analysisSelectionCount");
+
+    const fileInput = document.getElementById("{{ form.report_file.id_for_label }}");
+    const filePreview = document.getElementById("reportFilePreview");
+
+    const requiredValidationBackdrop =
+        document.getElementById("aidexRequiredValidationBackdrop");
+    const requiredValidationMessage =
+        document.getElementById("aidexRequiredValidationMessage");
+    const requiredValidationOk =
+        document.getElementById("aidexRequiredValidationOk");
+
+    const requiredFields = [
+        {
+            id: "{{ form.case.id_for_label }}",
+            label: "Related Case"
+        },
+        {
+            id: "{{ form.report_type.id_for_label }}",
+            label: "Report Type"
+        },
+        {
+            id: "{{ form.report_title.id_for_label }}",
+            label: "Report Title"
+        }
+    ];
+
+    function showRequiredValidation(missing) {
+        if (!requiredValidationBackdrop || !requiredValidationMessage) {
+            return;
+        }
+
+        requiredValidationMessage.textContent =
+            missing.length === 1
+                ? missing[0] + " is required. Please complete this field."
+                : "Please complete the following required fields:\n• " +
+                  missing.join("\n• ");
+
+        requiredValidationBackdrop.classList.add("is-open");
+        requiredValidationBackdrop.setAttribute("aria-hidden", "false");
+
+        if (requiredValidationOk) {
+            requiredValidationOk.focus();
+        }
+    }
+
+    function closeRequiredValidation() {
+        if (!requiredValidationBackdrop) {
+            return;
+        }
+
+        requiredValidationBackdrop.classList.remove("is-open");
+        requiredValidationBackdrop.setAttribute("aria-hidden", "true");
+    }
+
+    function getMissingRequiredFields() {
+        return requiredFields
+            .filter(function (field) {
+                const element = document.getElementById(field.id);
+                if (!element) {
+                    return false;
+                }
+
+                if (element.type === "checkbox" || element.type === "radio") {
+                    return !element.checked;
+                }
+
+                if (element.tagName === "SELECT" && element.multiple) {
+                    return !Array.from(element.selectedOptions).length;
+                }
+
+                return !String(element.value || "").trim();
+            })
+            .map(function (field) {
+                return field.label;
+            });
+    }
+
+    function selectedCount(selectElement) {
+        if (!selectElement) {
+            return 0;
+        }
+
+        return Array.from(selectElement.options)
+            .filter((option) => option.selected)
+            .length;
+    }
+
+    function updateSelectionCounts() {
+        if (evidenceCounter) {
+            const count = selectedCount(evidenceSelect);
+            evidenceCounter.textContent =
+                count + " evidence item" + (count === 1 ? "" : "s") + " selected";
+        }
+
+        if (analysisCounter) {
+            const count = selectedCount(analysisSelect);
+            analysisCounter.textContent =
+                count + " AI analys" + (count === 1 ? "is" : "es") + " selected";
+        }
+    }
+
+    if (evidenceSelect) {
+        evidenceSelect.addEventListener("change", updateSelectionCounts);
+    }
+
+    if (analysisSelect) {
+        analysisSelect.addEventListener("change", updateSelectionCounts);
+    }
+
+    updateSelectionCounts();
+
+    if (fileInput && filePreview) {
+        fileInput.addEventListener("change", function () {
+            const file = fileInput.files && fileInput.files[0];
+
+            if (!file) {
+                filePreview.style.display = "none";
+                filePreview.textContent = "";
+                return;
+            }
+
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+
+            filePreview.textContent =
+                "Selected: " + file.name + " · " + sizeMb + " MB";
+
+            filePreview.style.display = "block";
+        });
+    }
+
+    if (requiredValidationOk) {
+        requiredValidationOk.addEventListener("click", closeRequiredValidation);
+    }
+
+    if (requiredValidationBackdrop) {
+        requiredValidationBackdrop.addEventListener("click", function (event) {
+            if (event.target === requiredValidationBackdrop) {
+                closeRequiredValidation();
+            }
+        });
+    }
+
+    if (reportForm && submitButton) {
+        reportForm.addEventListener("submit", function (event) {
+            const missing = getMissingRequiredFields();
+
+            if (missing.length) {
+                event.preventDefault();
+
+                requiredFields.forEach(function (field) {
+                    const element = document.getElementById(field.id);
+                    if (element) {
+                        element.classList.remove("is-invalid");
+                    }
+                });
+
+                missing.forEach(function (label) {
+                    const field = requiredFields.find(function (item) {
+                        return item.label === label;
+                    });
+                    const element = field
+                        ? document.getElementById(field.id)
+                        : null;
+
+                    if (element) {
+                        element.classList.add("is-invalid");
+                    }
+                });
+
+                showRequiredValidation(missing);
+                return;
+            }
+
+            if (submitButton.disabled) {
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.style.opacity = "0.72";
+            submitButton.textContent =
+                "{% if form_mode == 'update' %}Saving...{% else %}Creating Draft...{% endif %}";
+        });
+    }
+})();
+</script>
+{% endblock %}

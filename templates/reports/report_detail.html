@@ -1,0 +1,1211 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ report.report_number }} | AIDEX Reports{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --rd-panel: rgba(12, 25, 43, 0.94);
+        --rd-panel-soft: rgba(15, 31, 52, 0.78);
+        --rd-border: rgba(148, 163, 184, 0.15);
+        --rd-text: #eaf1f8;
+        --rd-muted: #8196ad;
+        --rd-cyan: #38bdf8;
+        --rd-blue: #2563eb;
+        --rd-green: #22c55e;
+        --rd-amber: #f59e0b;
+        --rd-red: #ef4444;
+        --rd-violet: #8b5cf6;
+        --rd-shadow: 0 22px 62px rgba(0, 0, 0, 0.24);
+    }
+
+    .report-detail-page {
+        min-height: calc(100vh - 70px);
+        padding: 26px 0 50px;
+        color: var(--rd-text);
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.1), transparent 26%),
+            radial-gradient(circle at 92% 6%, rgba(56, 189, 248, 0.07), transparent 24%);
+    }
+
+    .report-detail-shell {
+        width: min(1460px, calc(100% - 32px));
+        margin: 0 auto;
+    }
+
+    .report-detail-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 26px;
+        border: 1px solid var(--rd-border);
+        border-radius: 22px;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(15, 31, 52, .97),
+                rgba(8, 19, 34, .97)
+            );
+        box-shadow: var(--rd-shadow);
+    }
+
+    .report-detail-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: #7dd3fc;
+        font-size: .73rem;
+        font-weight: 850;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .report-detail-eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--rd-cyan);
+        box-shadow: 0 0 14px rgba(56, 189, 248, .7);
+    }
+
+    .report-detail-header h1 {
+        margin: 0;
+        max-width: 900px;
+        color: #fff;
+        font-size: clamp(1.7rem, 3vw, 2.45rem);
+        line-height: 1.1;
+        letter-spacing: -.03em;
+    }
+
+    .report-header-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .rd-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border: 1px solid rgba(148, 163, 184, .14);
+        border-radius: 999px;
+        color: #a8bacd;
+        background: rgba(255, 255, 255, .03);
+        font-size: .72rem;
+        font-weight: 750;
+    }
+
+    .rd-pill strong {
+        color: #f2f7fb;
+    }
+
+    .rd-pill-confidential {
+        color: #f0abfc;
+        border-color: rgba(192, 38, 211, .2);
+        background: rgba(192, 38, 211, .08);
+    }
+
+    .report-header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 9px;
+        min-width: 290px;
+    }
+
+    .rd-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 0 13px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        color: #eef7ff;
+        background: transparent;
+        font-size: .78rem;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 150ms ease;
+    }
+
+    .rd-btn:hover {
+        transform: translateY(-1px);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .rd-btn-primary {
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        box-shadow: 0 8px 22px rgba(37, 99, 235, .22);
+    }
+
+    .rd-btn-secondary {
+        border-color: rgba(148, 163, 184, .18);
+        background: rgba(255, 255, 255, .04);
+    }
+
+    .rd-btn-secondary:hover {
+        border-color: rgba(56, 189, 248, .28);
+        background: rgba(56, 189, 248, .07);
+    }
+
+    .rd-btn-warning {
+        color: #fde68a;
+        border-color: rgba(245, 158, 11, .22);
+        background: rgba(245, 158, 11, .08);
+    }
+
+    .rd-btn-danger {
+        color: #fecaca;
+        border-color: rgba(239, 68, 68, .22);
+        background: rgba(239, 68, 68, .08);
+    }
+
+    .rd-btn-success {
+        color: #bbf7d0;
+        border-color: rgba(34, 197, 94, .22);
+        background: rgba(34, 197, 94, .08);
+    }
+
+    .status-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 16px;
+        padding: 14px 17px;
+        border: 1px solid rgba(148, 163, 184, .12);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .025);
+    }
+
+    .status-banner-left {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--status-color, #64748b);
+        box-shadow: 0 0 16px color-mix(in srgb, var(--status-color, #64748b) 60%, transparent);
+    }
+
+    .status-banner-label {
+        color: #e9f1f8;
+        font-size: .84rem;
+        font-weight: 850;
+    }
+
+    .status-banner-note {
+        margin-top: 2px;
+        color: #7890aa;
+        font-size: .72rem;
+    }
+
+    .report-detail-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(300px, .75fr);
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    .rd-panel {
+        border: 1px solid var(--rd-border);
+        border-radius: 19px;
+        background: var(--rd-panel);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .16);
+        overflow: hidden;
+    }
+
+    .rd-panel + .rd-panel {
+        margin-top: 18px;
+    }
+
+    .rd-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 17px 19px;
+        border-bottom: 1px solid rgba(148, 163, 184, .09);
+    }
+
+    .rd-panel-head h2 {
+        margin: 0;
+        color: #f4f8fc;
+        font-size: .98rem;
+        font-weight: 850;
+    }
+
+    .rd-panel-head p {
+        margin: 4px 0 0;
+        color: #7289a2;
+        font-size: .72rem;
+    }
+
+    .rd-panel-body {
+        padding: 19px;
+    }
+
+    .report-section {
+        padding: 17px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, .08);
+    }
+
+    .report-section:first-child {
+        padding-top: 0;
+    }
+
+    .report-section:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .report-section-title {
+        margin-bottom: 8px;
+        color: #9eb2c7;
+        font-size: .72rem;
+        font-weight: 850;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .report-section-content {
+        color: #d7e1ec;
+        font-size: .88rem;
+        line-height: 1.75;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .report-section-empty {
+        color: #657c95;
+        font-size: .8rem;
+        font-style: italic;
+    }
+
+    .facts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .fact-card {
+        padding: 13px;
+        border: 1px solid rgba(148, 163, 184, .1);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .024);
+    }
+
+    .fact-label {
+        color: #6f879f;
+        font-size: .66rem;
+        font-weight: 850;
+        letter-spacing: .065em;
+        text-transform: uppercase;
+    }
+
+    .fact-value {
+        margin-top: 6px;
+        color: #e6eef6;
+        font-size: .8rem;
+        font-weight: 700;
+        line-height: 1.45;
+        word-break: break-word;
+    }
+
+    .rd-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 9px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        font-size: .66rem;
+        font-weight: 850;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .badge-draft {
+        color: #cbd5e1;
+        border-color: rgba(100, 116, 139, .22);
+        background: rgba(100, 116, 139, .1);
+    }
+
+    .badge-review {
+        color: #fde68a;
+        border-color: rgba(245, 158, 11, .22);
+        background: rgba(245, 158, 11, .1);
+    }
+
+    .badge-approved {
+        color: #86efac;
+        border-color: rgba(34, 197, 94, .22);
+        background: rgba(34, 197, 94, .1);
+    }
+
+    .badge-rejected {
+        color: #fca5a5;
+        border-color: rgba(239, 68, 68, .22);
+        background: rgba(239, 68, 68, .1);
+    }
+
+    .badge-published {
+        color: #a5f3fc;
+        border-color: rgba(6, 182, 212, .22);
+        background: rgba(6, 182, 212, .1);
+    }
+
+    .badge-archived {
+        color: #c4b5fd;
+        border-color: rgba(139, 92, 246, .22);
+        background: rgba(139, 92, 246, .1);
+    }
+
+    .workflow-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .workflow-actions .rd-btn {
+        width: 100%;
+    }
+
+    .reference-list {
+        display: grid;
+        gap: 9px;
+    }
+
+    .reference-item {
+        padding: 12px 13px;
+        border: 1px solid rgba(148, 163, 184, .1);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .02);
+    }
+
+    .reference-title {
+        color: #dce6f0;
+        font-size: .8rem;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .reference-meta {
+        margin-top: 5px;
+        color: #7188a2;
+        font-size: .7rem;
+        line-height: 1.5;
+    }
+
+    .audit-list {
+        display: grid;
+        gap: 0;
+    }
+
+    .audit-item {
+        display: grid;
+        grid-template-columns: 10px minmax(0, 1fr);
+        gap: 11px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, .08);
+    }
+
+    .audit-item:last-child {
+        border-bottom: 0;
+    }
+
+    .audit-dot {
+        width: 8px;
+        height: 8px;
+        margin-top: 5px;
+        border-radius: 50%;
+        background: #38bdf8;
+        box-shadow: 0 0 10px rgba(56, 189, 248, .45);
+    }
+
+    .audit-message {
+        color: #d7e1ea;
+        font-size: .77rem;
+        line-height: 1.5;
+    }
+
+    .audit-meta {
+        margin-top: 4px;
+        color: #6f879f;
+        font-size: .68rem;
+    }
+
+    .file-card {
+        padding: 14px;
+        border: 1px solid rgba(56, 189, 248, .13);
+        border-radius: 13px;
+        background: rgba(56, 189, 248, .035);
+    }
+
+    .file-title {
+        color: #e3edf7;
+        font-size: .81rem;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .file-meta {
+        margin-top: 6px;
+        color: #7188a2;
+        font-size: .7rem;
+        line-height: 1.55;
+        word-break: break-all;
+    }
+
+    .file-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .empty-mini {
+        padding: 8px 0;
+        color: #6f879f;
+        font-size: .78rem;
+        line-height: 1.6;
+    }
+
+    .revision-link {
+        display: block;
+        padding: 11px 12px;
+        border: 1px solid rgba(148, 163, 184, .1);
+        border-radius: 11px;
+        color: #cbd8e5;
+        background: rgba(255, 255, 255, .02);
+        text-decoration: none;
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .revision-link:hover {
+        color: #7dd3fc;
+        border-color: rgba(56, 189, 248, .24);
+        background: rgba(56, 189, 248, .045);
+        text-decoration: none;
+    }
+
+    @media (max-width: 1080px) {
+        .report-detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .report-detail-shell {
+            width: min(100% - 20px, 1460px);
+        }
+
+        .report-detail-header {
+            flex-direction: column;
+            padding: 21px;
+        }
+
+        .report-header-actions {
+            width: 100%;
+            min-width: 0;
+            justify-content: flex-start;
+        }
+
+        .report-header-actions .rd-btn {
+            flex: 1 1 auto;
+        }
+
+        .facts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .workflow-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="report-detail-page">
+    <div class="report-detail-shell">
+
+        <header class="report-detail-header">
+            <div>
+                <div class="report-detail-eyebrow">
+                    Investigation Report Record
+                </div>
+
+                <h1>{{ report.report_title }}</h1>
+
+                <div class="report-header-meta">
+                    <span class="rd-pill">
+                        <strong>{{ report.report_number }}</strong>
+                    </span>
+
+                    <span class="rd-pill">
+                        Version <strong>{{ report.version }}</strong>
+                    </span>
+
+                    <span class="rd-pill">
+                        {{ report.get_report_type_display }}
+                    </span>
+
+                    <span class="rd-pill">
+                        Case <strong>{{ report.case.case_number }}</strong>
+                    </span>
+
+                    {% if report.is_confidential %}
+                        <span class="rd-pill rd-pill-confidential">
+                            Confidential
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="report-header-actions">
+                <a
+                    class="rd-btn rd-btn-secondary"
+                    href="{% url 'reports:report_list' %}"
+                >
+                    ← Reports
+                </a>
+
+                <a
+                    class="rd-btn rd-btn-secondary"
+                    href="{% url 'reports:report_print' report_id=report.pk %}"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    Print View
+                </a>
+
+                {% if capabilities.can_edit %}
+                    <a
+                        class="rd-btn rd-btn-primary"
+                        href="{% url 'reports:report_update' report_id=report.pk %}"
+                    >
+                        Edit Report
+                    </a>
+                {% endif %}
+            </div>
+        </header>
+
+        {% if report.status == "DRAFT" %}
+            <div class="status-banner" style="--status-color: #64748b;">
+                <div class="status-banner-left">
+                    <span class="status-indicator"></span>
+                    <div>
+                        <div class="status-banner-label">Draft</div>
+                        <div class="status-banner-note">
+                            Report is editable and has not yet entered formal review.
+                        </div>
+                    </div>
+                </div>
+                <span class="rd-badge badge-draft">Draft</span>
+            </div>
+
+        {% elif report.status == "UNDER_REVIEW" %}
+            <div class="status-banner" style="--status-color: #f59e0b;">
+                <div class="status-banner-left">
+                    <span class="status-indicator"></span>
+                    <div>
+                        <div class="status-banner-label">Under Review</div>
+                        <div class="status-banner-note">
+                            Report is currently in the formal review workflow.
+                        </div>
+                    </div>
+                </div>
+                <span class="rd-badge badge-review">Under Review</span>
+            </div>
+
+        {% elif report.status == "APPROVED" %}
+            <div class="status-banner" style="--status-color: #22c55e;">
+                <div class="status-banner-left">
+                    <span class="status-indicator"></span>
+                    <div>
+                        <div class="status-banner-label">Approved</div>
+                        <div class="status-banner-note">
+                            Report has completed approval and may be eligible for publication.
+                        </div>
+                    </div>
+                </div>
+                <span class="rd-badge badge-approved">Approved</span>
+            </div>
+
+        {% elif report.status == "REJECTED" %}
+            <div class="status-banner" style="--status-color: #ef4444;">
+                <div class="status-banner-left">
+                    <span class="status-indicator"></span>
+                    <div>
+                        <div class="status-banner-label">Rejected for Revision</div>
+                        <div class="status-banner-note">
+                            Corrections are required before the report can re-enter review.
+                        </div>
+                    </div>
+                </div>
+                <span class="rd-badge badge-rejected">Rejected</span>
+            </div>
+
+        {% elif report.status == "PUBLISHED" %}
+            <div class="status-banner" style="--status-color: #06b6d4;">
+                <div class="status-banner-left">
+                    <span class="status-indicator"></span>
+                    <div>
+                        <div class="status-banner-label">Published</div>
+                        <div class="status-banner-note">
+                            This report version is finalized and published.
+                        </div>
+                    </div>
+                </div>
+                <span class="rd-badge badge-published">Published</span>
+            </div>
+
+        {% elif report.status == "ARCHIVED" %}
+            <div class="status-banner" style="--status-color: #8b5cf6;">
+                <div class="status-banner-left">
+                    <span class="status-indicator"></span>
+                    <div>
+                        <div class="status-banner-label">Archived</div>
+                        <div class="status-banner-note">
+                            Report is inactive and retained for historical traceability.
+                        </div>
+                    </div>
+                </div>
+                <span class="rd-badge badge-archived">Archived</span>
+            </div>
+        {% endif %}
+
+        <div class="report-detail-grid">
+            <main>
+                <section class="rd-panel">
+                    <div class="rd-panel-head">
+                        <div>
+                            <h2>Report Narrative</h2>
+                            <p>
+                                Investigation content recorded in this report version.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rd-panel-body">
+                        <div class="report-section">
+                            <div class="report-section-title">Executive Summary</div>
+                            {% if report.summary %}
+                                <div class="report-section-content">{{ report.summary }}</div>
+                            {% else %}
+                                <div class="report-section-empty">No executive summary recorded.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="report-section">
+                            <div class="report-section-title">Investigation Findings</div>
+                            {% if report.findings %}
+                                <div class="report-section-content">{{ report.findings }}</div>
+                            {% else %}
+                                <div class="report-section-empty">No investigation findings recorded.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="report-section">
+                            <div class="report-section-title">Evidence Summary</div>
+                            {% if report.evidence_summary %}
+                                <div class="report-section-content">{{ report.evidence_summary }}</div>
+                            {% else %}
+                                <div class="report-section-empty">No evidence summary recorded.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="report-section">
+                            <div class="report-section-title">AI Analysis Summary</div>
+                            {% if report.ai_analysis_summary %}
+                                <div class="report-section-content">{{ report.ai_analysis_summary }}</div>
+                            {% else %}
+                                <div class="report-section-empty">No reviewed AI analysis summary recorded.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="report-section">
+                            <div class="report-section-title">Conclusion</div>
+                            {% if report.conclusion %}
+                                <div class="report-section-content">{{ report.conclusion }}</div>
+                            {% else %}
+                                <div class="report-section-empty">No conclusion recorded.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="report-section">
+                            <div class="report-section-title">Recommendations</div>
+                            {% if report.recommendations %}
+                                <div class="report-section-content">{{ report.recommendations }}</div>
+                            {% else %}
+                                <div class="report-section-empty">No recommendations recorded.</div>
+                            {% endif %}
+                        </div>
+
+                        {% if report.review_notes %}
+                            <div class="report-section">
+                                <div class="report-section-title">Review Notes</div>
+                                <div class="report-section-content">{{ report.review_notes }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if report.approval_notes %}
+                            <div class="report-section">
+                                <div class="report-section-title">Approval Notes</div>
+                                <div class="report-section-content">{{ report.approval_notes }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if report.rejection_reason %}
+                            <div class="report-section">
+                                <div class="report-section-title">Rejection Reason</div>
+                                <div class="report-section-content">{{ report.rejection_reason }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if report.archive_reason %}
+                            <div class="report-section">
+                                <div class="report-section-title">Latest Archive Reason</div>
+                                <div class="report-section-content">{{ report.archive_reason }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="rd-panel">
+                    <div class="rd-panel-head">
+                        <div>
+                            <h2>Included Evidence</h2>
+                            <p>
+                                Evidence records explicitly referenced by this report.
+                            </p>
+                        </div>
+                        <span class="rd-pill">
+                            {{ evidence_items|length }} item{{ evidence_items|length|pluralize }}
+                        </span>
+                    </div>
+
+                    <div class="rd-panel-body">
+                        {% if evidence_items %}
+                            <div class="reference-list">
+                                {% for evidence in evidence_items %}
+                                    <div class="reference-item">
+                                        <div class="reference-title">
+                                            {{ evidence.evidence_title }}
+                                        </div>
+                                        <div class="reference-meta">
+                                            {{ evidence.evidence_number|default:evidence.pk }}
+                                            · {{ evidence.get_evidence_type_display }}
+                                            · Verification: {{ evidence.get_verification_status_display }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-mini">
+                                No evidence records have been explicitly linked to this report.
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="rd-panel">
+                    <div class="rd-panel-head">
+                        <div>
+                            <h2>Included AI Analyses</h2>
+                            <p>
+                                Completed AI analyses referenced in this report version.
+                            </p>
+                        </div>
+                        <span class="rd-pill">
+                            {{ analysis_items|length }} item{{ analysis_items|length|pluralize }}
+                        </span>
+                    </div>
+
+                    <div class="rd-panel-body">
+                        {% if analysis_items %}
+                            <div class="reference-list">
+                                {% for analysis in analysis_items %}
+                                    <div class="reference-item">
+                                        <div class="reference-title">
+                                            {{ analysis.title }}
+                                        </div>
+                                        <div class="reference-meta">
+                                            {{ analysis.analysis_number }}
+                                            · {{ analysis.get_analysis_type_display }}
+                                            · Threat: {{ analysis.get_threat_level_display }}
+                                            {% if analysis.risk_score is not None %}
+                                                · Risk {{ analysis.risk_score }}%
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-mini">
+                                No AI analyses have been explicitly linked to this report.
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </main>
+
+            <aside>
+                <section class="rd-panel">
+                    <div class="rd-panel-head">
+                        <div>
+                            <h2>Report Information</h2>
+                            <p>
+                                Authorship, lifecycle and case metadata.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rd-panel-body">
+                        <div class="facts-grid">
+                            <div class="fact-card">
+                                <div class="fact-label">Case</div>
+                                <div class="fact-value">
+                                    {{ report.case.case_number }}<br>
+                                    {{ report.case.case_title }}
+                                </div>
+                            </div>
+
+                            <div class="fact-card">
+                                <div class="fact-label">Generated By</div>
+                                <div class="fact-value">
+                                    {{ report.generated_by.full_name|default:report.generated_by.username }}
+                                </div>
+                            </div>
+
+                            <div class="fact-card">
+                                <div class="fact-label">Generated</div>
+                                <div class="fact-value">
+                                    {{ report.generated_date|date:"d M Y, H:i" }}
+                                </div>
+                            </div>
+
+                            <div class="fact-card">
+                                <div class="fact-label">Last Updated</div>
+                                <div class="fact-value">
+                                    {{ report.updated_date|date:"d M Y, H:i" }}
+                                </div>
+                            </div>
+
+                            <div class="fact-card">
+                                <div class="fact-label">Reviewed By</div>
+                                <div class="fact-value">
+                                    {% if report.reviewed_by %}
+                                        {{ report.reviewed_by.full_name|default:report.reviewed_by.username }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="fact-card">
+                                <div class="fact-label">Reviewed Date</div>
+                                <div class="fact-value">
+                                    {% if report.reviewed_date %}
+                                        {{ report.reviewed_date|date:"d M Y, H:i" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="fact-card">
+                                <div class="fact-label">Approved By</div>
+                                <div class="fact-value">
+                                    {% if report.approved_by %}
+                                        {{ report.approved_by.full_name|default:report.approved_by.username }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="fact-card">
+                                <div class="fact-label">Approved Date</div>
+                                <div class="fact-value">
+                                    {% if report.approved_date %}
+                                        {{ report.approved_date|date:"d M Y, H:i" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if report.published_by %}
+                                <div class="fact-card">
+                                    <div class="fact-label">Published By</div>
+                                    <div class="fact-value">
+                                        {{ report.published_by.full_name|default:report.published_by.username }}
+                                    </div>
+                                </div>
+
+                                <div class="fact-card">
+                                    <div class="fact-label">Published Date</div>
+                                    <div class="fact-value">
+                                        {{ report.published_date|date:"d M Y, H:i" }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rd-panel">
+                    <div class="rd-panel-head">
+                        <div>
+                            <h2>Workflow Actions</h2>
+                            <p>
+                                Actions shown here are role and state aware.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rd-panel-body">
+                        <div class="workflow-actions">
+                            {% if capabilities.can_submit %}
+                                <a
+                                    class="rd-btn rd-btn-warning"
+                                    href="{% url 'reports:report_submit_review' report_id=report.pk %}"
+                                >
+                                    Submit for Review
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_review %}
+                                <a
+                                    class="rd-btn rd-btn-warning"
+                                    href="{% url 'reports:report_review' report_id=report.pk %}"
+                                >
+                                    Review
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_approve %}
+                                <a
+                                    class="rd-btn rd-btn-success"
+                                    href="{% url 'reports:report_approve' report_id=report.pk %}"
+                                >
+                                    Approve
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_reject %}
+                                <a
+                                    class="rd-btn rd-btn-danger"
+                                    href="{% url 'reports:report_reject' report_id=report.pk %}"
+                                >
+                                    Reject
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_publish %}
+                                <a
+                                    class="rd-btn rd-btn-success"
+                                    href="{% url 'reports:report_publish' report_id=report.pk %}"
+                                >
+                                    Publish
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_create_revision %}
+                                <a
+                                    class="rd-btn rd-btn-secondary"
+                                    href="{% url 'reports:report_revision_create' report_id=report.pk %}"
+                                >
+                                    New Revision
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_archive %}
+                                <a
+                                    class="rd-btn rd-btn-danger"
+                                    href="{% url 'reports:report_archive' report_id=report.pk %}"
+                                >
+                                    Archive
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_restore %}
+                                <a
+                                    class="rd-btn rd-btn-success"
+                                    href="{% url 'reports:report_restore' report_id=report.pk %}"
+                                >
+                                    Restore
+                                </a>
+                            {% endif %}
+
+                            {% if capabilities.can_view_audit %}
+                                <a
+                                    class="rd-btn rd-btn-secondary"
+                                    href="{% url 'reports:report_audit' report_id=report.pk %}"
+                                >
+                                    Audit History
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rd-panel">
+                    <div class="rd-panel-head">
+                        <div>
+                            <h2>Report File</h2>
+                            <p>
+                                Generated/uploaded file and integrity fingerprint.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rd-panel-body">
+                        {% if report.report_file %}
+                            <div class="file-card">
+                                <div class="file-title">
+                                    {{ report.original_filename|default:report.report_file.name }}
+                                </div>
+
+                                <div class="file-meta">
+                                    Size: {{ report.file_size_mb }} MB<br>
+                                    SHA-256:
+                                    {% if report.file_sha256 %}
+                                        {{ report.file_sha256 }}
+                                    {% else %}
+                                        Not available
+                                    {% endif %}
+                                </div>
+
+                                <div class="file-actions">
+                                    {% if capabilities.can_download %}
+                                        <a
+                                            class="rd-btn rd-btn-primary"
+                                            href="{% url 'reports:report_download' report_id=report.pk %}"
+                                        >
+                                            Download
+                                        </a>
+                                    {% endif %}
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'reports:report_integrity_check' report_id=report.pk %}"
+                                    >
+                                        {% csrf_token %}
+                                        <button
+                                            class="rd-btn rd-btn-secondary"
+                                            type="submit"
+                                        >
+                                            Verify SHA-256
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="empty-mini">
+                                No report file is currently attached to this report version.
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                {% if revisions %}
+                    <section class="rd-panel">
+                        <div class="rd-panel-head">
+                            <div>
+                                <h2>Revisions</h2>
+                                <p>
+                                    Newer report versions linked to this record.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="rd-panel-body">
+                            <div class="reference-list">
+                                {% for revision in revisions %}
+                                    <a
+                                        class="revision-link"
+                                        href="{% url 'reports:report_detail' report_id=revision.pk %}"
+                                    >
+                                        v{{ revision.version }}
+                                        · {{ revision.report_number }}
+                                        · {{ revision.get_status_display }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+                {% endif %}
+
+                <section class="rd-panel">
+                    <div class="rd-panel-head">
+                        <div>
+                            <h2>Recent Audit Activity</h2>
+                            <p>
+                                Latest report lifecycle events.
+                            </p>
+                        </div>
+
+                        {% if capabilities.can_view_audit %}
+                            <a
+                                class="rd-btn rd-btn-secondary"
+                                href="{% url 'reports:report_audit' report_id=report.pk %}"
+                            >
+                                Full Audit
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="rd-panel-body">
+                        {% if recent_audit %}
+                            <div class="audit-list">
+                                {% for event in recent_audit %}
+                                    <div class="audit-item">
+                                        <div class="audit-dot"></div>
+
+                                        <div>
+                                            <div class="audit-message">
+                                                {{ event.message|default:event.get_event_type_display }}
+                                            </div>
+
+                                            <div class="audit-meta">
+                                                {{ event.get_event_type_display }}
+                                                ·
+                                                {% if event.actor %}
+                                                    {{ event.actor.full_name|default:event.actor.username }}
+                                                {% else %}
+                                                    System
+                                                {% endif %}
+                                                · {{ event.created_at|date:"d M Y, H:i" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-mini">
+                                No report audit activity has been recorded yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

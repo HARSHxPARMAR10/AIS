@@ -1,0 +1,1056 @@
+{% extends "base.html" %}
+
+{% block title %}
+Case Management | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .case-list-page {
+        padding: 32px 0 52px;
+    }
+
+    .case-list-container {
+        max-width: 1450px;
+        margin: 0 auto;
+    }
+
+    .page-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px;
+        border-radius: 24px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(96, 165, 250, 0.32),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #1e3a8a 52%,
+                #2563eb 100%
+            );
+        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+    }
+
+    .page-hero::before,
+    .page-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .page-hero::before {
+        width: 230px;
+        height: 230px;
+        left: -95px;
+        bottom: -125px;
+    }
+
+    .page-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 65px;
+        top: -105px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .page-title {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 2.15rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        max-width: 780px;
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.74);
+        line-height: 1.7;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .hero-actions .btn {
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 11px 18px;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 30px;
+        margin-bottom: 18px;
+    }
+
+    .section-heading h2 {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.28rem;
+        font-weight: 800;
+    }
+
+    .section-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.92rem;
+    }
+
+    .stat-card,
+    .filter-card,
+    .table-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .stat-card {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+        padding: 22px;
+        transition: all 0.22s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: #bfdbfe;
+        box-shadow: 0 18px 38px rgba(37, 99, 235, 0.10);
+    }
+
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        width: 88px;
+        height: 88px;
+        right: -30px;
+        bottom: -34px;
+        border-radius: 50%;
+        background: #eff6ff;
+    }
+
+    .stat-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        border-radius: 14px;
+        font-size: 1.2rem;
+    }
+
+    .stat-icon.total {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .stat-icon.active {
+        color: #0369a1;
+        background: #e0f2fe;
+    }
+
+    .stat-icon.priority {
+        color: #b45309;
+        background: #fef3c7;
+    }
+
+    .stat-icon.closed {
+        color: #15803d;
+        background: #dcfce7;
+    }
+
+    .stat-icon.unassigned {
+        color: #7c3aed;
+        background: #ede9fe;
+    }
+
+    .stat-icon.archived {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .stat-label {
+        margin-bottom: 6px;
+        color: #64748b;
+        font-size: 0.77rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .stat-value {
+        margin-bottom: 6px;
+        color: #0f172a;
+        font-size: 1.85rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .stat-text {
+        color: #64748b;
+        font-size: 0.83rem;
+    }
+
+    .filter-card {
+        padding: 24px;
+    }
+
+    .filter-title {
+        margin-bottom: 18px;
+    }
+
+    .filter-title h3 {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    .filter-title p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .filter-card label {
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 46px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
+    }
+
+    .filter-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .filter-actions .btn {
+        min-height: 44px;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+    .table-card {
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 22px 24px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table-card-header h3 {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 800;
+    }
+
+    .table-card-header p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        color: #1d4ed8;
+        background: #eff6ff;
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+
+    .case-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .case-table thead th {
+        padding: 14px 16px;
+        color: #64748b;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.73rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+        white-space: nowrap;
+    }
+
+    .case-table tbody td {
+        padding: 16px;
+        color: #334155;
+        border-color: #edf2f7;
+        font-size: 0.87rem;
+    }
+
+    .case-table tbody tr {
+        transition: background 0.18s ease;
+    }
+
+    .case-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .case-link {
+        color: #0f172a;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .case-link:hover {
+        color: #1d4ed8;
+    }
+
+    .case-number {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 0.77rem;
+    }
+
+    .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .badge-status {
+        color: #1d4ed8;
+        background: #eff6ff;
+    }
+
+    .badge-priority-low {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .badge-priority-medium {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .badge-priority-high {
+        color: #c2410c;
+        background: #ffedd5;
+    }
+
+    .badge-priority-critical {
+        color: #b91c1c;
+        background: #fee2e2;
+    }
+
+    .badge-active {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .badge-inactive {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 160px;
+    }
+
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 10px;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-weight: 800;
+    }
+
+    .user-name {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .user-meta {
+        color: #64748b;
+        font-size: 0.75rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .action-buttons .btn {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: 10px;
+    }
+
+    .empty-state {
+        padding: 52px 20px;
+        text-align: center;
+        color: #64748b;
+    }
+
+    .empty-state-icon {
+        width: 66px;
+        height: 66px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        border-radius: 20px;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-size: 1.65rem;
+    }
+
+    .empty-state h4 {
+        margin-bottom: 7px;
+        color: #0f172a;
+        font-weight: 800;
+    }
+
+    .empty-state p {
+        max-width: 500px;
+        margin: 0 auto 18px;
+    }
+
+    .pagination-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 24px;
+        border-top: 1px solid #e2e8f0;
+        background: #ffffff;
+    }
+
+    .pagination-info {
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .pagination {
+        margin-bottom: 0;
+        gap: 6px;
+    }
+
+    .page-link {
+        min-width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px !important;
+        border-color: #dbe3ee;
+        color: #334155;
+        font-weight: 700;
+    }
+
+    .page-item.active .page-link {
+        border-color: #2563eb;
+        background: #2563eb;
+    }
+
+    @media (max-width: 991.98px) {
+        .page-hero {
+            padding: 30px;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+
+        .section-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .pagination-wrapper {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .case-list-page {
+            padding: 18px 0 35px;
+        }
+
+        .page-hero {
+            padding: 27px 22px;
+        }
+
+        .page-title {
+            font-size: 1.72rem;
+        }
+
+        .filter-card {
+            padding: 20px;
+        }
+
+        .table-card-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="case-list-page">
+    <div class="case-list-container">
+
+        <section class="page-hero">
+            <div class="hero-content">
+                <div class="row align-items-center g-4">
+
+                    <div class="col-lg">
+                        <span class="hero-badge">
+                            <i class="bi bi-folder2-open"></i>
+                            AIDEX Case Management
+                        </span>
+
+                        <h1 class="page-title">
+                            {{ page_title }}
+                        </h1>
+
+                        <p class="page-subtitle">
+                            {{ page_subtitle }}
+                        </p>
+                    </div>
+
+                    <div class="col-lg-auto">
+                        <div class="hero-actions">
+                            {% if can_create_case %}
+                                <a
+                                    href="{% url 'cases:case_create' %}"
+                                    class="btn btn-light"
+                                >
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Create Case
+                                </a>
+                            {% endif %}
+
+                            <a
+                                href="{% url 'dashboard:dashboard_redirect' %}"
+                                class="btn btn-outline-light"
+                            >
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Dashboard
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="section-heading">
+            <div>
+                <h2>Case Overview</h2>
+                <p>
+                    Summary of all cases currently visible to your account.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-sm-6 col-xl-2">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon total">
+                            <i class="bi bi-folder2"></i>
+                        </div>
+
+                        <div class="stat-label">Total Cases</div>
+                        <div class="stat-value">{{ total_cases|default:0 }}</div>
+                        <div class="stat-text">All visible records</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-2">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon active">
+                            <i class="bi bi-activity"></i>
+                        </div>
+
+                        <div class="stat-label">Active</div>
+                        <div class="stat-value">{{ active_cases|default:0 }}</div>
+                        <div class="stat-text">Ongoing investigations</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-2">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon priority">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+
+                        <div class="stat-label">High Priority</div>
+                        <div class="stat-value">{{ high_priority_cases|default:0 }}</div>
+                        <div class="stat-text">High and critical cases</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-2">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon closed">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+
+                        <div class="stat-label">Closed</div>
+                        <div class="stat-value">{{ closed_cases|default:0 }}</div>
+                        <div class="stat-text">Completed investigations</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-2">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon unassigned">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+
+                        <div class="stat-label">Unassigned</div>
+                        <div class="stat-value">{{ unassigned_cases|default:0 }}</div>
+                        <div class="stat-text">Awaiting investigator</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-2">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon archived">
+                            <i class="bi bi-archive-fill"></i>
+                        </div>
+
+                        <div class="stat-label">Archived</div>
+                        <div class="stat-value">{{ archived_cases|default:0 }}</div>
+                        <div class="stat-text">Audit-only records</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-heading">
+            <div>
+                <h2>Search and Filters</h2>
+                <p>
+                    Find cases using case number, title, status, priority or investigator.
+                </p>
+            </div>
+        </div>
+
+        <section class="filter-card">
+            <div class="filter-title">
+                <h3>Filter Cases</h3>
+                <p>Use one or more fields to narrow down the case list.</p>
+            </div>
+
+            <form method="get" novalidate>
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label for="{{ filter_form.search.id_for_label }}">
+                            {{ filter_form.search.label }}
+                        </label>
+                        {{ filter_form.search }}
+                    </div>
+
+                    <div class="col-md-6 col-lg-2">
+                        <label for="{{ filter_form.crime_category.id_for_label }}">
+                            {{ filter_form.crime_category.label }}
+                        </label>
+                        {{ filter_form.crime_category }}
+                    </div>
+
+                    <div class="col-md-6 col-lg-2">
+                        <label for="{{ filter_form.priority.id_for_label }}">
+                            {{ filter_form.priority.label }}
+                        </label>
+                        {{ filter_form.priority }}
+                    </div>
+
+                    <div class="col-md-6 col-lg-2">
+                        <label for="{{ filter_form.status.id_for_label }}">
+                            {{ filter_form.status.label }}
+                        </label>
+                        {{ filter_form.status }}
+                    </div>
+
+                    <div class="col-md-6 col-lg-2">
+                        <label for="{{ filter_form.active_state.id_for_label }}">
+                            {{ filter_form.active_state.label }}
+                        </label>
+                        {{ filter_form.active_state }}
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <label for="{{ filter_form.assigned_investigator.id_for_label }}">
+                            {{ filter_form.assigned_investigator.label }}
+                        </label>
+                        {{ filter_form.assigned_investigator }}
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <label for="{{ filter_form.ordering.id_for_label }}">
+                            {{ filter_form.ordering.label }}
+                        </label>
+                        {{ filter_form.ordering }}
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel-fill me-2"></i>
+                        Apply Filters
+                    </button>
+
+                    <a href="{% url 'cases:case_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <div class="section-heading">
+            <div>
+                <h2>Case Records</h2>
+                <p>
+                    Review investigation details and open individual case records.
+                </p>
+            </div>
+        </div>
+
+        <section class="table-card">
+            <div class="table-card-header">
+                <div>
+                    <h3>Cases</h3>
+                    <p>
+                        Showing cases based on your current access and filters.
+                    </p>
+                </div>
+
+                <span class="result-badge">
+                    <i class="bi bi-list-check"></i>
+                    {{ result_count|default:0 }} Result{{ result_count|pluralize }}
+                </span>
+            </div>
+
+            {% if cases %}
+                <div class="table-responsive">
+                    <table class="table case-table">
+                        <thead>
+                            <tr>
+                                <th>Case</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Investigator</th>
+                                <th>Created</th>
+                                <th>State</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for case in cases %}
+                                <tr>
+                                    <td>
+                                        <a
+                                            href="{% url 'cases:case_detail' case.id %}"
+                                            class="case-link"
+                                        >
+                                            {{ case.case_title }}
+                                        </a>
+
+                                        <div class="case-number">
+                                            {{ case.case_number }}
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        {{ case.get_crime_category_display }}
+                                    </td>
+
+                                    <td>
+                                        {% if case.priority == "CRITICAL" %}
+                                            <span class="badge-soft badge-priority-critical">
+                                                {{ case.get_priority_display }}
+                                            </span>
+                                        {% elif case.priority == "HIGH" %}
+                                            <span class="badge-soft badge-priority-high">
+                                                {{ case.get_priority_display }}
+                                            </span>
+                                        {% elif case.priority == "MEDIUM" %}
+                                            <span class="badge-soft badge-priority-medium">
+                                                {{ case.get_priority_display }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-soft badge-priority-low">
+                                                {{ case.get_priority_display }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <span class="badge-soft badge-status">
+                                            {{ case.get_status_display }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if case.assigned_investigator %}
+                                            <div class="user-cell">
+                                                <div class="user-avatar">
+                                                    {{ case.assigned_investigator.full_name|default:case.assigned_investigator.username|slice:":1"|upper }}
+                                                </div>
+
+                                                <div>
+                                                    <div class="user-name">
+                                                        {{ case.assigned_investigator.full_name|default:case.assigned_investigator.username }}
+                                                    </div>
+
+                                                    <div class="user-meta">
+                                                        {{ case.assigned_investigator.badge_id }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">
+                                                Not assigned
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold text-dark">
+                                            {{ case.created_date|date:"d M Y" }}
+                                        </div>
+
+                                        <div class="text-muted small">
+                                            {{ case.created_date|date:"h:i A" }}
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        {% if case.is_active %}
+                                            <span class="badge-soft badge-active">
+                                                Active
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-soft badge-inactive">
+                                                Inactive
+                                            </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a
+                                                href="{% url 'cases:case_detail' case.id %}"
+                                                class="btn btn-outline-primary"
+                                                title="View Case"
+                                            >
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            {% if case.status != "ARCHIVED" %}
+                                                <a
+                                                    href="{% url 'cases:case_update' case.id %}"
+                                                    class="btn btn-outline-secondary"
+                                                    title="Update Case"
+                                                >
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if page_obj.paginator.num_pages > 1 %}
+                    <div class="pagination-wrapper">
+                        <div class="pagination-info">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </div>
+
+                        <nav aria-label="Case pagination">
+                            <ul class="pagination">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a
+                                            class="page-link"
+                                            href="?{% if query_string %}{{ query_string }}&{% endif %}page=1"
+                                            aria-label="First page"
+                                        >
+                                            <i class="bi bi-chevron-double-left"></i>
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item">
+                                        <a
+                                            class="page-link"
+                                            href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                                            aria-label="Previous page"
+                                        >
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for page_number in page_obj.paginator.page_range %}
+                                    {% if page_number == page_obj.number %}
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">
+                                                {{ page_number }}
+                                            </span>
+                                        </li>
+                                    {% elif page_number >= page_obj.number|add:"-2" and page_number <= page_obj.number|add:"2" %}
+                                        <li class="page-item">
+                                            <a
+                                                class="page-link"
+                                                href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_number }}"
+                                            >
+                                                {{ page_number }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a
+                                            class="page-link"
+                                            href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}"
+                                            aria-label="Next page"
+                                        >
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item">
+                                        <a
+                                            class="page-link"
+                                            href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.paginator.num_pages }}"
+                                            aria-label="Last page"
+                                        >
+                                            <i class="bi bi-chevron-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-folder-x"></i>
+                    </div>
+
+                    <h4>No Cases Found</h4>
+
+                    <p>
+                        No case records match your current search and filter criteria.
+                    </p>
+
+                    <a href="{% url 'cases:case_list' %}" class="btn btn-outline-primary">
+                        Clear Filters
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+
+    </div>
+</div>
+
+{% endblock %}

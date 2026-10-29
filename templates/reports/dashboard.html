@@ -1,0 +1,1149 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reports Dashboard | AIDEX{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --reports-bg: #07111f;
+        --reports-panel: rgba(12, 25, 43, 0.92);
+        --reports-panel-soft: rgba(15, 31, 52, 0.78);
+        --reports-border: rgba(148, 163, 184, 0.16);
+        --reports-border-strong: rgba(56, 189, 248, 0.28);
+        --reports-text: #e8eef7;
+        --reports-muted: #8fa4bd;
+        --reports-cyan: #38bdf8;
+        --reports-blue: #2563eb;
+        --reports-green: #22c55e;
+        --reports-amber: #f59e0b;
+        --reports-red: #ef4444;
+        --reports-violet: #8b5cf6;
+        --reports-slate: #64748b;
+        --reports-shadow: 0 24px 70px rgba(0, 0, 0, 0.26);
+    }
+
+    .reports-page {
+        min-height: calc(100vh - 70px);
+        padding: 28px 0 48px;
+        color: var(--reports-text);
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.13), transparent 28%),
+            radial-gradient(circle at 92% 8%, rgba(56, 189, 248, 0.09), transparent 24%),
+            transparent;
+    }
+
+    .reports-shell {
+        width: min(1440px, calc(100% - 32px));
+        margin: 0 auto;
+    }
+
+    .reports-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 30px;
+        border: 1px solid var(--reports-border);
+        border-radius: 24px;
+        background:
+            linear-gradient(135deg, rgba(15, 31, 52, 0.96), rgba(8, 19, 34, 0.96));
+        box-shadow: var(--reports-shadow);
+    }
+
+    .reports-hero::after {
+        content: "";
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        right: -110px;
+        top: -130px;
+        border-radius: 50%;
+        background: rgba(56, 189, 248, 0.08);
+        filter: blur(4px);
+        pointer-events: none;
+    }
+
+    .reports-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #7dd3fc;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .reports-eyebrow-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--reports-cyan);
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.8);
+    }
+
+    .reports-hero h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 3vw, 2.65rem);
+        line-height: 1.08;
+        letter-spacing: -0.035em;
+        color: #f8fbff;
+    }
+
+    .reports-hero p {
+        max-width: 760px;
+        margin: 12px 0 0;
+        color: var(--reports-muted);
+        line-height: 1.7;
+        font-size: 0.98rem;
+    }
+
+    .reports-hero-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+        min-width: max-content;
+    }
+
+    .reports-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 44px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        color: #eef7ff;
+        font-weight: 750;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition:
+            transform 160ms ease,
+            border-color 160ms ease,
+            background-color 160ms ease,
+            box-shadow 160ms ease;
+    }
+
+    .reports-btn:hover {
+        transform: translateY(-1px);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .reports-btn-primary {
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        box-shadow: 0 10px 28px rgba(37, 99, 235, 0.24);
+    }
+
+    .reports-btn-primary:hover {
+        box-shadow: 0 14px 32px rgba(37, 99, 235, 0.34);
+    }
+
+    .reports-btn-secondary {
+        border-color: rgba(148, 163, 184, 0.2);
+        background: rgba(255, 255, 255, 0.045);
+    }
+
+    .reports-btn-secondary:hover {
+        border-color: rgba(56, 189, 248, 0.35);
+        background: rgba(56, 189, 248, 0.08);
+    }
+
+    .reports-btn-icon {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .reports-context-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .reports-context-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border: 1px solid rgba(148, 163, 184, 0.13);
+        border-radius: 999px;
+        color: #a9bad0;
+        background: rgba(255, 255, 255, 0.035);
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .reports-context-pill strong {
+        color: #e5eef9;
+        font-weight: 800;
+    }
+
+    .reports-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+    }
+
+    .report-metric {
+        position: relative;
+        overflow: hidden;
+        min-height: 142px;
+        padding: 20px;
+        border: 1px solid var(--reports-border);
+        border-radius: 18px;
+        background: var(--reports-panel);
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.16);
+    }
+
+    .report-metric::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 3px;
+        background: var(--metric-color, var(--reports-cyan));
+    }
+
+    .report-metric-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .report-metric-label {
+        color: var(--reports-muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .report-metric-icon {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        color: var(--metric-color, var(--reports-cyan));
+        background: color-mix(in srgb, var(--metric-color, var(--reports-cyan)) 14%, transparent);
+        border: 1px solid color-mix(in srgb, var(--metric-color, var(--reports-cyan)) 25%, transparent);
+        font-size: 0.95rem;
+        font-weight: 900;
+    }
+
+    .report-metric-value {
+        margin-top: 16px;
+        color: #fff;
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+    }
+
+    .report-metric-note {
+        margin-top: 9px;
+        color: #7890aa;
+        font-size: 0.8rem;
+        line-height: 1.45;
+    }
+
+    .reports-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(310px, 0.85fr);
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    .reports-panel {
+        border: 1px solid var(--reports-border);
+        border-radius: 20px;
+        background: var(--reports-panel);
+        box-shadow: 0 18px 52px rgba(0, 0, 0, 0.16);
+        overflow: hidden;
+    }
+
+    .reports-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 19px 20px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.11);
+    }
+
+    .reports-panel-heading {
+        min-width: 0;
+    }
+
+    .reports-panel-heading h2 {
+        margin: 0;
+        color: #f5f8fc;
+        font-size: 1rem;
+        font-weight: 850;
+        letter-spacing: -0.01em;
+    }
+
+    .reports-panel-heading p {
+        margin: 5px 0 0;
+        color: #738aa5;
+        font-size: 0.78rem;
+        line-height: 1.45;
+    }
+
+    .reports-link {
+        color: #7dd3fc;
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .reports-link:hover {
+        color: #bae6fd;
+        text-decoration: none;
+    }
+
+    .reports-table-wrap {
+        overflow-x: auto;
+    }
+
+    .reports-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+    }
+
+    .reports-table th,
+    .reports-table td {
+        padding: 14px 18px;
+        text-align: left;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.085);
+        vertical-align: middle;
+    }
+
+    .reports-table th {
+        color: #6f879f;
+        background: rgba(255, 255, 255, 0.018);
+        font-size: 0.7rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .reports-table tbody tr {
+        transition: background-color 150ms ease;
+    }
+
+    .reports-table tbody tr:hover {
+        background: rgba(56, 189, 248, 0.032);
+    }
+
+    .reports-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .report-name {
+        max-width: 300px;
+    }
+
+    .report-name a {
+        display: block;
+        color: #e9f2fb;
+        font-size: 0.9rem;
+        font-weight: 800;
+        line-height: 1.35;
+        text-decoration: none;
+    }
+
+    .report-name a:hover {
+        color: #7dd3fc;
+    }
+
+    .report-name small,
+    .report-case small {
+        display: block;
+        margin-top: 4px;
+        color: #7188a2;
+        font-size: 0.73rem;
+    }
+
+    .report-case {
+        color: #c4d1df;
+        font-size: 0.82rem;
+        font-weight: 650;
+    }
+
+    .report-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 9px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-size: 0.69rem;
+        line-height: 1;
+        font-weight: 850;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.045em;
+    }
+
+    .badge-draft {
+        color: #cbd5e1;
+        background: rgba(100, 116, 139, 0.13);
+        border-color: rgba(100, 116, 139, 0.23);
+    }
+
+    .badge-review {
+        color: #fde68a;
+        background: rgba(245, 158, 11, 0.11);
+        border-color: rgba(245, 158, 11, 0.24);
+    }
+
+    .badge-approved {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.22);
+    }
+
+    .badge-rejected {
+        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.22);
+    }
+
+    .badge-published {
+        color: #a5f3fc;
+        background: rgba(6, 182, 212, 0.1);
+        border-color: rgba(6, 182, 212, 0.22);
+    }
+
+    .badge-archived {
+        color: #c4b5fd;
+        background: rgba(139, 92, 246, 0.1);
+        border-color: rgba(139, 92, 246, 0.22);
+    }
+
+    .badge-confidential {
+        color: #f0abfc;
+        background: rgba(192, 38, 211, 0.08);
+        border-color: rgba(192, 38, 211, 0.19);
+    }
+
+    .report-author {
+        color: #9db0c5;
+        font-size: 0.8rem;
+    }
+
+    .report-date {
+        color: #7890aa;
+        font-size: 0.76rem;
+        white-space: nowrap;
+    }
+
+    .report-open {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        color: #8fdfff;
+        border: 1px solid rgba(56, 189, 248, 0.16);
+        background: rgba(56, 189, 248, 0.05);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 900;
+    }
+
+    .report-open:hover {
+        color: #fff;
+        background: rgba(56, 189, 248, 0.12);
+        border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    .status-stack {
+        padding: 18px 20px 20px;
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .status-item:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .status-dot {
+        flex: 0 0 auto;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--status-color, var(--reports-cyan));
+        box-shadow: 0 0 14px color-mix(in srgb, var(--status-color, var(--reports-cyan)) 55%, transparent);
+    }
+
+    .status-label {
+        flex: 1;
+        min-width: 0;
+        color: #aebfd1;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .status-count {
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 900;
+    }
+
+    .reports-secondary-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+        margin-top: 18px;
+    }
+
+    .type-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 18px 20px 20px;
+    }
+
+    .type-card {
+        min-width: 0;
+        padding: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.024);
+    }
+
+    .type-card-label {
+        overflow: hidden;
+        color: #90a5bb;
+        font-size: 0.75rem;
+        font-weight: 750;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .type-card-value {
+        margin-top: 7px;
+        color: #fff;
+        font-size: 1.35rem;
+        font-weight: 900;
+    }
+
+    .review-list {
+        padding: 8px 20px 12px;
+    }
+
+    .review-item {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .review-item:last-child {
+        border-bottom: 0;
+    }
+
+    .review-title {
+        color: #e7eef7;
+        font-size: 0.84rem;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .review-meta {
+        margin-top: 5px;
+        color: #738aa5;
+        font-size: 0.72rem;
+        line-height: 1.45;
+    }
+
+    .review-button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 10px;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        border-radius: 9px;
+        color: #fcd34d;
+        background: rgba(245, 158, 11, 0.07);
+        text-decoration: none;
+        font-size: 0.72rem;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .review-button:hover {
+        color: #fff2bf;
+        border-color: rgba(245, 158, 11, 0.35);
+        background: rgba(245, 158, 11, 0.12);
+        text-decoration: none;
+    }
+
+    .reports-empty {
+        padding: 42px 22px;
+        text-align: center;
+    }
+
+    .reports-empty-icon {
+        display: grid;
+        place-items: center;
+        width: 54px;
+        height: 54px;
+        margin: 0 auto 14px;
+        border-radius: 16px;
+        color: #7dd3fc;
+        border: 1px solid rgba(56, 189, 248, 0.17);
+        background: rgba(56, 189, 248, 0.06);
+        font-size: 1.25rem;
+        font-weight: 900;
+    }
+
+    .reports-empty h3 {
+        margin: 0;
+        color: #eaf1f8;
+        font-size: 0.95rem;
+        font-weight: 850;
+    }
+
+    .reports-empty p {
+        max-width: 460px;
+        margin: 8px auto 0;
+        color: #7188a2;
+        font-size: 0.8rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 1120px) {
+        .reports-metrics {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .reports-shell {
+            width: min(100% - 20px, 1440px);
+        }
+
+        .reports-page {
+            padding-top: 14px;
+        }
+
+        .reports-hero {
+            flex-direction: column;
+            padding: 22px;
+            border-radius: 18px;
+        }
+
+        .reports-hero-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .reports-btn {
+            flex: 1 1 auto;
+        }
+
+        .reports-metrics,
+        .reports-secondary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .type-list {
+            grid-template-columns: 1fr;
+        }
+
+        .reports-panel-header {
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .reports-metrics {
+            gap: 10px;
+        }
+
+        .report-metric {
+            min-height: 126px;
+            padding: 17px;
+        }
+
+        .reports-hero-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="reports-page">
+    <div class="reports-shell">
+
+        <header class="reports-hero">
+            <div>
+                <div class="reports-eyebrow">
+                    <span class="reports-eyebrow-dot"></span>
+                    AIDEX Investigation Reporting
+                </div>
+
+                <h1>Reports Intelligence Dashboard</h1>
+
+                <p>
+                    Centralized control for cyber-crime investigation reports,
+                    review queues, approvals, publication status and report
+                    traceability across your authorized case scope.
+                </p>
+
+                <div class="reports-context-row">
+                    <span class="reports-context-pill">
+                        Role:
+                        <strong>{{ user_role|default:"Authorized User" }}</strong>
+                    </span>
+
+                    <span class="reports-context-pill">
+                        Active:
+                        <strong>{{ active_reports_count|default:0 }}</strong>
+                    </span>
+
+                    <span class="reports-context-pill">
+                        Review Queue:
+                        <strong>{{ status_counts.under_review|default:0 }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <div class="reports-hero-actions">
+                <a
+                    class="reports-btn reports-btn-secondary"
+                    href="{% url 'reports:report_list' %}"
+                >
+                    <span class="reports-btn-icon">≡</span>
+                    View Reports
+                </a>
+
+                {% if can_create_report %}
+                    <a
+                        class="reports-btn reports-btn-primary"
+                        href="{% url 'reports:report_create' %}"
+                    >
+                        <span class="reports-btn-icon">＋</span>
+                        Create Report
+                    </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="reports-metrics">
+            <article
+                class="report-metric"
+                style="--metric-color: #38bdf8;"
+            >
+                <div class="report-metric-top">
+                    <span class="report-metric-label">Total Reports</span>
+                    <span class="report-metric-icon">R</span>
+                </div>
+                <div class="report-metric-value">
+                    {{ total_reports|default:0 }}
+                </div>
+                <div class="report-metric-note">
+                    All report records visible within your authorized scope.
+                </div>
+            </article>
+
+            <article
+                class="report-metric"
+                style="--metric-color: #22c55e;"
+            >
+                <div class="report-metric-top">
+                    <span class="report-metric-label">Active Reports</span>
+                    <span class="report-metric-icon">A</span>
+                </div>
+                <div class="report-metric-value">
+                    {{ active_reports_count|default:0 }}
+                </div>
+                <div class="report-metric-note">
+                    Current reports excluding archived lifecycle records.
+                </div>
+            </article>
+
+            <article
+                class="report-metric"
+                style="--metric-color: #8b5cf6;"
+            >
+                <div class="report-metric-top">
+                    <span class="report-metric-label">Confidential</span>
+                    <span class="report-metric-icon">C</span>
+                </div>
+                <div class="report-metric-value">
+                    {{ confidential_reports_count|default:0 }}
+                </div>
+                <div class="report-metric-note">
+                    Reports marked confidential in the active reporting scope.
+                </div>
+            </article>
+
+            <article
+                class="report-metric"
+                style="--metric-color: #f59e0b;"
+            >
+                <div class="report-metric-top">
+                    <span class="report-metric-label">My Reports</span>
+                    <span class="report-metric-icon">M</span>
+                </div>
+                <div class="report-metric-value">
+                    {{ my_reports_count|default:0 }}
+                </div>
+                <div class="report-metric-note">
+                    Investigation reports generated using your account.
+                </div>
+            </article>
+        </div>
+
+        <div class="reports-grid">
+            <section class="reports-panel">
+                <div class="reports-panel-header">
+                    <div class="reports-panel-heading">
+                        <h2>Recent Investigation Reports</h2>
+                        <p>
+                            Latest active reports across accessible cyber-crime cases.
+                        </p>
+                    </div>
+
+                    <a
+                        class="reports-link"
+                        href="{% url 'reports:report_list' %}"
+                    >
+                        Open register →
+                    </a>
+                </div>
+
+                {% if recent_reports %}
+                    <div class="reports-table-wrap">
+                        <table class="reports-table">
+                            <thead>
+                                <tr>
+                                    <th>Report</th>
+                                    <th>Case</th>
+                                    <th>Status</th>
+                                    <th>Author</th>
+                                    <th>Generated</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for report in recent_reports %}
+                                    <tr>
+                                        <td class="report-name">
+                                            <a
+                                                href="{% url 'reports:report_detail' report_id=report.pk %}"
+                                            >
+                                                {{ report.report_title }}
+                                            </a>
+                                            <small>
+                                                {{ report.report_number }}
+                                                · v{{ report.version }}
+                                                · {{ report.get_report_type_display }}
+                                            </small>
+                                        </td>
+
+                                        <td class="report-case">
+                                            {{ report.case.case_number }}
+                                            <small>
+                                                {{ report.case.case_title|truncatechars:42 }}
+                                            </small>
+                                        </td>
+
+                                        <td>
+                                            {% if report.status == "DRAFT" %}
+                                                <span class="report-badge badge-draft">
+                                                    Draft
+                                                </span>
+                                            {% elif report.status == "UNDER_REVIEW" %}
+                                                <span class="report-badge badge-review">
+                                                    Under Review
+                                                </span>
+                                            {% elif report.status == "APPROVED" %}
+                                                <span class="report-badge badge-approved">
+                                                    Approved
+                                                </span>
+                                            {% elif report.status == "REJECTED" %}
+                                                <span class="report-badge badge-rejected">
+                                                    Rejected
+                                                </span>
+                                            {% elif report.status == "PUBLISHED" %}
+                                                <span class="report-badge badge-published">
+                                                    Published
+                                                </span>
+                                            {% elif report.status == "ARCHIVED" %}
+                                                <span class="report-badge badge-archived">
+                                                    Archived
+                                                </span>
+                                            {% else %}
+                                                <span class="report-badge badge-draft">
+                                                    {{ report.get_status_display }}
+                                                </span>
+                                            {% endif %}
+
+                                            {% if report.is_confidential %}
+                                                <span class="report-badge badge-confidential">
+                                                    Confidential
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="report-author">
+                                            {{ report.generated_by.full_name|default:report.generated_by.username }}
+                                        </td>
+
+                                        <td class="report-date">
+                                            {{ report.generated_date|date:"d M Y" }}
+                                            <br>
+                                            {{ report.generated_date|time:"H:i" }}
+                                        </td>
+
+                                        <td>
+                                            <a
+                                                class="report-open"
+                                                href="{% url 'reports:report_detail' report_id=report.pk %}"
+                                                title="Open report"
+                                                aria-label="Open {{ report.report_number }}"
+                                            >
+                                                →
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="reports-empty">
+                        <div class="reports-empty-icon">R</div>
+                        <h3>No active investigation reports yet</h3>
+                        <p>
+                            Reports created within your authorized case scope
+                            will appear here.
+                        </p>
+                        {% if can_create_report %}
+                            <div style="margin-top: 16px;">
+                                <a
+                                    class="reports-btn reports-btn-primary"
+                                    href="{% url 'reports:report_create' %}"
+                                >
+                                    Create First Report
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </section>
+
+            <aside class="reports-panel">
+                <div class="reports-panel-header">
+                    <div class="reports-panel-heading">
+                        <h2>Workflow Status</h2>
+                        <p>
+                            Current report lifecycle distribution.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="status-stack">
+                    <div
+                        class="status-item"
+                        style="--status-color: #64748b;"
+                    >
+                        <span class="status-dot"></span>
+                        <span class="status-label">Draft</span>
+                        <span class="status-count">
+                            {{ status_counts.draft|default:0 }}
+                        </span>
+                    </div>
+
+                    <div
+                        class="status-item"
+                        style="--status-color: #f59e0b;"
+                    >
+                        <span class="status-dot"></span>
+                        <span class="status-label">Under Review</span>
+                        <span class="status-count">
+                            {{ status_counts.under_review|default:0 }}
+                        </span>
+                    </div>
+
+                    <div
+                        class="status-item"
+                        style="--status-color: #22c55e;"
+                    >
+                        <span class="status-dot"></span>
+                        <span class="status-label">Approved</span>
+                        <span class="status-count">
+                            {{ status_counts.approved|default:0 }}
+                        </span>
+                    </div>
+
+                    <div
+                        class="status-item"
+                        style="--status-color: #ef4444;"
+                    >
+                        <span class="status-dot"></span>
+                        <span class="status-label">Rejected</span>
+                        <span class="status-count">
+                            {{ status_counts.rejected|default:0 }}
+                        </span>
+                    </div>
+
+                    <div
+                        class="status-item"
+                        style="--status-color: #06b6d4;"
+                    >
+                        <span class="status-dot"></span>
+                        <span class="status-label">Published</span>
+                        <span class="status-count">
+                            {{ status_counts.published|default:0 }}
+                        </span>
+                    </div>
+
+                    <div
+                        class="status-item"
+                        style="--status-color: #8b5cf6;"
+                    >
+                        <span class="status-dot"></span>
+                        <span class="status-label">Archived</span>
+                        <span class="status-count">
+                            {{ status_counts.archived|default:0 }}
+                        </span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <div class="reports-secondary-grid">
+            <section class="reports-panel">
+                <div class="reports-panel-header">
+                    <div class="reports-panel-heading">
+                        <h2>Report Type Distribution</h2>
+                        <p>
+                            Breakdown of active report categories.
+                        </p>
+                    </div>
+                </div>
+
+                {% if reports_by_type %}
+                    <div class="type-list">
+                        {% for item in reports_by_type %}
+                            <div class="type-card">
+                                <div class="type-card-label">
+                                    {% if item.report_type == "PRELIMINARY" %}
+                                        Preliminary Report
+                                    {% elif item.report_type == "EVIDENCE" %}
+                                        Evidence Report
+                                    {% elif item.report_type == "AI_ANALYSIS" %}
+                                        AI Analysis Report
+                                    {% elif item.report_type == "TECHNICAL" %}
+                                        Technical Report
+                                    {% elif item.report_type == "INVESTIGATION" %}
+                                        Investigation Report
+                                    {% elif item.report_type == "FINAL" %}
+                                        Final Investigation Report
+                                    {% elif item.report_type == "COURT_SUBMISSION" %}
+                                        Court Submission Report
+                                    {% else %}
+                                        {{ item.report_type }}
+                                    {% endif %}
+                                </div>
+                                <div class="type-card-value">
+                                    {{ item.total|default:0 }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="reports-empty">
+                        <div class="reports-empty-icon">T</div>
+                        <h3>No report distribution available</h3>
+                        <p>
+                            Report-type statistics will appear after reports are created.
+                        </p>
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="reports-panel">
+                <div class="reports-panel-header">
+                    <div class="reports-panel-heading">
+                        <h2>Formal Review Queue</h2>
+                        <p>
+                            Oldest reports awaiting review are shown first.
+                        </p>
+                    </div>
+                </div>
+
+                {% if review_queue %}
+                    <div class="review-list">
+                        {% for report in review_queue %}
+                            <div class="review-item">
+                                <div>
+                                    <div class="review-title">
+                                        {{ report.report_title }}
+                                    </div>
+                                    <div class="review-meta">
+                                        {{ report.report_number }}
+                                        · {{ report.case.case_number }}
+                                        · by
+                                        {{ report.generated_by.full_name|default:report.generated_by.username }}
+                                    </div>
+                                </div>
+
+                                <a
+                                    class="review-button"
+                                    href="{% url 'reports:report_detail' report_id=report.pk %}"
+                                >
+                                    Review
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="reports-empty">
+                        <div class="reports-empty-icon">✓</div>
+                        <h3>Review queue is clear</h3>
+                        <p>
+                            There are no accessible reports currently waiting
+                            in the Under Review state.
+                        </p>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

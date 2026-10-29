@@ -1,0 +1,1920 @@
+{% extends "base.html" %}
+
+{% block title %}
+Update Evidence | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evidence-update-page {
+        padding: 32px 0 56px;
+    }
+
+    .evidence-update-container {
+        max-width: 1240px;
+        margin: 0 auto;
+    }
+
+    .page-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px;
+        border-radius: 24px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(45, 212, 191, 0.28),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #0f766e 52%,
+                #14b8a6 100%
+            );
+        box-shadow: 0 22px 60px rgba(15, 118, 110, 0.22);
+    }
+
+    .page-hero::before,
+    .page-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .page-hero::before {
+        width: 230px;
+        height: 230px;
+        left: -95px;
+        bottom: -125px;
+    }
+
+    .page-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 65px;
+        top: -105px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .page-title {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 2.08rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        max-width: 780px;
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .hero-actions .btn {
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 11px 18px;
+    }
+
+    .form-layout {
+        margin-top: 28px;
+    }
+
+    .form-card,
+    .info-card,
+    .current-file-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .form-card {
+        padding: 28px;
+    }
+
+    .info-card,
+    .current-file-card {
+        padding: 24px;
+    }
+
+    .sticky-stack {
+        position: sticky;
+        top: 24px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.18rem;
+        font-weight: 800;
+    }
+
+    .card-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.87rem;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #0f766e;
+        background: #ccfbf1;
+        font-size: 1.15rem;
+    }
+
+    .evidence-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .summary-item {
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+    }
+
+    .summary-label {
+        margin-bottom: 5px;
+        color: #64748b;
+        font-size: 0.73rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+    }
+
+    .summary-value {
+        color: #0f172a;
+        font-size: 0.9rem;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .form-errors {
+        margin-bottom: 22px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 0.85rem;
+    }
+
+    .form-errors-title {
+        margin-bottom: 6px;
+        font-weight: 800;
+    }
+
+    .form-errors ul,
+    .field-error ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .form-section {
+        padding: 22px 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .form-section:first-of-type {
+        padding-top: 0;
+    }
+
+    .form-section:last-of-type {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .section-title {
+        margin-bottom: 16px;
+        color: #0f172a;
+        font-size: 0.98rem;
+        font-weight: 800;
+    }
+
+    .form-label {
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+
+    .required-mark {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 48px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+        color: #0f172a;
+    }
+
+    textarea.form-control {
+        min-height: 155px;
+        resize: vertical;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #2dd4bf;
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.12);
+    }
+
+    .form-text {
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 0.77rem;
+    }
+
+    .field-error {
+        margin-top: 7px;
+        color: #b91c1c;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .replace-warning {
+        margin-bottom: 16px;
+        padding: 15px 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .replace-warning strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+    .upload-zone {
+        position: relative;
+        min-height: 230px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 26px;
+        border: 2px dashed #99f6e4;
+        border-radius: 18px;
+        background: #f0fdfa;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.is-dragging {
+        transform: translateY(-2px);
+        border-color: #14b8a6;
+        background: #ecfeff;
+        box-shadow: 0 14px 28px rgba(20, 184, 166, 0.10);
+    }
+
+    .upload-zone.has-file {
+        border-style: solid;
+        border-color: #5eead4;
+    }
+
+    .upload-zone input[type="file"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-content {
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .upload-icon {
+        width: 66px;
+        height: 66px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+        border-radius: 20px;
+        color: #0f766e;
+        background: #ccfbf1;
+        font-size: 1.7rem;
+    }
+
+    .upload-title {
+        margin-bottom: 6px;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .upload-text {
+        margin-bottom: 8px;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .upload-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        color: #0f766e;
+        background: #ffffff;
+        border: 1px solid #ccfbf1;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .replacement-preview {
+        display: none;
+        margin-top: 16px;
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .replacement-preview.is-visible {
+        display: block;
+    }
+
+    .replacement-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .replacement-icon {
+        width: 46px;
+        height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #0f766e;
+        background: #ccfbf1;
+        font-size: 1.2rem;
+    }
+
+    .replacement-name {
+        color: #0f172a;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .replacement-meta {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .replacement-status {
+        margin-left: auto;
+    }
+
+    .media-preview {
+        display: none;
+        margin-top: 16px;
+        overflow: hidden;
+        border-radius: 15px;
+        background: #0f172a;
+        border: 1px solid #e2e8f0;
+    }
+
+    .media-preview.is-visible {
+        display: block;
+    }
+
+    .media-preview img,
+    .media-preview video,
+    .media-preview audio {
+        width: 100%;
+        max-height: 360px;
+        display: block;
+        object-fit: contain;
+        background: #0f172a;
+    }
+
+    .switch-panel {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .switch-panel .form-check-input {
+        width: 2.7rem;
+        height: 1.45rem;
+        margin-top: 2px;
+        cursor: pointer;
+    }
+
+    .switch-title {
+        color: #0f172a;
+        font-weight: 800;
+        font-size: 0.88rem;
+    }
+
+    .switch-text {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid #edf2f7;
+    }
+
+    .form-actions .btn {
+        min-width: 150px;
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .current-file-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .current-file-icon {
+        width: 52px;
+        height: 52px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 16px;
+        color: #0f766e;
+        background: #ccfbf1;
+        font-size: 1.3rem;
+    }
+
+    .current-file-name {
+        color: #0f172a;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .current-file-meta {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .current-file-preview {
+        overflow: hidden;
+        border-radius: 15px;
+        border: 1px solid #e2e8f0;
+        background: #0f172a;
+    }
+
+    .current-file-preview img,
+    .current-file-preview video,
+    .current-file-preview audio {
+        width: 100%;
+        max-height: 320px;
+        display: block;
+        object-fit: contain;
+        background: #0f172a;
+    }
+
+    .preview-fallback {
+        padding: 38px 18px;
+        text-align: center;
+        color: #cbd5e1;
+    }
+
+    .preview-fallback i {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 1.9rem;
+    }
+
+    .hash-box {
+        margin-top: 16px;
+        padding: 14px;
+        border-radius: 13px;
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-family: monospace;
+        font-size: 0.75rem;
+        word-break: break-all;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .info-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #0f766e;
+        background: #ccfbf1;
+    }
+
+    .info-title {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-size: 0.86rem;
+        font-weight: 800;
+    }
+
+    .info-text {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.79rem;
+        line-height: 1.55;
+    }
+
+    .audit-note {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .audit-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+    @media (max-width: 991.98px) {
+        .page-hero {
+            padding: 30px;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+
+        .sticky-stack {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .evidence-update-page {
+            padding: 18px 0 35px;
+        }
+
+        .page-hero {
+            padding: 27px 22px;
+        }
+
+        .page-title {
+            font-size: 1.72rem;
+        }
+
+        .form-card,
+        .info-card,
+        .current-file-card {
+            padding: 20px;
+        }
+
+        .evidence-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .replacement-row {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .replacement-status {
+            margin-left: 0;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+
+
+    /* AIDEX professional validation / action popup */
+    .aidex-popup-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(15, 23, 42, 0.50);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .aidex-popup-backdrop.is-visible {
+        display: flex;
+        opacity: 1;
+    }
+
+    .aidex-popup {
+        width: min(100%, 520px);
+        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.92);
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+        transform: translateY(10px) scale(0.98);
+        transition: transform 0.2s ease;
+    }
+
+    .aidex-popup-backdrop.is-visible .aidex-popup {
+        transform: translateY(0) scale(1);
+    }
+
+    .aidex-popup-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 22px 24px 18px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .aidex-popup-icon {
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        color: #b91c1c;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 1.25rem;
+    }
+
+    .aidex-popup-icon.is-warning {
+        color: #92400e;
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .aidex-popup-icon.is-success {
+        color: #166534;
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .aidex-popup-heading {
+        margin: 1px 0 4px;
+        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 800;
+        letter-spacing: -0.15px;
+    }
+
+    .aidex-popup-subheading {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.5;
+    }
+
+    .aidex-popup-close {
+        margin-left: auto;
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 36px;
+        border: 0;
+        border-radius: 10px;
+        color: #64748b;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+
+    .aidex-popup-close:hover {
+        color: #0f172a;
+        background: #eef2f7;
+    }
+
+    .aidex-popup-body {
+        padding: 20px 24px 8px;
+    }
+
+    .aidex-popup-message {
+        margin: 0;
+        padding: 15px 16px;
+        border: 1px solid #fee2e2;
+        border-radius: 14px;
+        color: #7f1d1d;
+        background: #fff7f7;
+        font-size: 0.9rem;
+        line-height: 1.65;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+        white-space: pre-line;
+    }
+
+    .aidex-popup-message.is-neutral {
+        color: #334155;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+    .aidex-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 24px 22px;
+    }
+
+    .aidex-popup-btn {
+        min-width: 96px;
+        border: 0;
+        border-radius: 11px;
+        padding: 10px 18px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #991b1b, #dc2626);
+        box-shadow: 0 8px 20px rgba(220, 38, 38, 0.18);
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .aidex-popup-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(220, 38, 38, 0.24);
+    }
+
+    .aidex-popup-btn.secondary {
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #dbe3ee;
+        box-shadow: none;
+    }
+
+    .aidex-popup-btn.secondary:hover {
+        background: #eef2f7;
+        box-shadow: none;
+    }
+
+    .aidex-popup-btn.success {
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.18);
+    }
+
+    body.aidex-popup-open {
+        overflow: hidden;
+    }
+
+    @media (max-width: 576px) {
+        .aidex-popup-backdrop { padding: 14px; }
+        .aidex-popup-top,
+        .aidex-popup-body,
+        .aidex-popup-actions { padding-left: 18px; padding-right: 18px; }
+    }
+
+</style>
+<script>
+(function () {
+    "use strict";
+    function initRequiredValidation() {
+        var form = document.getElementById("evidenceUpdateForm");
+        if (!form) return;
+        var fields = [
+            { id: "{{ form.case.id_for_label }}", label: "{{ form.case.label|escapejs }}", required: true },
+            { id: "{{ form.evidence_type.id_for_label }}", label: "{{ form.evidence_type.label|escapejs }}", required: true },
+            { id: "{{ form.evidence_title.id_for_label }}", label: "{{ form.evidence_title.label|escapejs }}", required: true }
+        ];
+        function missing() {
+            return fields.filter(function (f) {
+                var el=document.getElementById(f.id); if(!el) return false;
+                return !String(el.value || "").trim();
+            });
+        }
+        form.addEventListener("submit", function(e) {
+            fields.forEach(function(f){var el=document.getElementById(f.id); if(el) el.classList.remove("is-invalid");});
+            var miss=missing();
+            if(!miss.length) return;
+            e.preventDefault();
+            miss.forEach(function(f){var el=document.getElementById(f.id); if(el) el.classList.add("is-invalid");});
+            var msg = miss.length===1
+                ? miss[0].label + " is required. Please complete this field."
+                : "Please complete the following required fields:\n\n• " + miss.map(function(f){return f.label;}).join("\n• ");
+            if(window.aidexShowPopup) window.aidexShowPopup(msg, "Required Fields Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initRequiredValidation); else initRequiredValidation();
+})();
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="evidence-update-page">
+    <div class="evidence-update-container">
+
+        <section class="page-hero">
+            <div class="hero-content">
+                <div class="row align-items-center g-4">
+
+                    <div class="col-lg">
+                        <span class="hero-badge">
+                            <i class="bi bi-pencil-square"></i>
+                            Update Digital Evidence
+                        </span>
+
+                        <h1 class="page-title">
+                            {{ page_title }}
+                        </h1>
+
+                        <p class="page-subtitle">
+                            {{ page_subtitle }}
+                        </p>
+                    </div>
+
+                    <div class="col-lg-auto">
+                        <div class="hero-actions">
+                            <a
+                                href="{% url 'evidence:evidence_detail' evidence.id %}"
+                                class="btn btn-outline-light"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Back to Evidence
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="row g-4 form-layout">
+
+            <div class="col-lg-8">
+                <section class="form-card">
+
+                    <div class="card-heading">
+                        <div>
+                            <h2>Update Evidence Information</h2>
+                            <p>
+                                Edit metadata or replace the current evidence file.
+                            </p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="evidence-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Case</div>
+                            <div class="summary-value">
+                                {{ evidence.case.case_number }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Verification</div>
+                            <div class="summary-value">
+                                {{ evidence.get_verification_status_display }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">Uploaded</div>
+                            <div class="summary-value">
+                                {{ evidence.uploaded_date|date:"d M Y" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="form-errors">
+                            <div class="form-errors-title">
+                                Please correct the following:
+                            </div>
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <form
+                        method="post"
+                        enctype="multipart/form-data"
+                        id="evidenceUpdateForm"
+                        novalidate
+                    >
+                        {% csrf_token %}
+                        <input
+                            type="hidden"
+                            name="edit_version"
+                            value="{{ edit_version }}"
+                        >
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                Evidence Metadata
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label
+                                        for="{{ form.case.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.case.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.case }}
+
+                                    {% if form.case.help_text %}
+                                        <div class="form-text">
+                                            {{ form.case.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.case.errors %}
+                                        <div class="field-error">
+                                            {{ form.case.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label
+                                        for="{{ form.evidence_type.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.evidence_type.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.evidence_type }}
+
+                                    {% if form.evidence_type.help_text %}
+                                        <div class="form-text">
+                                            {{ form.evidence_type.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.evidence_type.errors %}
+                                        <div class="field-error">
+                                            {{ form.evidence_type.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label
+                                        for="{{ form.evidence_title.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.evidence_title.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.evidence_title }}
+
+                                    {% if form.evidence_title.help_text %}
+                                        <div class="form-text">
+                                            {{ form.evidence_title.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.evidence_title.errors %}
+                                        <div class="field-error">
+                                            {{ form.evidence_title.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label
+                                        for="{{ form.description.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.description.label }}
+                                    </label>
+
+                                    {{ form.description }}
+
+                                    {% if form.description.help_text %}
+                                        <div class="form-text">
+                                            {{ form.description.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.description.errors %}
+                                        <div class="field-error">
+                                            {{ form.description.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                Replace Evidence File
+                            </div>
+
+                            <div class="replace-warning">
+                                <strong>
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    File Replacement Notice
+                                </strong>
+
+                                Selecting a new file replaces the current evidence file,
+                                clears its previous verification decision and generates a
+                                new SHA-256 hash. Leave this field empty to keep the existing file.
+                            </div>
+
+                            <div
+                                class="upload-zone"
+                                id="uploadZone"
+                                tabindex="0"
+                                role="button"
+                                aria-label="Replace evidence file"
+                            >
+                                {{ form.evidence_file }}
+
+                                <div class="upload-content">
+                                    <div class="upload-icon">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </div>
+
+                                    <div class="upload-title">
+                                        Drag and drop a replacement file
+                                    </div>
+
+                                    <div class="upload-text">
+                                        or click this area to select a new file
+                                    </div>
+
+                                    <span class="upload-hint">
+                                        <i class="bi bi-hdd-fill"></i>
+                                        Maximum size: {{ maximum_evidence_file_size_mb }} MB
+                                    </span>
+                                </div>
+                            </div>
+
+                            {% if form.evidence_file.help_text %}
+                                <div class="form-text">
+                                    {{ form.evidence_file.help_text }}
+                                </div>
+                            {% endif %}
+
+                            {% if form.evidence_file.errors %}
+                                <div class="field-error">
+                                    {{ form.evidence_file.errors }}
+                                </div>
+                            {% endif %}
+
+                            <div
+                                class="replacement-preview"
+                                id="replacementPreview"
+                            >
+                                <div class="replacement-row">
+                                    <div class="replacement-icon">
+                                        <i
+                                            class="bi bi-file-earmark-fill"
+                                            id="replacementIcon"
+                                        ></i>
+                                    </div>
+
+                                    <div>
+                                        <div
+                                            class="replacement-name"
+                                            id="replacementName"
+                                        >
+                                            No replacement selected
+                                        </div>
+
+                                        <div
+                                            class="replacement-meta"
+                                            id="replacementMeta"
+                                        >
+                                            Replacement file details will appear here.
+                                        </div>
+                                    </div>
+
+                                    <div class="replacement-status">
+                                        <span
+                                            class="badge text-bg-success"
+                                            id="replacementStatus"
+                                        >
+                                            Ready
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="media-preview"
+                                id="mediaPreview"
+                            >
+                                <img
+                                    id="imagePreview"
+                                    alt="Replacement evidence preview"
+                                >
+                                <video
+                                    id="videoPreview"
+                                    controls
+                                    preload="metadata"
+                                ></video>
+                                <audio
+                                    id="audioPreview"
+                                    controls
+                                    preload="metadata"
+                                ></audio>
+                            </div>
+                        </div>
+
+                        {% if form.is_active %}
+                            <div class="form-section">
+                                <div class="section-title">
+                                    Record State
+                                </div>
+
+                                <div class="switch-panel">
+                                    {{ form.is_active }}
+
+                                    <div>
+                                        <label
+                                            for="{{ form.is_active.id_for_label }}"
+                                            class="switch-title"
+                                        >
+                                            {{ form.is_active.label }}
+                                        </label>
+
+                                        <div class="switch-text">
+                                            {{ form.is_active.help_text }}
+                                        </div>
+
+                                        {% if form.is_active.errors %}
+                                            <div class="field-error">
+                                                {{ form.is_active.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="form-actions">
+                            <a
+                                href="{% url 'evidence:evidence_detail' evidence.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                <i class="bi bi-x-circle me-2"></i>
+                                Cancel
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                id="saveButton"
+                            >
+                                <i class="bi bi-save2 me-2"></i>
+                                {{ submit_label|default:"Save Changes" }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sticky-stack">
+
+                    <section class="current-file-card mb-4">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Current Evidence File</h3>
+                                <p>Existing stored file and integrity metadata.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-file-earmark-lock-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="current-file-header">
+                            <div class="current-file-icon">
+                                <i class="bi bi-file-earmark-fill"></i>
+                            </div>
+
+                            <div>
+                                <div class="current-file-name">
+                                    {{ evidence.original_filename|default:evidence.filename }}
+                                </div>
+
+                                <div class="current-file-meta">
+                                    {{ evidence.file_extension|upper }}
+                                    ·
+                                    {{ evidence.file_size_mb }} MB
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="current-file-preview">
+                            {% if evidence.evidence_type == "IMAGE" or evidence.evidence_type == "SCREENSHOT" %}
+                                <img
+                                    src="{{ evidence.evidence_file.url }}"
+                                    alt="{{ evidence.evidence_title }}"
+                                >
+                            {% elif evidence.evidence_type == "VIDEO" %}
+                                <video controls preload="metadata">
+                                    <source src="{{ evidence.evidence_file.url }}">
+                                </video>
+                            {% elif evidence.evidence_type == "AUDIO" %}
+                                <audio controls preload="metadata">
+                                    <source src="{{ evidence.evidence_file.url }}">
+                                </audio>
+                            {% else %}
+                                <div class="preview-fallback">
+                                    <i class="bi bi-file-earmark-text-fill"></i>
+                                    Browser preview is unavailable for this file type.
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="hash-box">
+                            {{ evidence.sha256_hash|default:"Hash not available" }}
+                        </div>
+                    </section>
+
+                    <aside class="info-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Update Guidelines</h3>
+                                <p>Keep the evidence record accurate and traceable.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-info-circle-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-pencil-square"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Update Metadata Carefully
+                                    </div>
+
+                                    <p class="info-text">
+                                        Change titles, descriptions and categories only when
+                                        the revised information is accurate.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-fingerprint"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        File Replacement Resets Integrity
+                                    </div>
+
+                                    <p class="info-text">
+                                        Replacing a file generates a new SHA-256 hash and returns
+                                        the evidence to pending verification.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-camera-video-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Large File Support
+                                    </div>
+
+                                    <p class="info-text">
+                                        Images, video, audio, documents and archives up to
+                                        {{ maximum_evidence_file_size_mb }} MB are supported by default.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Preserve Audit Accuracy
+                                    </div>
+
+                                    <p class="info-text">
+                                        Avoid unnecessary changes and keep every update factual,
+                                        relevant and investigation-focused.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="audit-note">
+                            <strong>
+                                <i class="bi bi-shield-lock-fill me-2"></i>
+                                Audit Reminder
+                            </strong>
+
+                            Every successful update changes the evidence modification timestamp.
+                            File replacements also require a new verification review.
+                        </div>
+                    </aside>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+    function initRequiredValidation() {
+        var form = document.getElementById("evidenceUpdateForm");
+        if (!form) return;
+        var fields = [
+            { id: "{{ form.case.id_for_label }}", label: "{{ form.case.label|escapejs }}", required: true },
+            { id: "{{ form.evidence_type.id_for_label }}", label: "{{ form.evidence_type.label|escapejs }}", required: true },
+            { id: "{{ form.evidence_title.id_for_label }}", label: "{{ form.evidence_title.label|escapejs }}", required: true }
+        ];
+        function missing() {
+            return fields.filter(function (f) {
+                var el=document.getElementById(f.id); if(!el) return false;
+                return !String(el.value || "").trim();
+            });
+        }
+        form.addEventListener("submit", function(e) {
+            fields.forEach(function(f){var el=document.getElementById(f.id); if(el) el.classList.remove("is-invalid");});
+            var miss=missing();
+            if(!miss.length) return;
+            e.preventDefault();
+            miss.forEach(function(f){var el=document.getElementById(f.id); if(el) el.classList.add("is-invalid");});
+            var msg = miss.length===1
+                ? miss[0].label + " is required. Please complete this field."
+                : "Please complete the following required fields:\n\n• " + miss.map(function(f){return f.label;}).join("\n• ");
+            if(window.aidexShowPopup) window.aidexShowPopup(msg, "Required Fields Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initRequiredValidation); else initRequiredValidation();
+})();
+</script>
+
+{% endblock %}
+
+
+
+<div
+    class="aidex-popup-backdrop"
+    id="aidexPopupBackdrop"
+    role="presentation"
+    aria-hidden="true"
+>
+    <div
+        class="aidex-popup"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="aidexPopupTitle"
+        aria-describedby="aidexPopupMessage"
+    >
+        <div class="aidex-popup-top">
+            <div class="aidex-popup-icon" id="aidexPopupIcon" aria-hidden="true">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <div>
+                <h2 class="aidex-popup-heading" id="aidexPopupTitle">
+                    Validation Required
+                </h2>
+                <p class="aidex-popup-subheading" id="aidexPopupSubtitle">
+                    Please review the information before continuing.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="aidex-popup-close"
+                id="aidexPopupClose"
+                aria-label="Close message"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="aidex-popup-body">
+            <p class="aidex-popup-message" id="aidexPopupMessage"></p>
+        </div>
+
+        <div class="aidex-popup-actions">
+            <button
+                type="button"
+                class="aidex-popup-btn secondary"
+                id="aidexPopupCancel"
+                style="display:none;"
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                class="aidex-popup-btn"
+                id="aidexPopupOk"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    (() => {
+        const maximumFileSize = Number("{{ maximum_evidence_file_size }}");
+        const form = document.getElementById("evidenceUpdateForm");
+        const uploadZone = document.getElementById("uploadZone");
+        const fileInput = document.getElementById("{{ form.evidence_file.id_for_label }}");
+        const replacementPreview = document.getElementById("replacementPreview");
+        const replacementName = document.getElementById("replacementName");
+        const replacementMeta = document.getElementById("replacementMeta");
+        const replacementIcon = document.getElementById("replacementIcon");
+        const replacementStatus = document.getElementById("replacementStatus");
+        const mediaPreview = document.getElementById("mediaPreview");
+        const imagePreview = document.getElementById("imagePreview");
+        const videoPreview = document.getElementById("videoPreview");
+        const audioPreview = document.getElementById("audioPreview");
+        const saveButton = document.getElementById("saveButton");
+        const evidenceTypeSelect = document.getElementById("{{ form.evidence_type.id_for_label }}");
+
+        const popup = document.getElementById("aidexPopupBackdrop");
+        const popupMessage = document.getElementById("aidexPopupMessage");
+        const popupTitle = document.getElementById("aidexPopupTitle");
+        const popupSubtitle = document.getElementById("aidexPopupSubtitle");
+        const popupIcon = document.getElementById("aidexPopupIcon");
+        const popupClose = document.getElementById("aidexPopupClose");
+        const popupOk = document.getElementById("aidexPopupOk");
+        const popupCancel = document.getElementById("aidexPopupCancel");
+
+        const extensionMap = {
+            IMAGE: ["jpg","jpeg","png","gif","bmp","tif","tiff","webp"],
+            VIDEO: ["mp4","mov","avi","mkv","wmv","flv","webm","m4v"],
+            AUDIO: ["mp3","wav","aac","ogg","flac","m4a"],
+            DOCUMENT: ["pdf","doc","docx","xls","xlsx","ppt","pptx","txt","csv","json","xml","md"],
+            EMAIL: ["eml","txt","pdf"], CHAT: ["txt","csv","json","pdf"],
+            LOG_FILE: ["log","txt","csv","json"], ARCHIVE: ["zip","rar","7z"],
+            SCREENSHOT: ["jpg","jpeg","png","gif","bmp","tif","tiff","webp"]
+        };
+
+        let previewObjectUrl = null;
+
+        const closePopup = () => {
+            popup.classList.remove("is-visible");
+            popup.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("aidex-popup-open");
+        };
+
+        const showPopup = (message, options = {}) => {
+            if (!message) return;
+            popupTitle.textContent = options.title || "Validation Required";
+            popupSubtitle.textContent = options.subtitle || "Please review the information before continuing.";
+            popupMessage.textContent = String(message).trim();
+            popupMessage.classList.toggle("is-neutral", options.neutral === true);
+            popupIcon.classList.toggle("is-warning", options.warning === true);
+            popupIcon.classList.toggle("is-success", options.success === true);
+            popupIcon.querySelector("i").className = options.success
+                ? "bi bi-check-circle-fill"
+                : options.warning ? "bi bi-exclamation-triangle-fill" : "bi bi-exclamation-triangle-fill";
+            popupCancel.style.display = "none";
+            popupOk.textContent = "OK";
+            popupOk.classList.remove("success");
+            popupOk.onclick = closePopup;
+            popup.classList.add("is-visible");
+            popup.setAttribute("aria-hidden", "false");
+            document.body.classList.add("aidex-popup-open");
+            window.setTimeout(() => popupOk.focus(), 0);
+        };
+
+        popupClose.addEventListener("click", closePopup);
+        popupOk.addEventListener("click", closePopup);
+        popup.addEventListener("click", (event) => {
+            if (event.target === popup) closePopup();
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && popup.classList.contains("is-visible")) closePopup();
+        });
+
+        const collectServerErrors = () => {
+            const nodes = document.querySelectorAll(".form-errors, .field-error");
+            const messages = [];
+            nodes.forEach((node) => {
+                const text = node.innerText.replace(/\s+/g, " ").trim();
+                if (text && !messages.includes(text)) messages.push(text);
+            });
+            return messages.join("\n\n");
+        };
+
+        const formatBytes = (bytes) => {
+            if (!Number.isFinite(bytes) || bytes <= 0) return "0 bytes";
+            const units = ["bytes", "KB", "MB", "GB", "TB"];
+            const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+            const value = bytes / Math.pow(1024, index);
+            return `${value.toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
+        };
+
+        const getExtension = (filename) => {
+            const parts = String(filename || "").split(".");
+            return parts.length > 1 ? parts.pop().toLowerCase() : "";
+        };
+
+        const resetMediaPreview = () => {
+            if (previewObjectUrl) { URL.revokeObjectURL(previewObjectUrl); previewObjectUrl = null; }
+            imagePreview.removeAttribute("src"); videoPreview.removeAttribute("src"); audioPreview.removeAttribute("src");
+            imagePreview.style.display = "none"; videoPreview.style.display = "none"; audioPreview.style.display = "none";
+            mediaPreview.classList.remove("is-visible");
+        };
+
+        const setFileIcon = (file) => {
+            const extension = getExtension(file.name);
+            let iconClass = "bi-file-earmark-fill";
+            if (file.type.startsWith("image/")) iconClass = "bi-file-earmark-image-fill";
+            else if (file.type.startsWith("video/")) iconClass = "bi-file-earmark-play-fill";
+            else if (file.type.startsWith("audio/")) iconClass = "bi-file-earmark-music-fill";
+            else if (extension === "pdf") iconClass = "bi-file-earmark-pdf-fill";
+            else if (["zip","rar","7z"].includes(extension)) iconClass = "bi-file-earmark-zip-fill";
+            else if (["txt","csv","log","json","xml"].includes(extension)) iconClass = "bi-file-earmark-text-fill";
+            replacementIcon.className = `bi ${iconClass}`;
+        };
+
+        const renderMediaPreview = (file) => {
+            resetMediaPreview();
+            if (file.type.startsWith("image/") || file.type.startsWith("video/") || file.type.startsWith("audio/")) {
+                previewObjectUrl = URL.createObjectURL(file);
+                mediaPreview.classList.add("is-visible");
+                if (file.type.startsWith("image/")) { imagePreview.src = previewObjectUrl; imagePreview.style.display = "block"; }
+                else if (file.type.startsWith("video/")) { videoPreview.src = previewObjectUrl; videoPreview.style.display = "block"; }
+                else { audioPreview.src = previewObjectUrl; audioPreview.style.display = "block"; }
+            }
+        };
+
+        const showInvalidFile = (message) => {
+            uploadZone.classList.remove("has-file");
+            replacementPreview.classList.add("is-visible");
+            replacementName.textContent = "Invalid replacement file";
+            replacementMeta.textContent = message;
+            replacementStatus.textContent = "Blocked";
+            replacementStatus.className = "badge text-bg-danger";
+            saveButton.disabled = true;
+            resetMediaPreview();
+            showPopup(message, { title: "Evidence Validation Failed", subtitle: "The selected file does not match the current evidence requirements." });
+        };
+
+        const renderFile = (file) => {
+            if (!file) return;
+            if (file.size > maximumFileSize) {
+                showInvalidFile(`The selected file is ${formatBytes(file.size)}. The maximum allowed size is {{ maximum_evidence_file_size_mb }} MB.`);
+                return;
+            }
+            const selectedType = evidenceTypeSelect ? evidenceTypeSelect.value : "";
+            const allowed = extensionMap[selectedType];
+            const extension = getExtension(file.name);
+            if (allowed && extension && !allowed.includes(extension)) {
+                const label = evidenceTypeSelect.options[evidenceTypeSelect.selectedIndex]?.textContent.trim() || selectedType;
+                showInvalidFile(`The .${extension} file format does not match the selected evidence type '${label}'.`);
+                return;
+            }
+            uploadZone.classList.add("has-file");
+            replacementPreview.classList.add("is-visible");
+            setFileIcon(file);
+            replacementName.textContent = file.name;
+            replacementMeta.textContent = `${formatBytes(file.size)} · ${file.type || "Unknown file type"}`;
+            replacementStatus.textContent = "Ready";
+            replacementStatus.className = "badge text-bg-success";
+            saveButton.disabled = false;
+            renderMediaPreview(file);
+        };
+
+        if (uploadZone && fileInput) {
+            uploadZone.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") { event.preventDefault(); fileInput.click(); }
+            });
+            ["dragenter", "dragover"].forEach((eventName) => uploadZone.addEventListener(eventName, (event) => {
+                event.preventDefault(); event.stopPropagation(); uploadZone.classList.add("is-dragging");
+            }));
+            ["dragleave", "drop"].forEach((eventName) => uploadZone.addEventListener(eventName, (event) => {
+                event.preventDefault(); event.stopPropagation(); uploadZone.classList.remove("is-dragging");
+            }));
+            uploadZone.addEventListener("drop", (event) => {
+                const files = event.dataTransfer.files;
+                if (!files || !files.length) return;
+                const dataTransfer = new DataTransfer(); dataTransfer.items.add(files[0]); fileInput.files = dataTransfer.files; renderFile(files[0]);
+            });
+            fileInput.addEventListener("change", () => renderFile(fileInput.files[0]));
+        }
+
+        if (form) {
+            form.addEventListener("submit", (event) => {
+                const file = fileInput && fileInput.files[0];
+                if (file) {
+                    const extension = getExtension(file.name);
+                    const selectedType = evidenceTypeSelect ? evidenceTypeSelect.value : "";
+                    const allowed = extensionMap[selectedType];
+                    if (file.size > maximumFileSize) {
+                        event.preventDefault();
+                        showInvalidFile(`The selected replacement file exceeds the {{ maximum_evidence_file_size_mb }} MB upload limit.`);
+                        return;
+                    }
+                    if (allowed && extension && !allowed.includes(extension)) {
+                        event.preventDefault();
+                        const label = evidenceTypeSelect.options[evidenceTypeSelect.selectedIndex]?.textContent.trim() || selectedType;
+                        showInvalidFile(`The .${extension} file format does not match the selected evidence type '${label}'.`);
+                        return;
+                    }
+                }
+                const serverErrors = collectServerErrors();
+                if (serverErrors) {
+                    event.preventDefault();
+                    showPopup(serverErrors);
+                    return;
+                }
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving Changes';
+            });
+        }
+
+        const serverErrors = collectServerErrors();
+        if (serverErrors) showPopup(serverErrors);
+        window.addEventListener("beforeunload", resetMediaPreview);
+    })();
+</script>
+
+
+<script>
+(function () {
+    "use strict";
+
+    function initAidexPopup() {
+        if (document.getElementById("aidexHardValidationPopup")) return;
+
+        var style = document.createElement("style");
+        style.textContent = `
+            #aidexHardValidationPopup {
+                position: fixed; inset: 0; z-index: 2147483647;
+                display: none; align-items: center; justify-content: center;
+                background: rgba(8, 15, 30, .58); backdrop-filter: blur(5px);
+                padding: 20px;
+            }
+            #aidexHardValidationPopup.aidex-open { display: flex !important; }
+            #aidexHardValidationPopup .aidex-box {
+                width: min(460px, 100%); background: #fff; border-radius: 18px;
+                box-shadow: 0 24px 80px rgba(0,0,0,.28); overflow: hidden;
+                animation: aidexPop .18s ease-out;
+            }
+            #aidexHardValidationPopup .aidex-top {
+                display:flex; gap:14px; align-items:center; padding:22px 22px 12px;
+            }
+            #aidexHardValidationPopup .aidex-icon {
+                width:46px; height:46px; border-radius:14px; display:grid;
+                place-items:center; background:#fff1f2; color:#dc2626; font-size:22px;
+                flex:0 0 46px;
+            }
+            #aidexHardValidationPopup .aidex-title { margin:0; font-size:18px; font-weight:700; color:#111827; }
+            #aidexHardValidationPopup .aidex-subtitle { margin:3px 0 0; font-size:12px; color:#6b7280; }
+            #aidexHardValidationPopup .aidex-message {
+                padding:0 22px 20px; color:#374151; font-size:14px; line-height:1.6;
+                white-space:pre-line;
+            }
+            #aidexHardValidationPopup .aidex-actions {
+                padding:14px 22px 20px; display:flex; justify-content:flex-end;
+                border-top:1px solid #eef0f4;
+            }
+            #aidexHardValidationPopup button {
+                border:0; border-radius:10px; padding:9px 22px; background:#111827;
+                color:#fff; font-weight:600; cursor:pointer;
+            }
+            @keyframes aidexPop { from { opacity:0; transform:translateY(8px) scale(.98) } to { opacity:1; transform:none } }
+        `;
+        document.head.appendChild(style);
+
+        var popup = document.createElement("div");
+        popup.id = "aidexHardValidationPopup";
+        popup.setAttribute("role", "alertdialog");
+        popup.setAttribute("aria-modal", "true");
+        popup.innerHTML = `
+            <div class="aidex-box">
+                <div class="aidex-top">
+                    <div class="aidex-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <div>
+                        <h3 class="aidex-title">Action Required</h3>
+                        <div class="aidex-subtitle">AIDEX validation notice</div>
+                    </div>
+                </div>
+                <div class="aidex-message" id="aidexHardValidationMessage"></div>
+                <div class="aidex-actions"><button type="button" id="aidexHardValidationOk">OK</button></div>
+            </div>`;
+        document.body.appendChild(popup);
+
+        var messageBox = document.getElementById("aidexHardValidationMessage");
+        var ok = document.getElementById("aidexHardValidationOk");
+
+        window.aidexShowPopup = function (message, title) {
+            if (!message) return;
+            document.querySelectorAll(".aidex-popup-backdrop").forEach(function (el) {
+                if (el.id !== "aidexHardValidationPopup") el.style.display = "none";
+            });
+            document.querySelector("#aidexHardValidationPopup .aidex-title").textContent =
+                title || "Action Required";
+            messageBox.textContent = String(message).replace(/\\s*\\n\\s*/g, "\\n");
+            popup.classList.add("aidex-open");
+            ok.focus();
+        };
+
+        window.aidexClosePopup = function () {
+            popup.classList.remove("aidex-open");
+        };
+
+        ok.addEventListener("click", window.aidexClosePopup);
+        popup.addEventListener("click", function (e) {
+            if (e.target === popup) window.aidexClosePopup();
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") window.aidexClosePopup();
+        });
+
+        // Pick up Django/server-side validation errors already rendered on the page.
+        function collectErrors() {
+            var selectors = [
+                ".field-error", ".invalid-feedback", ".errorlist",
+                ".form-error", ".alert-danger", "[role='alert']"
+            ];
+            var found = [];
+            document.querySelectorAll(selectors.join(",")).forEach(function (el) {
+                if (el.id === "aidexHardValidationPopup") return;
+                var text = (el.innerText || el.textContent || "").replace(/\\s+/g, " ").trim();
+                if (text && !found.includes(text)) found.push(text);
+            });
+            return found;
+        }
+
+        setTimeout(function () {
+            var errors = collectErrors();
+            if (errors.length) aidexShowPopup(errors.join("\\n\\n"), "Please check the highlighted fields");
+        }, 80);
+
+        // Also catch validation messages inserted dynamically after submit/AJAX.
+        var observer = new MutationObserver(function () {
+            if (popup.classList.contains("aidex-open")) return;
+            var errors = collectErrors();
+            if (errors.length) aidexShowPopup(errors.join("\\n\\n"), "Please check the highlighted fields");
+        });
+        observer.observe(document.body, {childList:true, subtree:true});
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initAidexPopup);
+    } else {
+        initAidexPopup();
+    }
+})();
+</script>
+
+<script>
+(function () {
+    "use strict";
+    function initRequiredValidation() {
+        var form = document.getElementById("evidenceUpdateForm");
+        if (!form) return;
+        var fields = [
+            { id: "{{ form.case.id_for_label }}", label: "{{ form.case.label|escapejs }}", required: true },
+            { id: "{{ form.evidence_type.id_for_label }}", label: "{{ form.evidence_type.label|escapejs }}", required: true },
+            { id: "{{ form.evidence_title.id_for_label }}", label: "{{ form.evidence_title.label|escapejs }}", required: true }
+        ];
+        function missing() {
+            return fields.filter(function (f) {
+                var el=document.getElementById(f.id); if(!el) return false;
+                return !String(el.value || "").trim();
+            });
+        }
+        form.addEventListener("submit", function(e) {
+            fields.forEach(function(f){var el=document.getElementById(f.id); if(el) el.classList.remove("is-invalid");});
+            var miss=missing();
+            if(!miss.length) return;
+            e.preventDefault();
+            miss.forEach(function(f){var el=document.getElementById(f.id); if(el) el.classList.add("is-invalid");});
+            var msg = miss.length===1
+                ? miss[0].label + " is required. Please complete this field."
+                : "Please complete the following required fields:\n\n• " + miss.map(function(f){return f.label;}).join("\n• ");
+            if(window.aidexShowPopup) window.aidexShowPopup(msg, "Required Fields Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initRequiredValidation); else initRequiredValidation();
+})();
+</script>
+
+{% endblock %}

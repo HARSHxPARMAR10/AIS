@@ -1,0 +1,1051 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ case.case_number }} | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .case-detail-page {
+        padding: 32px 0 52px;
+    }
+
+    .case-detail-container {
+        max-width: 1380px;
+        margin: 0 auto;
+    }
+
+    .page-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px;
+        border-radius: 24px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(96, 165, 250, 0.30),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #1e3a8a 52%,
+                #2563eb 100%
+            );
+        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+    }
+
+    .page-hero::before,
+    .page-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .page-hero::before {
+        width: 230px;
+        height: 230px;
+        left: -95px;
+        bottom: -125px;
+    }
+
+    .page-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 65px;
+        top: -105px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .page-title {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 2.08rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.74);
+        line-height: 1.7;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .hero-actions .btn {
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 11px 16px;
+    }
+
+    .content-grid {
+        margin-top: 28px;
+    }
+
+    .detail-card,
+    .action-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .detail-card {
+        padding: 26px;
+        margin-bottom: 22px;
+    }
+
+    .action-card {
+        padding: 22px;
+        margin-bottom: 18px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.12rem;
+        font-weight: 800;
+    }
+
+    .card-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-size: 1.15rem;
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .meta-item {
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+    }
+
+    .meta-label {
+        margin-bottom: 6px;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+    }
+
+    .meta-value {
+        color: #0f172a;
+        font-size: 0.9rem;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .description-box {
+        padding: 18px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+        color: #334155;
+        line-height: 1.75;
+        white-space: pre-line;
+    }
+
+    .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+    }
+
+    .badge-status {
+        color: #1d4ed8;
+        background: #eff6ff;
+    }
+
+    .badge-low {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .badge-medium {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .badge-high {
+        color: #c2410c;
+        background: #ffedd5;
+    }
+
+    .badge-critical {
+        color: #b91c1c;
+        background: #fee2e2;
+    }
+
+    .badge-active {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .badge-inactive {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .person-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+    }
+
+    .person-avatar {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-weight: 800;
+        font-size: 1rem;
+    }
+
+    .person-name {
+        color: #0f172a;
+        font-weight: 800;
+    }
+
+    .person-meta {
+        margin-top: 2px;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .form-label {
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .form-select,
+    .form-control {
+        min-height: 46px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
+    }
+
+    .action-card .btn {
+        width: 100%;
+        min-height: 44px;
+        border-radius: 11px;
+        font-weight: 800;
+    }
+
+    .danger-card {
+        border-color: #fecaca;
+        background: #fffafa;
+    }
+
+    .danger-card .card-heading-icon {
+        color: #b91c1c;
+        background: #fee2e2;
+    }
+
+    .restore-card {
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+    }
+
+    .restore-card .card-heading-icon {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .restore-text {
+        margin-bottom: 14px;
+        color: #166534;
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .archive-meta-card {
+        border-color: #fde68a;
+        background: #fffbeb;
+    }
+
+    .archive-meta-card .card-heading-icon {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .archive-reason-box {
+        padding: 16px;
+        border-radius: 14px;
+        color: #78350f;
+        background: #ffffff;
+        border: 1px solid #fde68a;
+        line-height: 1.65;
+        white-space: pre-line;
+    }
+
+    .danger-text {
+        margin-bottom: 14px;
+        color: #7f1d1d;
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .audit-note {
+        padding: 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .audit-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+    @media (max-width: 991.98px) {
+        .page-hero {
+            padding: 30px;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .case-detail-page {
+            padding: 18px 0 35px;
+        }
+
+        .page-hero {
+            padding: 27px 22px;
+        }
+
+        .page-title {
+            font-size: 1.72rem;
+        }
+
+        .detail-card,
+        .action-card {
+            padding: 20px;
+        }
+
+        .meta-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* AIDEX required-field validation popup */
+    .case-validation-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.58);
+        backdrop-filter: blur(4px);
+    }
+
+    .case-validation-popup {
+        width: min(460px, 100%);
+        padding: 24px;
+        border: 1px solid #dbe3ee;
+        border-radius: 18px;
+        background: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 25px 70px rgba(15, 23, 42, 0.25);
+    }
+
+    .case-validation-popup h3 {
+        margin: 0 0 9px;
+        color: #991b1b;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .case-validation-popup p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.84rem;
+        line-height: 1.6;
+    }
+
+    .case-validation-popup ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+        color: #334155;
+        font-size: 0.84rem;
+        line-height: 1.7;
+    }
+
+    .case-validation-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 18px;
+    }
+
+    .case-validation-ok {
+        min-height: 40px;
+        padding: 0 17px;
+        border: 0;
+        border-radius: 10px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        font-size: 0.8rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .case-required-invalid {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.10) !important;
+    }
+
+    .form-check-input.case-required-invalid {
+        outline: 2px solid rgba(220, 38, 38, 0.25);
+        outline-offset: 2px;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="case-detail-page">
+    <div class="case-detail-container">
+
+        <section class="page-hero">
+            <div class="hero-content">
+                <div class="row align-items-center g-4">
+
+                    <div class="col-lg">
+                        <span class="hero-badge">
+                            <i class="bi bi-folder2-open"></i>
+                            {{ case.case_number }}
+                        </span>
+
+                        <h1 class="page-title">
+                            {{ case.case_title }}
+                        </h1>
+
+                        <p class="page-subtitle">
+                            {{ case.get_crime_category_display }}
+                            ·
+                            {{ case.get_status_display }}
+                        </p>
+                    </div>
+
+                    <div class="col-lg-auto">
+                        <div class="hero-actions">
+                            <a
+                                href="{% url 'cases:case_list' %}"
+                                class="btn btn-outline-light"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Back to Cases
+                            </a>
+
+                            {% if can_update_case %}
+                                <a
+                                    href="{% url 'cases:case_update' case.id %}"
+                                    class="btn btn-light"
+                                >
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                    Update Case
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="row g-4 content-grid">
+
+            <div class="col-lg-8">
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Case Overview</h2>
+                            <p>Core investigation information and current record state.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-card-list"></i>
+                        </div>
+                    </div>
+
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <div class="meta-label">Case Number</div>
+                            <div class="meta-value">{{ case.case_number }}</div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Crime Category</div>
+                            <div class="meta-value">
+                                {{ case.get_crime_category_display }}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Priority</div>
+                            <div class="meta-value">
+                                {% if case.priority == "CRITICAL" %}
+                                    <span class="badge-soft badge-critical">
+                                        {{ case.get_priority_display }}
+                                    </span>
+                                {% elif case.priority == "HIGH" %}
+                                    <span class="badge-soft badge-high">
+                                        {{ case.get_priority_display }}
+                                    </span>
+                                {% elif case.priority == "MEDIUM" %}
+                                    <span class="badge-soft badge-medium">
+                                        {{ case.get_priority_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge-soft badge-low">
+                                        {{ case.get_priority_display }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Status</div>
+                            <div class="meta-value">
+                                <span class="badge-soft badge-status">
+                                    {{ case.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Record State</div>
+                            <div class="meta-value">
+                                {% if case.is_active %}
+                                    <span class="badge-soft badge-active">Active</span>
+                                {% else %}
+                                    <span class="badge-soft badge-inactive">Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Last Updated</div>
+                            <div class="meta-value">
+                                {{ case.updated_date|date:"d M Y, h:i A" }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Case Description</h2>
+                            <p>Detailed summary of the reported cyber-crime incident.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                    </div>
+
+                    <div class="description-box">
+                        {{ case.description }}
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>People and Ownership</h2>
+                            <p>Users responsible for creating and investigating this case.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="person-card">
+                                <div class="person-avatar">
+                                    {{ case.created_by.full_name|default:case.created_by.username|slice:":1"|upper }}
+                                </div>
+
+                                <div>
+                                    <div class="person-name">
+                                        {{ case.created_by.full_name|default:case.created_by.username }}
+                                    </div>
+
+                                    <div class="person-meta">
+                                        Created by · {{ case.created_by.get_role_display }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            {% if case.assigned_investigator %}
+                                <div class="person-card">
+                                    <div class="person-avatar">
+                                        {{ case.assigned_investigator.full_name|default:case.assigned_investigator.username|slice:":1"|upper }}
+                                    </div>
+
+                                    <div>
+                                        <div class="person-name">
+                                            {{ case.assigned_investigator.full_name|default:case.assigned_investigator.username }}
+                                        </div>
+
+                                        <div class="person-meta">
+                                            Assigned investigator · {{ case.assigned_investigator.badge_id }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="person-card">
+                                    <div class="person-avatar">
+                                        <i class="bi bi-person-dash"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="person-name">
+                                            Not Assigned
+                                        </div>
+
+                                        <div class="person-meta">
+                                            This case does not currently have an investigator.
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Record Timeline</h2>
+                            <p>Creation and last modification timestamps.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                    </div>
+
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <div class="meta-label">Created Date</div>
+                            <div class="meta-value">
+                                {{ case.created_date|date:"d M Y, h:i A" }}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Updated Date</div>
+                            <div class="meta-value">
+                                {{ case.updated_date|date:"d M Y, h:i A" }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {% if case.status == "ARCHIVED" or case.archived_at %}
+                    <section class="detail-card archive-meta-card">
+                        <div class="card-heading">
+                            <div>
+                                <h2>Archive Information</h2>
+                                <p>
+                                    Preserved archive metadata for investigation traceability.
+                                </p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-archive-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="meta-grid">
+                            <div class="meta-item">
+                                <div class="meta-label">Status Before Archive</div>
+                                <div class="meta-value">
+                                    {% if case.pre_archive_status %}
+                                        {{ case.get_pre_archive_status_display }}
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <div class="meta-label">Archived At</div>
+                                <div class="meta-value">
+                                    {% if case.archived_at %}
+                                        {{ case.archived_at|date:"d M Y, h:i A" }}
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <div class="meta-label">Archived By</div>
+                                <div class="meta-value">
+                                    {% if case.archived_by %}
+                                        {{ case.archived_by.full_name|default:case.archived_by.username }}
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <div class="meta-label">Current Record State</div>
+                                <div class="meta-value">
+                                    {% if case.is_active %}
+                                        <span class="badge-soft badge-active">
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-soft badge-inactive">
+                                            Archived / Inactive
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="meta-label">Archive Reason</div>
+
+                            <div class="archive-reason-box">
+                                {% if case.archive_reason %}
+                                    {{ case.archive_reason }}
+                                {% else %}
+                                    No archive reason was recorded for this legacy archive.
+                                {% endif %}
+                            </div>
+                        </div>
+                    </section>
+                {% endif %}
+
+            </div>
+
+            <div class="col-lg-4">
+
+                {% if can_assign_case and assignment_form %}
+                    <section class="action-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Assign Investigator</h3>
+                                <p>Assign or reassign this case.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-person-check-fill"></i>
+                            </div>
+                        </div>
+
+                        <form
+                            method="post"
+                            action="{% url 'cases:case_assign' case.id %}"
+                            novalidate
+                        >
+                            {% csrf_token %}
+
+                            <label
+                                for="{{ assignment_form.assigned_investigator.id_for_label }}"
+                                class="form-label"
+                            >
+                                {{ assignment_form.assigned_investigator.label }}
+                            </label>
+
+                            {{ assignment_form.assigned_investigator }}
+
+                            <button type="submit" class="btn btn-primary mt-3">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Save Assignment
+                            </button>
+                        </form>
+                    </section>
+                {% endif %}
+
+                {% if can_change_status and status_form %}
+                    <section class="action-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Update Status</h3>
+                                <p>Move the case through its investigation workflow.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                        </div>
+
+                        <form
+                            method="post"
+                            action="{% url 'cases:case_status_update' case.id %}"
+                            novalidate
+                        >
+                            {% csrf_token %}
+
+                            <label
+                                for="{{ status_form.status.id_for_label }}"
+                                class="form-label"
+                            >
+                                {{ status_form.status.label }}
+                            </label>
+
+                            {{ status_form.status }}
+
+                            <button type="submit" class="btn btn-primary mt-3">
+                                <i class="bi bi-check2-circle me-2"></i>
+                                Update Status
+                            </button>
+                        </form>
+                    </section>
+                {% endif %}
+
+                {% if can_archive_case %}
+                    <section class="action-card danger-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Archive Case</h3>
+                                <p>Preserve the record for audit purposes.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-archive-fill"></i>
+                            </div>
+                        </div>
+
+                        <p class="danger-text">
+                            Archiving makes this case inactive and removes it from active workflows.
+                            The record is not permanently deleted.
+                        </p>
+
+                        <a
+                            href="{% url 'cases:case_archive' case.id %}"
+                            class="btn btn-outline-danger"
+                        >
+                            <i class="bi bi-archive me-2"></i>
+                            Archive Case
+                        </a>
+                    </section>
+                {% endif %}
+
+                {% if can_restore_case and restore_form %}
+                    <section class="action-card restore-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Restore Case</h3>
+                                <p>
+                                    Return this archived case to its previous workflow status.
+                                </p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </div>
+                        </div>
+
+                        <p class="restore-text">
+                            Restoring makes this case active again.
+                            AIDEX will restore it to the status saved immediately
+                            before archive. Legacy archive records fall back to Open.
+                        </p>
+
+                        <form
+                            method="post"
+                            action="{% url 'cases:case_restore' case.id %}"
+                            novalidate
+                        >
+                            {% csrf_token %}
+
+                            <div class="form-check mb-3">
+                                {{ restore_form.confirmation }}
+
+                                <label
+                                    class="form-check-label"
+                                    for="{{ restore_form.confirmation.id_for_label }}"
+                                >
+                                    {{ restore_form.confirmation.label }}
+                                    <span class="required-mark">*</span>
+                                </label>
+
+                                {% for error in restore_form.confirmation.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="btn btn-success"
+                            >
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                Restore Case
+                            </button>
+                        </form>
+                    </section>
+                {% endif %}
+
+                <div class="audit-note">
+                    <strong>
+                        <i class="bi bi-shield-lock-fill me-2"></i>
+                        Audit Protection
+                    </strong>
+
+                    Case identifiers, timestamps and archived records are retained to support
+                    accountability and investigation history.
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="case-validation-backdrop" id="restoreCaseValidationPopup" aria-hidden="true">
+    <div class="case-validation-popup" role="alertdialog" aria-modal="true"
+         aria-labelledby="restoreCaseValidationTitle">
+        <h3 id="restoreCaseValidationTitle">Required Field Missing</h3>
+        <p>Please complete the following required field before restoring the case:</p>
+        <ul id="restoreCaseMissingFields"></ul>
+        <div class="case-validation-actions">
+            <button type="button" class="case-validation-ok" id="restoreCaseValidationOk">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector('form[action*="case_restore"]');
+    const confirmation = document.getElementById("{{ restore_form.confirmation.id_for_label }}");
+    const popup = document.getElementById("restoreCaseValidationPopup");
+    const missingList = document.getElementById("restoreCaseMissingFields");
+    const popupOk = document.getElementById("restoreCaseValidationOk");
+
+    if (!form || !confirmation || !popup || !missingList || !popupOk) return;
+
+    function closePopup() {
+        popup.style.display = "none";
+        popup.setAttribute("aria-hidden", "true");
+    }
+
+    function showPopup() {
+        missingList.innerHTML = "";
+        const item = document.createElement("li");
+        item.textContent = "{{ restore_form.confirmation.label|escapejs }}";
+        missingList.appendChild(item);
+        popup.style.display = "flex";
+        popup.setAttribute("aria-hidden", "false");
+        popupOk.focus();
+    }
+
+    popupOk.addEventListener("click", closePopup);
+    popup.addEventListener("click", function (event) {
+        if (event.target === popup) closePopup();
+    });
+
+    confirmation.addEventListener("change", function () {
+        if (confirmation.checked) {
+            confirmation.classList.remove("case-required-invalid");
+        }
+    });
+
+    form.addEventListener("submit", function (event) {
+        if (!confirmation.checked) {
+            event.preventDefault();
+            confirmation.classList.add("case-required-invalid");
+            showPopup();
+        }
+    });
+});
+</script>
+
+{% endblock %}

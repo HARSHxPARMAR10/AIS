@@ -1,0 +1,682 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="description"
+        content="AIDEX — AI Digital Evidence Intelligence System for structured cyber-crime case, evidence and AI-assisted forensic workflows."
+    >
+    <title>{{ page_title|default:"AIDEX" }} | Digital Evidence Intelligence</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/landing.css' %}"
+    >
+</head>
+
+<body>
+    <div class="site-shell">
+        <div class="ambient ambient-one"></div>
+        <div class="ambient ambient-two"></div>
+        <div class="grid-overlay" aria-hidden="true"></div>
+
+        <header class="site-header" id="top">
+            <div class="container nav-wrap">
+                <a class="brand" href="#top" aria-label="AIDEX home">
+                    <span class="brand-mark" aria-hidden="true">
+                        <span class="brand-mark-inner">A</span>
+                    </span>
+
+                    <span class="brand-copy">
+                        <strong>AIDEX</strong>
+                        <small>Digital Evidence Intelligence</small>
+                    </span>
+                </a>
+
+                <button
+                    class="mobile-nav-toggle"
+                    type="button"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false"
+                    data-mobile-nav-toggle
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <nav class="main-nav" data-main-nav>
+                    <a href="#capabilities">Capabilities</a>
+                    <a href="#workflow">Workflow</a>
+                    <a href="#feedback">Demo Feedback</a>
+                    <a href="#security">Security</a>
+                </nav>
+
+                <div class="nav-actions">
+                    <a
+                        class="btn btn-ghost"
+                        href="{% url 'accounts:login' %}"
+                    >
+                        Login
+                    </a>
+
+                    <a
+                        class="btn btn-primary"
+                        href="{% url 'accounts:register' %}"
+                    >
+                        Create Account
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero section">
+                <div class="container hero-grid">
+                    <div class="hero-copy reveal">
+                        <div class="eyebrow">
+                            <span class="eyebrow-dot"></span>
+                            AI-assisted cyber-crime investigation platform
+                        </div>
+
+                        <h1>
+                            Turn digital evidence into
+                            <span class="gradient-text">
+                                structured intelligence.
+                            </span>
+                        </h1>
+
+                        <p class="hero-lead">
+                            AIDEX brings case management, digital evidence
+                            integrity, technical verification and explicit
+                            AI-assisted analysis into one role-aware
+                            investigation workflow.
+                        </p>
+
+                        <div class="hero-actions">
+                            <a
+                                class="btn btn-primary btn-large"
+                                href="{% url 'accounts:register' %}"
+                            >
+                                Get Started
+                                <span aria-hidden="true">→</span>
+                            </a>
+
+                            <a
+                                class="btn btn-secondary btn-large"
+                                href="{% url 'accounts:login' %}"
+                            >
+                                Sign In
+                            </a>
+                        </div>
+
+                        <div class="trust-row" aria-label="AIDEX platform highlights">
+                            <div class="trust-item">
+                                <span class="trust-icon">#</span>
+                                <span>
+                                    <strong>SHA-256</strong>
+                                    Evidence integrity
+                                </span>
+                            </div>
+
+                            <div class="trust-item">
+                                <span class="trust-icon">AI</span>
+                                <span>
+                                    <strong>Explicit AI</strong>
+                                    Controlled execution
+                                </span>
+                            </div>
+
+                            <div class="trust-item">
+                                <span class="trust-icon">RB</span>
+                                <span>
+                                    <strong>Role-aware</strong>
+                                    Access control
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-visual reveal reveal-delay">
+                        <div class="visual-glow"></div>
+
+                        <div class="intel-console">
+                            <div class="console-topbar">
+                                <div class="console-dots" aria-hidden="true">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+
+                                <div class="console-label">
+                                    LIVE INVESTIGATION WORKSPACE
+                                </div>
+
+                                <div class="console-status">
+                                    <span class="status-dot"></span>
+                                    Secured
+                                </div>
+                            </div>
+
+                            <div class="console-body">
+                                <div class="case-strip">
+                                    <div>
+                                        <span class="micro-label">
+                                            ACTIVE CASE
+                                        </span>
+                                        <strong>Cyber Evidence Review</strong>
+                                    </div>
+
+                                    <span class="priority-pill">
+                                        HIGH PRIORITY
+                                    </span>
+                                </div>
+
+                                <div class="evidence-card">
+                                    <div class="evidence-icon">
+                                        <span></span>
+                                    </div>
+
+                                    <div class="evidence-copy">
+                                        <span class="micro-label">
+                                            DIGITAL EVIDENCE
+                                        </span>
+                                        <strong>Evidence integrity verified</strong>
+                                        <small>
+                                            SHA-256 fingerprint preserved
+                                        </small>
+                                    </div>
+
+                                    <div class="verification-badge">
+                                        ✓
+                                    </div>
+                                </div>
+
+                                <div class="analysis-panel">
+                                    <div class="analysis-heading">
+                                        <div>
+                                            <span class="micro-label">
+                                                AIDEX ANALYSIS ENGINE
+                                            </span>
+                                            <strong>
+                                                Structured forensic findings
+                                            </strong>
+                                        </div>
+
+                                        <span class="analysis-chip">
+                                            AI ASSISTED
+                                        </span>
+                                    </div>
+
+                                    <div class="analysis-lines">
+                                        <div class="analysis-line">
+                                            <span style="width: 88%"></span>
+                                        </div>
+                                        <div class="analysis-line">
+                                            <span style="width: 71%"></span>
+                                        </div>
+                                        <div class="analysis-line">
+                                            <span style="width: 79%"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="analysis-metrics">
+                                        <div>
+                                            <span>Integrity</span>
+                                            <strong>Verified</strong>
+                                        </div>
+                                        <div>
+                                            <span>Workflow</span>
+                                            <strong>Auditable</strong>
+                                        </div>
+                                        <div>
+                                            <span>Access</span>
+                                            <strong>Role-aware</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline">
+                                    <div class="timeline-item done">
+                                        <span></span>
+                                        Evidence registered
+                                    </div>
+                                    <div class="timeline-item done">
+                                        <span></span>
+                                        Integrity verified
+                                    </div>
+                                    <div class="timeline-item active">
+                                        <span></span>
+                                        AI-assisted review
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="floating-card floating-card-one">
+                            <span class="floating-icon">✓</span>
+                            <span>
+                                <strong>Integrity Check</strong>
+                                <small>Hash matched successfully</small>
+                            </span>
+                        </div>
+
+                        <div class="floating-card floating-card-two">
+                            <span class="floating-icon floating-icon-ai">AI</span>
+                            <span>
+                                <strong>Analysis Ready</strong>
+                                <small>Evidence context prepared</small>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container hero-bottom">
+                    <span>Built for</span>
+                    <strong>Administrators</strong>
+                    <span class="divider-dot"></span>
+                    <strong>Investigators</strong>
+                    <span class="divider-dot"></span>
+                    <strong>Cyber Officers</strong>
+                </div>
+            </section>
+
+            <section
+                class="section section-surface"
+                id="capabilities"
+            >
+                <div class="container">
+                    <div class="section-heading reveal">
+                        <div>
+                            <span class="section-kicker">
+                                CORE CAPABILITIES
+                            </span>
+                            <h2>
+                                One evidence workflow.
+                                <span>Multiple trust controls.</span>
+                            </h2>
+                        </div>
+
+                        <p>
+                            AIDEX connects investigation records with evidence
+                            handling and AI-assisted review while keeping
+                            sensitive actions explicit and attributable.
+                        </p>
+                    </div>
+
+                    <div class="feature-grid">
+                        {% for feature in feature_cards %}
+                            <article class="feature-card reveal">
+                                <div class="feature-number">
+                                    0{{ forloop.counter }}
+                                </div>
+
+                                <div class="feature-icon">
+                                    {% if forloop.counter == 1 %}
+                                        <span class="shield-symbol">◇</span>
+                                    {% elif forloop.counter == 2 %}
+                                        <span>AI</span>
+                                    {% elif forloop.counter == 3 %}
+                                        <span>CF</span>
+                                    {% else %}
+                                        <span>✓</span>
+                                    {% endif %}
+                                </div>
+
+                                <h3>{{ feature.title }}</h3>
+                                <p>{{ feature.description }}</p>
+
+                                <span class="feature-link">
+                                    AIDEX CONTROL
+                                    <span aria-hidden="true">↗</span>
+                                </span>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <section
+                class="section workflow-section"
+                id="workflow"
+            >
+                <div class="container">
+                    <div class="center-heading reveal">
+                        <span class="section-kicker">
+                            INVESTIGATION FLOW
+                        </span>
+                        <h2>
+                            From incident record to reviewed intelligence.
+                        </h2>
+                        <p>
+                            A structured sequence designed to keep evidence
+                            handling understandable, reviewable and
+                            presentation-ready.
+                        </p>
+                    </div>
+
+                    <div class="workflow-grid">
+                        {% for step in workflow_steps %}
+                            <article class="workflow-card reveal">
+                                <div class="workflow-number">
+                                    {{ step.number }}
+                                </div>
+
+                                <div class="workflow-connector"></div>
+
+                                <h3>{{ step.title }}</h3>
+                                <p>{{ step.description }}</p>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <section
+                class="section section-surface"
+                id="security"
+            >
+                <div class="container security-grid">
+                    <div class="security-copy reveal">
+                        <span class="section-kicker">
+                            SECURITY BY WORKFLOW
+                        </span>
+
+                        <h2>
+                            Built to preserve
+                            <span>investigative accountability.</span>
+                        </h2>
+
+                        <p>
+                            AIDEX does not treat evidence as ordinary uploaded
+                            content. Sensitive actions are separated into
+                            controlled workflows so important state changes
+                            cannot be casually bypassed.
+                        </p>
+
+                        <div class="security-points">
+                            <div class="security-point">
+                                <span>01</span>
+                                <div>
+                                    <strong>
+                                        Controlled evidence lifecycle
+                                    </strong>
+                                    <small>
+                                        Dedicated archive and restore actions
+                                        preserve lifecycle metadata.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="security-point">
+                                <span>02</span>
+                                <div>
+                                    <strong>
+                                        Technical verification states
+                                    </strong>
+                                    <small>
+                                        Evidence moves through review before
+                                        final verification outcomes.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="security-point">
+                                <span>03</span>
+                                <div>
+                                    <strong>
+                                        Explicit AI execution
+                                    </strong>
+                                    <small>
+                                        Provider calls occur through deliberate
+                                        analysis actions, with caching and
+                                        attempt tracking.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="security-visual reveal reveal-delay">
+                        <div class="security-orbit orbit-one"></div>
+                        <div class="security-orbit orbit-two"></div>
+
+                        <div class="security-core">
+                            <div class="core-lock">
+                                <span class="lock-shackle"></span>
+                                <span class="lock-body"></span>
+                            </div>
+
+                            <strong>Evidence Trust Core</strong>
+                            <small>
+                                Integrity • Access • Auditability
+                            </small>
+                        </div>
+
+                        <div class="orbit-node node-one">
+                            SHA-256
+                        </div>
+                        <div class="orbit-node node-two">
+                            RBAC
+                        </div>
+                        <div class="orbit-node node-three">
+                            REVIEW
+                        </div>
+                        <div class="orbit-node node-four">
+                            AI
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                class="section feedback-section"
+                id="feedback"
+            >
+                <div class="container">
+                    <div class="section-heading reveal">
+                        <div>
+                            <span class="section-kicker">
+                                DEMONSTRATION FEEDBACK
+                            </span>
+                            <h2>
+                                Designed around
+                                <span>clear operational workflows.</span>
+                            </h2>
+                        </div>
+
+                        <p>
+                            These cards describe demonstration perspectives for
+                            the project interface. They are not presented as
+                            real customer testimonials.
+                        </p>
+                    </div>
+
+                    <div class="review-grid">
+                        {% for review in review_cards %}
+                            <article class="review-card reveal">
+                                <div class="review-top">
+                                    <div class="review-stars" aria-label="5 out of 5">
+                                        ★★★★★
+                                    </div>
+
+                                    <span class="demo-label">
+                                        DEMO
+                                    </span>
+                                </div>
+
+                                <blockquote>
+                                    “{{ review.text }}”
+                                </blockquote>
+
+                                <div class="review-role">
+                                    <span class="review-avatar">
+                                        {{ forloop.counter }}
+                                    </span>
+
+                                    <div>
+                                        <strong>{{ review.role }}</strong>
+                                        <small>
+                                            AIDEX interface perspective
+                                        </small>
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="section final-cta">
+                <div class="container">
+                    <div class="cta-panel reveal">
+                        <div class="cta-glow"></div>
+
+                        <div class="cta-copy">
+                            <span class="section-kicker">
+                                ENTER AIDEX
+                            </span>
+
+                            <h2>
+                                Start with a secure investigation workspace.
+                            </h2>
+
+                            <p>
+                                Create an account request or sign in to access
+                                your role-specific AIDEX dashboard.
+                            </p>
+                        </div>
+
+                        <div class="cta-actions">
+                            <a
+                                class="btn btn-primary btn-large"
+                                href="{% url 'accounts:register' %}"
+                            >
+                                Create Account
+                                <span aria-hidden="true">→</span>
+                            </a>
+
+                            <a
+                                class="btn btn-secondary btn-large"
+                                href="{% url 'accounts:login' %}"
+                            >
+                                Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container footer-grid">
+                <div class="footer-brand">
+                    <a class="brand" href="#top">
+                        <span class="brand-mark brand-mark-small" aria-hidden="true">
+                            <span class="brand-mark-inner">A</span>
+                        </span>
+
+                        <span class="brand-copy">
+                            <strong>AIDEX</strong>
+                            <small>Digital Evidence Intelligence</small>
+                        </span>
+                    </a>
+
+                    <p>
+                        AI-assisted cyber-crime evidence management and
+                        investigation workflow.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <strong>Explore</strong>
+                    <a href="#capabilities">Capabilities</a>
+                    <a href="#workflow">Workflow</a>
+                    <a href="#security">Security</a>
+                    <a href="#feedback">Demo Feedback</a>
+                </div>
+
+                <div class="footer-links">
+                    <strong>Access</strong>
+                    <a href="{% url 'accounts:login' %}">Login</a>
+                    <a href="{% url 'accounts:register' %}">Create Account</a>
+                </div>
+            </div>
+
+            <div class="container footer-bottom">
+                <span>
+                    © {% now "Y" %} AIDEX. Academic cyber-forensics project.
+                </span>
+
+                <span>
+                    AI output supports investigation and requires human review.
+                </span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            const toggle = document.querySelector("[data-mobile-nav-toggle]");
+            const nav = document.querySelector("[data-main-nav]");
+
+            if (toggle && nav) {
+                toggle.addEventListener("click", function () {
+                    const isOpen = nav.classList.toggle("is-open");
+                    toggle.setAttribute("aria-expanded", String(isOpen));
+                });
+
+                nav.querySelectorAll("a").forEach(function (link) {
+                    link.addEventListener("click", function () {
+                        nav.classList.remove("is-open");
+                        toggle.setAttribute("aria-expanded", "false");
+                    });
+                });
+            }
+
+            const header = document.querySelector(".site-header");
+
+            window.addEventListener("scroll", function () {
+                if (!header) {
+                    return;
+                }
+
+                header.classList.toggle(
+                    "is-scrolled",
+                    window.scrollY > 20
+                );
+            }, { passive: true });
+
+            const revealItems = document.querySelectorAll(".reveal");
+
+            if ("IntersectionObserver" in window) {
+                const observer = new IntersectionObserver(
+                    function (entries) {
+                        entries.forEach(function (entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add("is-visible");
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    },
+                    {
+                        threshold: 0.12
+                    }
+                );
+
+                revealItems.forEach(function (item) {
+                    observer.observe(item);
+                });
+            } else {
+                revealItems.forEach(function (item) {
+                    item.classList.add("is-visible");
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
+

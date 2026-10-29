@@ -1,0 +1,498 @@
+{% extends "base.html" %} 
+{% block title %}Create Report Revision | AIDEX{% endblock %} 
+{% block content %} 
+
+<style> 
+    :root { 
+        --rw-panel: rgba(12, 25, 43, .95); 
+        --rw-border: rgba(148, 163, 184, .15); 
+        --rw-text: #eaf1f8; 
+        --rw-muted: #8196ad; 
+        --rw-cyan: #38bdf8; 
+        --rw-green: #22c55e; 
+        --rw-amber: #f59e0b; 
+        --rw-red: #ef4444; 
+        --rw-violet: #8b5cf6; 
+        --rw-shadow: 0 22px 62px rgba(0,0,0,.23); 
+    } 
+
+    .rw-page { 
+        min-height: calc(100vh - 70px); 
+        padding: 28px 0 52px; 
+        color: var(--rw-text); 
+        background: 
+            radial-gradient(circle at 8% 0%, rgba(37,99,235,.10), transparent 27%), 
+            radial-gradient(circle at 92% 6%, rgba(56,189,248,.07), transparent 23%); 
+    } 
+
+    .rw-shell { 
+        width: min(980px, calc(100% - 28px)); 
+        margin: 0 auto; 
+    } 
+
+    .rw-card { 
+        overflow: hidden; 
+        border: 1px solid var(--rw-border); 
+        border-radius: 22px; 
+        background: var(--rw-panel); 
+        box-shadow: var(--rw-shadow); 
+    } 
+
+    .rw-head { 
+        padding: 24px; 
+        border-bottom: 1px solid rgba(148,163,184,.09); 
+        background: linear-gradient(135deg, rgba(15,31,52,.98), rgba(8,19,34,.98)); 
+    } 
+
+    .rw-eyebrow { 
+        display: inline-flex; 
+        align-items: center; 
+        gap: 8px; 
+        margin-bottom: 9px; 
+        color: #7dd3fc; 
+        font-size: .72rem; 
+        font-weight: 850; 
+        letter-spacing: .11em; 
+        text-transform: uppercase; 
+    } 
+
+    .rw-eyebrow::before { 
+        content: ""; 
+        width: 7px; 
+        height: 7px; 
+        border-radius: 999px; 
+        background: var(--rw-cyan); 
+        box-shadow: 0 0 14px rgba(56,189,248,.7); 
+    } 
+
+    .rw-head h1 { 
+        margin: 0; 
+        color: #fff; 
+        font-size: clamp(1.55rem, 3vw, 2.15rem); 
+        letter-spacing: -.03em; 
+    } 
+
+    .rw-head p { 
+        margin: 9px 0 0; 
+        color: var(--rw-muted); 
+        font-size: .84rem; 
+        line-height: 1.65; 
+    } 
+
+    .rw-meta { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 8px; 
+        margin-top: 14px; 
+    } 
+
+    .rw-pill { 
+        padding: 6px 9px; 
+        border: 1px solid rgba(148,163,184,.14); 
+        border-radius: 999px; 
+        color: #a9bacd; 
+        background: rgba(255,255,255,.03); 
+        font-size: .7rem; 
+        font-weight: 750; 
+    } 
+
+    .rw-body { padding: 24px; } 
+
+    .rw-note { 
+        margin-bottom: 18px; 
+        padding: 14px 15px; 
+        border: 1px solid rgba(56,189,248,.14); 
+        border-radius: 12px; 
+        color: #b9d9e8; 
+        background: rgba(56,189,248,.04); 
+        font-size: .76rem; 
+        line-height: 1.55; 
+    } 
+
+    .rw-warning { 
+        border-color: rgba(245,158,11,.18); 
+        color: #fde68a; 
+        background: rgba(245,158,11,.055); 
+    } 
+
+    .rw-danger { 
+        border-color: rgba(239,68,68,.18); 
+        color: #fecaca; 
+        background: rgba(239,68,68,.055); 
+    } 
+
+    .rw-success { 
+        border-color: rgba(34,197,94,.18); 
+        color: #bbf7d0; 
+        background: rgba(34,197,94,.055); 
+    } 
+
+    .rw-field { margin-bottom: 18px; } 
+
+    .rw-field label { 
+        display: block; 
+        margin-bottom: 7px; 
+        color: #b7c7d7; 
+        font-size: .76rem; 
+        font-weight: 800; 
+    } 
+
+    .rw-field textarea, 
+    .rw-field input[type="text"] { 
+        width: 100%; 
+        min-height: 44px; 
+        padding: 11px 12px; 
+        border: 1px solid rgba(148,163,184,.17); 
+        border-radius: 10px; 
+        color: #eaf1f8; 
+        background: rgba(5,14,26,.72); 
+        outline: none; 
+        font-size: .82rem; 
+    } 
+
+    .rw-field textarea { 
+        min-height: 135px; 
+        resize: vertical; 
+        line-height: 1.6; 
+    } 
+
+    .rw-field textarea:focus, 
+    .rw-field input[type="text"]:focus { 
+        border-color: rgba(56,189,248,.5); 
+        box-shadow: 0 0 0 3px rgba(56,189,248,.08); 
+    } 
+
+    .rw-check { 
+        display: flex; 
+        align-items: flex-start; 
+        gap: 10px; 
+        margin: 16px 0 4px; 
+        padding: 13px 14px; 
+        border: 1px solid rgba(148,163,184,.11); 
+        border-radius: 11px; 
+        background: rgba(255,255,255,.025); 
+    } 
+
+    .rw-check input { 
+        width: 18px; 
+        height: 18px; 
+        margin-top: 2px; 
+        accent-color: #0ea5e9; 
+    } 
+
+    .rw-check label { 
+        margin: 0; 
+        color: #c8d6e4; 
+        font-size: .76rem; 
+        line-height: 1.5; 
+        font-weight: 700; 
+    } 
+
+    .rw-error { 
+        margin-top: 7px; 
+        color: #fecaca; 
+        font-size: .72rem; 
+    } 
+
+    .rw-actions { 
+        display: flex; 
+        justify-content: flex-end; 
+        gap: 9px; 
+        margin-top: 22px; 
+    } 
+
+    .rw-btn { 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center; 
+        min-height: 42px; 
+        padding: 0 15px; 
+        border: 1px solid transparent; 
+        border-radius: 10px; 
+        color: #eef7ff; 
+        font-size: .79rem; 
+        font-weight: 800; 
+        text-decoration: none; 
+        cursor: pointer; 
+    } 
+
+    .rw-btn:hover { 
+        color: #fff; 
+        text-decoration: none; 
+        transform: translateY(-1px); 
+    } 
+
+    .rw-secondary { 
+        border-color: rgba(148,163,184,.18); 
+        background: rgba(255,255,255,.04); 
+    } 
+
+    .rw-primary { 
+        background: linear-gradient(135deg, #2563eb, #0891b2); 
+    } 
+
+    .rw-green { 
+        color: #dcfce7; 
+        border-color: rgba(34,197,94,.22); 
+        background: rgba(34,197,94,.12); 
+    } 
+
+    .rw-red { 
+        color: #fee2e2; 
+        border-color: rgba(239,68,68,.22); 
+        background: rgba(239,68,68,.12); 
+    } 
+
+    .rw-violet { 
+        color: #ede9fe; 
+        border-color: rgba(139,92,246,.22); 
+        background: rgba(139,92,246,.12); 
+    } 
+
+    .rw-required {
+        color: #ef4444;
+        margin-left: 3px;
+        font-weight: 900;
+    }
+
+    .rw-invalid {
+        border-color: rgba(239,68,68,.65) !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,.08) !important;
+    }
+
+    #aidexRevisionValidationBackdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(2,8,23,.72);
+        backdrop-filter: blur(4px);
+    }
+
+    #aidexRevisionValidationBox {
+        width: min(430px, 100%);
+        padding: 22px;
+        border: 1px solid rgba(239,68,68,.25);
+        border-radius: 16px;
+        color: #eaf1f8;
+        background: #0c192b;
+        box-shadow: 0 25px 70px rgba(0,0,0,.45);
+    }
+
+    #aidexRevisionValidationHead {
+        margin-bottom: 9px;
+        color: #fecaca;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    #aidexRevisionValidationMessage {
+        color: #c8d6e4;
+        font-size: .82rem;
+        line-height: 1.6;
+    }
+
+    #aidexRevisionValidationOk {
+        display: block;
+        margin: 17px 0 0 auto;
+        min-height: 38px;
+        padding: 0 15px;
+        border: 0;
+        border-radius: 9px;
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        font-size: .78rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    @media (max-width: 640px) { 
+        .rw-head, .rw-body { padding: 19px; } 
+        .rw-actions { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+        } 
+    } 
+</style> 
+
+<section class="rw-page"> 
+    <div class="rw-shell"> 
+        <div class="rw-card"> 
+            <header class="rw-head"> 
+                <div class="rw-eyebrow">Version-Controlled Reporting</div> 
+                <h1>Create Report Revision</h1> 
+                <p>Create a new Draft version while preserving the current report as a historical record.</p> 
+                <div class="rw-meta"> 
+                    <span class="rw-pill">{{ report.report_number }}</span> 
+                    <span class="rw-pill">{{ report.case.case_number }}</span> 
+                    <span class="rw-pill">{{ report.get_status_display }}</span> 
+                    <span class="rw-pill">v{{ report.version }}</span> 
+                </div> 
+            </header> 
+
+            <div class="rw-body"> 
+                <div class="rw-note "> 
+                    Narrative content and linked evidence/AI references are copied into a new Draft revision. Reviewer, approver and publisher attribution are not inherited. 
+                </div> 
+
+                <form method="post" novalidate id="reportRevisionForm"> 
+                    {% csrf_token %} 
+
+                    {% if form.non_field_errors %} 
+                        <div class="rw-note rw-danger"> 
+                            {% for error in form.non_field_errors %} 
+                                <div>{{ error }}</div> 
+                            {% endfor %} 
+                        </div> 
+                    {% endif %} 
+
+                    <div class="rw-field"> 
+                        <label for="{{ form.revision_title.id_for_label }}">
+                            Revision Title <span class="rw-required" aria-label="Required">*</span>
+                        </label> 
+                        {{ form.revision_title }} 
+                        {% for error in form.revision_title.errors %} 
+                            <div class="rw-error">{{ error }}</div> 
+                        {% endfor %} 
+                    </div> 
+
+                    <div class="rw-field"> 
+                        <label for="{{ form.revision_reason.id_for_label }}">
+                            Revision Reason <span class="rw-required" aria-label="Required">*</span>
+                        </label> 
+                        {{ form.revision_reason }} 
+                        {% for error in form.revision_reason.errors %} 
+                            <div class="rw-error">{{ error }}</div> 
+                        {% endfor %} 
+                    </div> 
+
+                    <div class="rw-check"> 
+                        {{ form.copy_report_file }} 
+                        <label for="{{ form.copy_report_file.id_for_label }}"> 
+                            {{ form.copy_report_file.label }} 
+                        </label> 
+                    </div> 
+                    {% for error in form.copy_report_file.errors %} 
+                        <div class="rw-error">{{ error }}</div> 
+                    {% endfor %} 
+
+                    <div class="rw-actions"> 
+                        <a class="rw-btn rw-secondary" 
+                           href="{% url 'reports:report_detail' report_id=report.pk %}"> 
+                            Cancel 
+                        </a> 
+                        <button class="rw-btn rw-violet" type="submit" id="createRevisionButton"> 
+                            Create Revision 
+                        </button> 
+                    </div> 
+                </form> 
+            </div> 
+        </div> 
+    </div> 
+</section>
+
+<div id="aidexRevisionValidationBackdrop" aria-hidden="true">
+    <div id="aidexRevisionValidationBox"
+         role="alertdialog"
+         aria-modal="true"
+         aria-labelledby="aidexRevisionValidationHead">
+        <div id="aidexRevisionValidationHead">Required field missing</div>
+        <div id="aidexRevisionValidationMessage"></div>
+        <button type="button" id="aidexRevisionValidationOk">OK</button>
+    </div>
+</div>
+
+<script>
+(function () {
+    const form = document.getElementById('reportRevisionForm');
+    const titleField = document.getElementById('{{ form.revision_title.id_for_label }}');
+    const reasonField = document.getElementById('{{ form.revision_reason.id_for_label }}');
+    const backdrop = document.getElementById('aidexRevisionValidationBackdrop');
+    const message = document.getElementById('aidexRevisionValidationMessage');
+    const okButton = document.getElementById('aidexRevisionValidationOk');
+
+    if (!form || !titleField || !reasonField || !backdrop || !message || !okButton) return;
+
+    function isEmpty(field) {
+        return !field.value || !field.value.trim();
+    }
+
+    function showPopup(missingFields) {
+        message.textContent =
+            'Please fill the following required field' +
+            (missingFields.length > 1 ? 's' : '') +
+            ': ' + missingFields.join(', ') + '.';
+
+        backdrop.style.display = 'flex';
+        backdrop.setAttribute('aria-hidden', 'false');
+        okButton.focus();
+    }
+
+    function closePopup() {
+        backdrop.style.display = 'none';
+        backdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    form.addEventListener('submit', function (event) {
+        const missingFields = [];
+
+        if (isEmpty(titleField)) {
+            missingFields.push('Revision Title');
+            titleField.classList.add('rw-invalid');
+            titleField.setAttribute('aria-invalid', 'true');
+        }
+
+        if (isEmpty(reasonField)) {
+            missingFields.push('Revision Reason');
+            reasonField.classList.add('rw-invalid');
+            reasonField.setAttribute('aria-invalid', 'true');
+        }
+
+        if (missingFields.length > 0) {
+            event.preventDefault();
+            showPopup(missingFields);
+
+            if (isEmpty(titleField)) {
+                titleField.focus();
+            } else {
+                reasonField.focus();
+            }
+            return;
+        }
+
+        titleField.classList.remove('rw-invalid');
+        reasonField.classList.remove('rw-invalid');
+        titleField.removeAttribute('aria-invalid');
+        reasonField.removeAttribute('aria-invalid');
+    });
+
+    [titleField, reasonField].forEach(function (field) {
+        field.addEventListener('input', function () {
+            if (!isEmpty(field)) {
+                field.classList.remove('rw-invalid');
+                field.removeAttribute('aria-invalid');
+            }
+        });
+    });
+
+    okButton.addEventListener('click', function () {
+        closePopup();
+        if (isEmpty(titleField)) {
+            titleField.focus();
+        } else if (isEmpty(reasonField)) {
+            reasonField.focus();
+        }
+    });
+
+    backdrop.addEventListener('click', function (event) {
+        if (event.target === backdrop) {
+            closePopup();
+        }
+    });
+})();
+</script>
+
+{% endblock %}

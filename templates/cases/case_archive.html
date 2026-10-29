@@ -1,0 +1,541 @@
+{% extends "base.html" %}
+
+{% block title %}Archive Case | AIDEX{% endblock %}
+
+{% block extra_css %}
+<style>
+.archive-page{
+    padding:34px 0 56px;
+}
+
+.container-archive{
+    max-width:1100px;
+    margin:auto;
+}
+
+.hero{
+    background:linear-gradient(
+        135deg,
+        #7f1d1d,
+        #991b1b,
+        #dc2626
+    );
+    color:#fff;
+    padding:36px;
+    border-radius:24px;
+    box-shadow:0 20px 50px rgba(127,29,29,.25);
+}
+
+.hero h1{
+    font-weight:800;
+    margin-top:14px;
+}
+
+.hero p{
+    opacity:.88;
+}
+
+.card-box{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:20px;
+    padding:28px;
+    box-shadow:0 10px 30px rgba(15,23,42,.06);
+}
+
+.warning-box{
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    border-radius:16px;
+    padding:18px;
+    color:#991b1b;
+}
+
+.meta{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:22px 0;
+}
+
+.item{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    padding:15px;
+}
+
+.label{
+    font-size:.75rem;
+    font-weight:700;
+    text-transform:uppercase;
+    color:#64748b;
+}
+
+.value{
+    font-weight:700;
+    color:#0f172a;
+    margin-top:5px;
+}
+
+.audit{
+    background:#fffbeb;
+    border:1px solid #fde68a;
+    padding:16px;
+    border-radius:14px;
+    color:#92400e;
+}
+
+.form-section{
+    margin-top:24px;
+    padding:20px;
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    background:#f8fafc;
+}
+
+.form-label{
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:8px;
+}
+
+.form-control{
+    min-height:48px;
+    border-radius:12px;
+    border-color:#cbd5e1;
+}
+
+.form-control:focus{
+    border-color:#ef4444;
+    box-shadow:0 0 0 .2rem rgba(239,68,68,.12);
+}
+
+.confirm-box{
+    margin-top:18px;
+    padding:16px;
+    border:1px solid #fecaca;
+    border-radius:14px;
+    background:#fff7f7;
+}
+
+.form-check-input{
+    margin-top:.2rem;
+}
+
+.form-check-input:focus{
+    border-color:#ef4444;
+    box-shadow:0 0 0 .2rem rgba(239,68,68,.12);
+}
+
+.field-error{
+    color:#b91c1c;
+    font-size:.82rem;
+    font-weight:600;
+    margin-top:6px;
+}
+
+.form-error-summary{
+    margin-top:20px;
+}
+
+.char-counter{
+    margin-top:6px;
+    text-align:right;
+    color:#64748b;
+    font-size:.78rem;
+}
+
+.actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    margin-top:24px;
+}
+
+.btn{
+    padding:11px 18px;
+    border-radius:12px;
+    font-weight:700;
+}
+
+.btn-loading{
+    display:none;
+}
+
+button[disabled]{
+    cursor:not-allowed;
+}
+
+@media(max-width:768px){
+    .meta{
+        grid-template-columns:1fr;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .actions .btn{
+        width:100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="archive-page">
+    <div class="container-archive">
+
+        <div class="hero">
+            <span class="badge bg-light text-danger fw-bold">
+                <i class="bi bi-archive-fill"></i>
+                Archive Investigation
+            </span>
+
+            <h1>Archive Case</h1>
+
+            <p>
+                This action removes the case from active investigation
+                workflows while preserving it for audit and legal compliance.
+            </p>
+        </div>
+
+        <div class="row g-4 mt-2">
+
+            <div class="col-lg-8">
+                <div class="card-box">
+
+                    <div class="warning-box">
+                        <h5 class="fw-bold mb-2">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Confirmation Required
+                        </h5>
+
+                        <p class="mb-0">
+                            You are about to archive this investigation record.
+                            The case will remain stored in the database but will
+                            no longer appear as an active investigation.
+                        </p>
+                    </div>
+
+                    <div class="meta">
+                        <div class="item">
+                            <div class="label">Case Number</div>
+                            <div class="value">
+                                {{ case.case_number }}
+                            </div>
+                        </div>
+
+                        <div class="item">
+                            <div class="label">Case Title</div>
+                            <div class="value">
+                                {{ case.case_title }}
+                            </div>
+                        </div>
+
+                        <div class="item">
+                            <div class="label">Category</div>
+                            <div class="value">
+                                {{ case.get_crime_category_display }}
+                            </div>
+                        </div>
+
+                        <div class="item">
+                            <div class="label">Current Status</div>
+                            <div class="value">
+                                {{ case.get_status_display }}
+                            </div>
+                        </div>
+
+                        <div class="item">
+                            <div class="label">Priority</div>
+                            <div class="value">
+                                {{ case.get_priority_display }}
+                            </div>
+                        </div>
+
+                        <div class="item">
+                            <div class="label">Assigned Investigator</div>
+                            <div class="value">
+                                {% if case.assigned_investigator %}
+                                    {{ case.assigned_investigator.full_name|default:case.assigned_investigator.username }}
+                                {% else %}
+                                    Not Assigned
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="audit">
+                        <strong>
+                            <i class="bi bi-shield-lock-fill me-2"></i>
+                            Audit Notice
+                        </strong>
+                        <br>
+                        Archiving does not permanently delete the record.
+                        Historical data, timestamps and related evidence remain
+                        available for compliance and future review.
+                    </div>
+
+                    {% if form.errors %}
+                        <div
+                            class="alert alert-danger form-error-summary"
+                            role="alert"
+                        >
+                            <strong>
+                                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                Archive confirmation is incomplete.
+                            </strong>
+
+                            <div class="mt-2">
+                                Please correct the highlighted fields below.
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <form
+                        method="post"
+                        class="mt-4"
+                        id="archiveCaseForm"
+                        novalidate
+                    >
+                        {% csrf_token %}
+
+                        <div class="form-section">
+
+                            <div>
+                                <label
+                                    for="{{ form.reason.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    {{ form.reason.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                {{ form.reason }}
+
+                                <div class="form-text">
+                                    Enter a meaningful reason for archiving
+                                    this investigation. Minimum 10 characters.
+                                </div>
+
+                                <div
+                                    class="char-counter"
+                                    id="archiveReasonCounter"
+                                >
+                                    0 / 1000
+                                </div>
+
+                                {% for error in form.reason.errors %}
+                                    <div class="field-error">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="confirm-box">
+                                <div class="form-check">
+                                    {{ form.confirmation }}
+
+                                    <label
+                                        class="form-check-label fw-semibold"
+                                        for="{{ form.confirmation.id_for_label }}"
+                                    >
+                                        {{ form.confirmation.label }} <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+
+                                {% for error in form.confirmation.errors %}
+                                    <div class="field-error">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+
+                        <div class="actions">
+                            <a
+                                href="{% url 'cases:case_detail' case.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Cancel
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger"
+                                id="archiveCaseButton"
+                            >
+                                <span class="btn-default">
+                                    <i class="bi bi-archive-fill me-2"></i>
+                                    Archive Case
+                                </span>
+
+                                <span class="btn-loading">
+                                    <span
+                                        class="spinner-border spinner-border-sm me-2"
+                                        aria-hidden="true"
+                                    ></span>
+                                    Archiving...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card-box">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle-fill me-2 text-primary"></i>
+                        What Happens Next?
+                    </h5>
+
+                    <ul class="mb-0">
+                        <li class="mb-3">
+                            Case status becomes
+                            <strong>Archived</strong>.
+                        </li>
+
+                        <li class="mb-3">
+                            The record is marked inactive.
+                        </li>
+
+                        <li class="mb-3">
+                            Evidence and reports remain linked.
+                        </li>
+
+                        <li class="mb-3">
+                            Archive reason, user and timestamp are preserved.
+                        </li>
+
+                        <li>
+                            Authorized users can restore the case later.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    function initArchiveValidation() {
+        const form = document.getElementById("archiveCaseForm");
+        const button = document.getElementById("archiveCaseButton");
+        const reason = document.getElementById("{{ form.reason.id_for_label }}");
+        const confirmation = document.getElementById("{{ form.confirmation.id_for_label }}");
+        const counter = document.getElementById("archiveReasonCounter");
+
+        if (!form || !button) return;
+
+        function updateCounter() {
+            if (reason && counter) counter.textContent = reason.value.length + " / 1000";
+        }
+
+        function closePopup() {
+            const old = document.getElementById("aidexArchiveRequiredPopup");
+            if (old) old.remove();
+        }
+
+        function showPopup(fields) {
+            closePopup();
+            const backdrop = document.createElement("div");
+            backdrop.id = "aidexArchiveRequiredPopup";
+            backdrop.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);";
+
+            const box = document.createElement("div");
+            box.setAttribute("role", "alertdialog");
+            box.setAttribute("aria-modal", "true");
+            box.style.cssText = "width:min(460px,100%);padding:24px;border-radius:18px;background:#fff;color:#0f172a;box-shadow:0 25px 70px rgba(15,23,42,.3);border:1px solid #fecaca;font-family:inherit;";
+
+            const title = document.createElement("h3");
+            title.textContent = "Required Fields Missing";
+            title.style.cssText = "margin:0 0 10px;color:#991b1b;font-size:1.05rem;font-weight:800;";
+
+            const text = document.createElement("p");
+            text.textContent = fields.length === 1 ? "Please complete the following required field before archiving the case:" : "Please complete the following required fields before archiving the case:";
+            text.style.cssText = "margin:0;color:#475569;font-size:.86rem;line-height:1.6;";
+
+            const list = document.createElement("ul");
+            list.style.cssText = "margin:12px 0 0;padding-left:22px;color:#334155;font-size:.86rem;line-height:1.8;";
+            fields.forEach(function (name) {
+                const li = document.createElement("li");
+                li.textContent = name;
+                list.appendChild(li);
+            });
+
+            const actions = document.createElement("div");
+            actions.style.cssText = "display:flex;justify-content:flex-end;margin-top:18px;";
+            const ok = document.createElement("button");
+            ok.type = "button";
+            ok.textContent = "OK";
+            ok.style.cssText = "min-height:40px;padding:0 18px;border:0;border-radius:10px;color:#fff;background:linear-gradient(135deg,#dc2626,#991b1b);font-weight:800;cursor:pointer;";
+            ok.addEventListener("click", closePopup);
+            actions.appendChild(ok);
+
+            box.appendChild(title);
+            box.appendChild(text);
+            box.appendChild(list);
+            box.appendChild(actions);
+            backdrop.appendChild(box);
+            backdrop.addEventListener("click", function (e) { if (e.target === backdrop) closePopup(); });
+            document.body.appendChild(backdrop);
+            ok.focus();
+        }
+
+        updateCounter();
+        if (reason) reason.addEventListener("input", updateCounter);
+        if (confirmation) confirmation.addEventListener("change", function () { confirmation.classList.remove("is-invalid"); });
+
+        button.addEventListener("click", function (event) {
+            const missing = [];
+            if (reason && !reason.value.trim()) {
+                missing.push("{{ form.reason.label|escapejs }}");
+                reason.classList.add("is-invalid");
+            } else if (reason) {
+                reason.classList.remove("is-invalid");
+            }
+            if (confirmation && !confirmation.checked) {
+                missing.push("{{ form.confirmation.label|escapejs }}");
+                confirmation.classList.add("is-invalid");
+            } else if (confirmation) {
+                confirmation.classList.remove("is-invalid");
+            }
+
+            if (missing.length) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                showPopup(missing);
+                return false;
+            }
+
+            // Keep Django/server-side validation and existing inline errors intact.
+            button.disabled = true;
+            const defaultContent = button.querySelector(".btn-default");
+            const loadingContent = button.querySelector(".btn-loading");
+            if (defaultContent) defaultContent.style.display = "none";
+            if (loadingContent) {
+                loadingContent.style.display = "inline-flex";
+                loadingContent.style.alignItems = "center";
+            }
+        }, true);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initArchiveValidation);
+    } else {
+        initArchiveValidation();
+    }
+})();
+</script>
+{% endblock %}

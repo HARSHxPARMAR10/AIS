@@ -1,0 +1,1615 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ evidence.evidence_title }} | AIDEX
+<script>
+(function () {
+    "use strict";
+    function initDetailRequiredValidation(){
+        var form=document.getElementById("restoreEvidenceForm"), confirmation=document.getElementById("restoreEvidenceConfirmation");
+        if(!form||!confirmation) return;
+        form.addEventListener("submit",function(e){
+            confirmation.classList.remove("is-invalid");
+            if(confirmation.checked) return;
+            e.preventDefault(); confirmation.classList.add("is-invalid");
+            if(window.aidexShowPopup) window.aidexShowPopup("I confirm that I want to restore this evidence. is required. Please tick this field.","Required Field Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initDetailRequiredValidation); else initDetailRequiredValidation();
+})();
+</script>
+
+
+<style>
+.required-mark { color: #dc2626; margin-left: 2px; font-weight: 700; }
+</style>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evidence-detail-page {
+        padding: 32px 0 56px;
+    }
+
+    .evidence-detail-container {
+        max-width: 1380px;
+        margin: 0 auto;
+    }
+
+    .page-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px;
+        border-radius: 24px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(45, 212, 191, 0.28),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #0f766e 52%,
+                #14b8a6 100%
+            );
+        box-shadow: 0 22px 60px rgba(15, 118, 110, 0.22);
+    }
+
+    .page-hero::before,
+    .page-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .page-hero::before {
+        width: 230px;
+        height: 230px;
+        left: -95px;
+        bottom: -125px;
+    }
+
+    .page-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 65px;
+        top: -105px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .page-title {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 2.08rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .hero-actions .btn {
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 11px 16px;
+    }
+
+    .content-grid {
+        margin-top: 28px;
+    }
+
+    .detail-card,
+    .action-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .detail-card {
+        padding: 26px;
+        margin-bottom: 22px;
+    }
+
+    .action-card {
+        padding: 22px;
+        margin-bottom: 18px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.12rem;
+        font-weight: 800;
+    }
+
+    .card-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #0f766e;
+        background: #ccfbf1;
+        font-size: 1.15rem;
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .meta-item {
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+    }
+
+    .meta-label {
+        margin-bottom: 6px;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+    }
+
+    .meta-value {
+        color: #0f172a;
+        font-size: 0.9rem;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .description-box {
+        padding: 18px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+        color: #334155;
+        line-height: 1.75;
+        white-space: pre-line;
+    }
+
+    .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+    }
+
+    .badge-type {
+        color: #0f766e;
+        background: #ccfbf1;
+    }
+
+    .badge-pending {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .badge-review {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .badge-verified {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .badge-rejected {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .badge-corrupted {
+        color: #9a3412;
+        background: #ffedd5;
+    }
+
+    .badge-active {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .badge-inactive {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .person-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+    }
+
+    .person-avatar {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        color: #0f766e;
+        background: #ccfbf1;
+        font-weight: 800;
+        font-size: 1rem;
+    }
+
+    .person-name {
+        color: #0f172a;
+        font-weight: 800;
+    }
+
+    .person-meta {
+        margin-top: 2px;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .file-panel {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .file-icon {
+        width: 54px;
+        height: 54px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 16px;
+        color: #0f766e;
+        background: #ccfbf1;
+        font-size: 1.35rem;
+    }
+
+    .file-name {
+        color: #0f172a;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .file-meta {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .hash-box {
+        padding: 16px;
+        border-radius: 14px;
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-family: monospace;
+        font-size: 0.78rem;
+        word-break: break-all;
+    }
+
+    .preview-wrapper {
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background: #0f172a;
+    }
+
+    .preview-wrapper img,
+    .preview-wrapper video,
+    .preview-wrapper audio {
+        width: 100%;
+        max-height: 480px;
+        display: block;
+        object-fit: contain;
+        background: #0f172a;
+    }
+
+    .preview-fallback {
+        padding: 42px 20px;
+        text-align: center;
+        color: #cbd5e1;
+    }
+
+    .preview-fallback i {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 2rem;
+    }
+
+    .verification-notes {
+        padding: 16px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        line-height: 1.65;
+        white-space: pre-line;
+    }
+
+    .action-card .btn {
+        width: 100%;
+        min-height: 44px;
+        border-radius: 11px;
+        font-weight: 800;
+    }
+
+    .danger-card {
+        border-color: #fecaca;
+        background: #fffafa;
+    }
+
+    .danger-card .card-heading-icon {
+        color: #b91c1c;
+        background: #fee2e2;
+    }
+
+    .restore-card {
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+    }
+
+    .restore-card .card-heading-icon {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .restore-text {
+        margin-bottom: 14px;
+        color: #166534;
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .restore-confirmation {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid #bbf7d0;
+        background: #ffffff;
+        margin-bottom: 14px;
+    }
+
+    .restore-confirmation .form-check-input {
+        cursor: pointer;
+    }
+
+    .archive-info-card {
+        border-color: #fde68a;
+        background: #fffbeb;
+    }
+
+    .archive-info-card .card-heading-icon {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .archive-reason-box {
+        padding: 16px;
+        border-radius: 14px;
+        color: #78350f;
+        background: #ffffff;
+        border: 1px solid #fde68a;
+        line-height: 1.65;
+        white-space: pre-line;
+    }
+
+    .restore-blocked-note {
+        padding: 14px;
+        border-radius: 12px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .btn-loading {
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    button[disabled] {
+        cursor: not-allowed;
+        opacity: 0.78;
+    }
+
+    .danger-text {
+        margin-bottom: 14px;
+        color: #7f1d1d;
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .audit-note {
+        padding: 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .audit-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+    @media (max-width: 991.98px) {
+        .page-hero {
+            padding: 30px;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .evidence-detail-page {
+            padding: 18px 0 35px;
+        }
+
+        .page-hero {
+            padding: 27px 22px;
+        }
+
+        .page-title {
+            font-size: 1.72rem;
+        }
+
+        .detail-card,
+        .action-card {
+            padding: 20px;
+        }
+
+        .meta-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .file-panel {
+            align-items: flex-start;
+        }
+    }
+
+
+    /* AIDEX professional validation / action popup */
+    .aidex-popup-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(15, 23, 42, 0.50);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .aidex-popup-backdrop.is-visible {
+        display: flex;
+        opacity: 1;
+    }
+
+    .aidex-popup {
+        width: min(100%, 520px);
+        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.92);
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+        transform: translateY(10px) scale(0.98);
+        transition: transform 0.2s ease;
+    }
+
+    .aidex-popup-backdrop.is-visible .aidex-popup {
+        transform: translateY(0) scale(1);
+    }
+
+    .aidex-popup-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 22px 24px 18px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .aidex-popup-icon {
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        color: #b91c1c;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 1.25rem;
+    }
+
+    .aidex-popup-icon.is-warning {
+        color: #92400e;
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .aidex-popup-icon.is-success {
+        color: #166534;
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .aidex-popup-heading {
+        margin: 1px 0 4px;
+        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 800;
+        letter-spacing: -0.15px;
+    }
+
+    .aidex-popup-subheading {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.5;
+    }
+
+    .aidex-popup-close {
+        margin-left: auto;
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 36px;
+        border: 0;
+        border-radius: 10px;
+        color: #64748b;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+
+    .aidex-popup-close:hover {
+        color: #0f172a;
+        background: #eef2f7;
+    }
+
+    .aidex-popup-body {
+        padding: 20px 24px 8px;
+    }
+
+    .aidex-popup-message {
+        margin: 0;
+        padding: 15px 16px;
+        border: 1px solid #fee2e2;
+        border-radius: 14px;
+        color: #7f1d1d;
+        background: #fff7f7;
+        font-size: 0.9rem;
+        line-height: 1.65;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+        white-space: pre-line;
+    }
+
+    .aidex-popup-message.is-neutral {
+        color: #334155;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+    .aidex-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 24px 22px;
+    }
+
+    .aidex-popup-btn {
+        min-width: 96px;
+        border: 0;
+        border-radius: 11px;
+        padding: 10px 18px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #991b1b, #dc2626);
+        box-shadow: 0 8px 20px rgba(220, 38, 38, 0.18);
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .aidex-popup-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(220, 38, 38, 0.24);
+    }
+
+    .aidex-popup-btn.secondary {
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #dbe3ee;
+        box-shadow: none;
+    }
+
+    .aidex-popup-btn.secondary:hover {
+        background: #eef2f7;
+        box-shadow: none;
+    }
+
+    .aidex-popup-btn.success {
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.18);
+    }
+
+    body.aidex-popup-open {
+        overflow: hidden;
+    }
+
+    @media (max-width: 576px) {
+        .aidex-popup-backdrop { padding: 14px; }
+        .aidex-popup-top,
+        .aidex-popup-body,
+        .aidex-popup-actions { padding-left: 18px; padding-right: 18px; }
+    }
+
+</style>
+<script>
+(function () {
+    "use strict";
+    function initDetailRequiredValidation(){
+        var form=document.getElementById("restoreEvidenceForm"), confirmation=document.getElementById("restoreEvidenceConfirmation");
+        if(!form||!confirmation) return;
+        form.addEventListener("submit",function(e){
+            confirmation.classList.remove("is-invalid");
+            if(confirmation.checked) return;
+            e.preventDefault(); confirmation.classList.add("is-invalid");
+            if(window.aidexShowPopup) window.aidexShowPopup("I confirm that I want to restore this evidence. is required. Please tick this field.","Required Field Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initDetailRequiredValidation); else initDetailRequiredValidation();
+})();
+</script>
+
+
+<style>
+.required-mark { color: #dc2626; margin-left: 2px; font-weight: 700; }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="evidence-detail-page">
+    <div class="evidence-detail-container">
+
+        <section class="page-hero">
+            <div class="hero-content">
+                <div class="row align-items-center g-4">
+
+                    <div class="col-lg">
+                        <span class="hero-badge">
+                            <i class="bi bi-file-earmark-lock-fill"></i>
+                            {{ evidence.case.case_number }}
+                        </span>
+
+                        <h1 class="page-title">
+                            {{ evidence.evidence_title }}
+                        </h1>
+
+                        <p class="page-subtitle">
+                            {{ evidence.get_evidence_type_display }}
+                            ·
+                            {{ evidence.get_verification_status_display }}
+                        </p>
+                    </div>
+
+                    <div class="col-lg-auto">
+                        <div class="hero-actions">
+                            <a
+                                href="{% url 'evidence:evidence_list' %}"
+                                class="btn btn-outline-light"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Back to Evidence
+                            </a>
+
+                            {% if can_update_evidence and evidence.is_active %}
+                                <a
+                                    href="{% url 'evidence:evidence_update' evidence.id %}"
+                                    class="btn btn-light"
+                                >
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                    Update Evidence
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="row g-4 content-grid">
+
+            <div class="col-lg-8">
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Evidence Overview</h2>
+                            <p>Core metadata and current verification state.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-card-list"></i>
+                        </div>
+                    </div>
+
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <div class="meta-label">Related Case</div>
+                            <div class="meta-value">
+                                {{ evidence.case.case_number }}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Evidence Type</div>
+                            <div class="meta-value">
+                                <span class="badge-soft badge-type">
+                                    {{ evidence.get_evidence_type_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Verification Status</div>
+                            <div class="meta-value">
+                                {% if evidence.verification_status == "VERIFIED" %}
+                                    <span class="badge-soft badge-verified">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% elif evidence.verification_status == "REJECTED" %}
+                                    <span class="badge-soft badge-rejected">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% elif evidence.verification_status == "CORRUPTED" %}
+                                    <span class="badge-soft badge-corrupted">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% elif evidence.verification_status == "IN_REVIEW" %}
+                                    <span class="badge-soft badge-review">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge-soft badge-pending">
+                                        {{ evidence.get_verification_status_display }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Record State</div>
+                            <div class="meta-value">
+                                {% if evidence.is_active %}
+                                    <span class="badge-soft badge-active">Active</span>
+                                {% else %}
+                                    <span class="badge-soft badge-inactive">Archived</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Uploaded Date</div>
+                            <div class="meta-value">
+                                {{ evidence.uploaded_date|date:"d M Y, h:i A" }}
+                            </div>
+                        </div>
+
+                        <div class="meta-item">
+                            <div class="meta-label">Last Updated</div>
+                            <div class="meta-value">
+                                {{ evidence.updated_date|date:"d M Y, h:i A" }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Evidence Description</h2>
+                            <p>Source, relevance and collection context.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                    </div>
+
+                    <div class="description-box">
+                        {% if evidence.description %}
+                            {{ evidence.description }}
+                        {% else %}
+                            No description was provided for this evidence.
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Evidence File</h2>
+                            <p>Stored file metadata and integrity fingerprint.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-file-earmark-binary-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="file-panel">
+                        <div class="file-icon">
+                            <i class="bi bi-file-earmark-fill"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="file-name">
+                                {{ evidence.original_filename|default:evidence.filename }}
+                            </div>
+
+                            <div class="file-meta">
+                                {{ evidence.file_extension|upper }}
+                                ·
+                                {{ evidence.file_size_mb }} MB
+                            </div>
+                        </div>
+
+                        {% if can_download_evidence %}
+                            <a
+                                href="{% url 'evidence:evidence_download' evidence.id %}"
+                                class="btn btn-outline-primary"
+                            >
+                                <i class="bi bi-download me-2"></i>
+                                Download
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="meta-label">SHA-256 Hash</div>
+                        <div class="hash-box">
+                            {{ evidence.sha256_hash|default:"Hash not available" }}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Preview</h2>
+                            <p>Browser preview for supported file formats.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-eye-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="preview-wrapper">
+                        {% if evidence.evidence_type == "IMAGE" or evidence.evidence_type == "SCREENSHOT" %}
+                            <img
+                                src="{{ evidence.evidence_file.url }}"
+                                alt="{{ evidence.evidence_title }}"
+                            >
+                        {% elif evidence.evidence_type == "VIDEO" %}
+                            <video controls preload="metadata">
+                                <source src="{{ evidence.evidence_file.url }}">
+                                Your browser does not support video preview.
+                            </video>
+                        {% elif evidence.evidence_type == "AUDIO" %}
+                            <audio controls preload="metadata">
+                                <source src="{{ evidence.evidence_file.url }}">
+                                Your browser does not support audio preview.
+                            </audio>
+                        {% else %}
+                            <div class="preview-fallback">
+                                <i class="bi bi-file-earmark-text-fill"></i>
+                                Preview is not available for this file type.
+                                Use the download button to open the original file.
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="detail-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>People and Verification</h2>
+                            <p>Users responsible for upload and verification.</p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="person-card">
+                                <div class="person-avatar">
+                                    {{ evidence.uploaded_by.full_name|default:evidence.uploaded_by.username|slice:":1"|upper }}
+                                </div>
+
+                                <div>
+                                    <div class="person-name">
+                                        {{ evidence.uploaded_by.full_name|default:evidence.uploaded_by.username }}
+                                    </div>
+
+                                    <div class="person-meta">
+                                        Uploaded by · {{ evidence.uploaded_by.get_role_display }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            {% if evidence.verified_by %}
+                                <div class="person-card">
+                                    <div class="person-avatar">
+                                        {{ evidence.verified_by.full_name|default:evidence.verified_by.username|slice:":1"|upper }}
+                                    </div>
+
+                                    <div>
+                                        <div class="person-name">
+                                            {{ evidence.verified_by.full_name|default:evidence.verified_by.username }}
+                                        </div>
+
+                                        <div class="person-meta">
+                                            Verified by
+                                            {% if evidence.verified_date %}
+                                                · {{ evidence.verified_date|date:"d M Y, h:i A" }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="person-card">
+                                    <div class="person-avatar">
+                                        <i class="bi bi-person-dash"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="person-name">
+                                            Not Verified Yet
+                                        </div>
+
+                                        <div class="person-meta">
+                                            No final verification decision has been recorded.
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if evidence.verification_notes %}
+                        <div class="mt-4">
+                            <div class="meta-label">Verification Notes</div>
+                            <div class="verification-notes">
+                                {{ evidence.verification_notes }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </section>
+
+                {% if evidence.archived_at %}
+                    <section class="detail-card archive-info-card">
+                        <div class="card-heading">
+                            <div>
+                                <h2>Latest Archive Information</h2>
+                                <p>
+                                    Preserved metadata from the most recent archive action.
+                                </p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-archive-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="meta-grid">
+                            <div class="meta-item">
+                                <div class="meta-label">Archived At</div>
+                                <div class="meta-value">
+                                    {{ evidence.archived_at|date:"d M Y, h:i A" }}
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <div class="meta-label">Archived By</div>
+                                <div class="meta-value">
+                                    {% if evidence.archived_by %}
+                                        {{ evidence.archived_by.full_name|default:evidence.archived_by.username }}
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <div class="meta-label">Current Record State</div>
+                                <div class="meta-value">
+                                    {% if evidence.is_active %}
+                                        <span class="badge-soft badge-active">
+                                            Active / Restored
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-soft badge-inactive">
+                                            Archived
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <div class="meta-label">Linked Case State</div>
+                                <div class="meta-value">
+                                    {% if evidence.case.is_active and evidence.case.status != "ARCHIVED" %}
+                                        <span class="badge-soft badge-active">
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-soft badge-inactive">
+                                            Archived / Inactive
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="meta-label">Archive Reason</div>
+
+                            <div class="archive-reason-box">
+                                {% if evidence.archive_reason %}
+                                    {{ evidence.archive_reason }}
+                                {% else %}
+                                    No archive reason was recorded for this archive.
+                                {% endif %}
+                            </div>
+                        </div>
+                    </section>
+                {% endif %}
+
+            </div>
+
+            <div class="col-lg-4">
+
+                {% if can_verify_evidence and evidence.is_active %}
+                    <section class="action-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Verification Review</h3>
+                                <p>Review integrity and record a decision.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{% url 'evidence:evidence_verify' evidence.id %}"
+                            class="btn btn-success"
+                        >
+                            <i class="bi bi-shield-check me-2"></i>
+                            Verify Evidence
+                        </a>
+                    </section>
+
+                    <section class="action-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Integrity Check</h3>
+                                <p>Recalculate and compare the SHA-256 hash.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-fingerprint"></i>
+                            </div>
+                        </div>
+
+                        <form
+                            method="post"
+                            action="{% url 'evidence:evidence_integrity_check' evidence.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Run Integrity Check
+                            </button>
+                        </form>
+                    </section>
+                {% endif %}
+
+                {% if can_download_evidence %}
+                    <section class="action-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Secure Download</h3>
+                                <p>Download the original evidence file.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-download"></i>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{% url 'evidence:evidence_download' evidence.id %}"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-cloud-arrow-down-fill me-2"></i>
+                            Download Evidence
+                        </a>
+                    </section>
+                {% endif %}
+
+                {% if can_archive_evidence %}
+                    <section class="action-card danger-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Archive Evidence</h3>
+                                <p>Preserve the record for audit purposes.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-archive-fill"></i>
+                            </div>
+                        </div>
+
+                        <p class="danger-text">
+                            Archiving removes this evidence from active workflows.
+                            The file and metadata remain stored.
+                        </p>
+
+                        <a
+                            href="{% url 'evidence:evidence_archive' evidence.id %}"
+                            class="btn btn-outline-danger"
+                        >
+                            <i class="bi bi-archive me-2"></i>
+                            Archive Evidence
+                        </a>
+                    </section>
+                {% endif %}
+
+                {% if can_restore_evidence %}
+                    <section class="action-card restore-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Restore Evidence</h3>
+                                <p>
+                                    Return this archived record to active evidence workflows.
+                                </p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </div>
+                        </div>
+
+                        <p class="restore-text">
+                            Restoring makes the evidence active again.
+                            Its latest archive reason, user and timestamp remain retained
+                            for investigation history.
+                        </p>
+
+                        <form
+                            method="post"
+                            action="{% url 'evidence:evidence_restore' evidence.id %}"
+                            id="restoreEvidenceForm"
+                        >
+                            {% csrf_token %}
+
+                            <div class="restore-confirmation">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="confirmation"
+                                        value="on"
+                                        id="restoreEvidenceConfirmation"
+                                        required
+                                    >
+
+                                    <label
+                                        class="form-check-label fw-semibold"
+                                        for="restoreEvidenceConfirmation"
+                                    >
+                                        I confirm that I want to restore this evidence.
+                                        <span class="required-mark">*</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="btn btn-success"
+                                id="restoreEvidenceButton"
+                            >
+                                <span class="btn-default">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                    Restore Evidence
+                                </span>
+
+                                <span class="btn-loading">
+                                    <span
+                                        class="spinner-border spinner-border-sm me-2"
+                                        aria-hidden="true"
+                                    ></span>
+                                    Restoring...
+                                </span>
+                            </button>
+                        </form>
+                    </section>
+                {% elif not evidence.is_active %}
+                    <section class="action-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Restore Evidence</h3>
+                                <p>This archived record cannot currently be restored.</p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-lock-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="restore-blocked-note">
+                            {% if not evidence.case.is_active or evidence.case.status == "ARCHIVED" %}
+                                Restore the linked case first. Evidence cannot be restored
+                                while its case is archived or inactive.
+                            {% else %}
+                                Your account does not have permission to restore this evidence.
+                            {% endif %}
+                        </div>
+                    </section>
+                {% endif %}
+
+                <div class="audit-note">
+                    <strong>
+                        <i class="bi bi-shield-lock-fill me-2"></i>
+                        Audit Protection
+                    </strong>
+
+                    Evidence metadata, SHA-256 hash, timestamps and archived records
+                    are retained to support forensic integrity and accountability.
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+    function initDetailRequiredValidation(){
+        var form=document.getElementById("restoreEvidenceForm"), confirmation=document.getElementById("restoreEvidenceConfirmation");
+        if(!form||!confirmation) return;
+        form.addEventListener("submit",function(e){
+            confirmation.classList.remove("is-invalid");
+            if(confirmation.checked) return;
+            e.preventDefault(); confirmation.classList.add("is-invalid");
+            if(window.aidexShowPopup) window.aidexShowPopup("I confirm that I want to restore this evidence. is required. Please tick this field.","Required Field Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initDetailRequiredValidation); else initDetailRequiredValidation();
+})();
+</script>
+
+
+<style>
+.required-mark { color: #dc2626; margin-left: 2px; font-weight: 700; }
+</style>
+
+{% endblock %}
+
+
+
+<div
+    class="aidex-popup-backdrop"
+    id="aidexPopupBackdrop"
+    role="presentation"
+    aria-hidden="true"
+>
+    <div
+        class="aidex-popup"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="aidexPopupTitle"
+        aria-describedby="aidexPopupMessage"
+    >
+        <div class="aidex-popup-top">
+            <div class="aidex-popup-icon" id="aidexPopupIcon" aria-hidden="true">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <div>
+                <h2 class="aidex-popup-heading" id="aidexPopupTitle">
+                    Validation Required
+                </h2>
+                <p class="aidex-popup-subheading" id="aidexPopupSubtitle">
+                    Please review the information before continuing.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="aidex-popup-close"
+                id="aidexPopupClose"
+                aria-label="Close message"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="aidex-popup-body">
+            <p class="aidex-popup-message" id="aidexPopupMessage"></p>
+        </div>
+
+        <div class="aidex-popup-actions">
+            <button
+                type="button"
+                class="aidex-popup-btn secondary"
+                id="aidexPopupCancel"
+                style="display:none;"
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                class="aidex-popup-btn"
+                id="aidexPopupOk"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const popup = document.getElementById("aidexPopupBackdrop");
+    const popupMessage = document.getElementById("aidexPopupMessage");
+    const popupClose = document.getElementById("aidexPopupClose");
+    const popupOk = document.getElementById("aidexPopupOk");
+    const popupCancel = document.getElementById("aidexPopupCancel");
+    const popupTitle = document.getElementById("aidexPopupTitle");
+    const popupSubtitle = document.getElementById("aidexPopupSubtitle");
+    const popupIcon = document.getElementById("aidexPopupIcon");
+
+    let pendingAction = null;
+    const closePopup = () => { pendingAction = null; popup.classList.remove("is-visible"); popup.setAttribute("aria-hidden", "true"); document.body.classList.remove("aidex-popup-open"); };
+    const showConfirmation = (title, subtitle, message, actionUrl, icon, success) => {
+        pendingAction = actionUrl;
+        popupTitle.textContent = title; popupSubtitle.textContent = subtitle; popupMessage.textContent = message;
+        popupMessage.classList.add("is-neutral"); popupIcon.classList.toggle("is-success", !!success); popupIcon.classList.toggle("is-warning", !success); popupIcon.querySelector("i").className = `bi ${icon}`;
+        popupCancel.style.display = "inline-block"; popupOk.style.display = "inline-block"; popupOk.textContent = "Continue"; popupOk.classList.toggle("success", !!success);
+        popupCancel.onclick = closePopup;
+        popupOk.onclick = () => { if (pendingAction) window.location.href = pendingAction; };
+        popup.classList.add("is-visible"); popup.setAttribute("aria-hidden", "false"); document.body.classList.add("aidex-popup-open");
+        window.setTimeout(() => popupOk.focus(), 0);
+    };
+
+    popupClose.addEventListener("click", closePopup); popup.addEventListener("click", e => { if (e.target === popup) closePopup(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && popup.classList.contains("is-visible")) closePopup(); });
+
+    const verifyLink = document.querySelector('a[href*="evidence_verify"]');
+    if (verifyLink) verifyLink.addEventListener("click", function (event) {
+        event.preventDefault();
+        showConfirmation("Start Verification Review?", "Open the evidence verification workflow.", "You are about to review this evidence and record a verification decision. Continue only after checking the file and integrity details.", this.href, "bi-shield-check", true);
+    });
+
+    const archiveLink = document.querySelector('a[href*="evidence_archive"]');
+    if (archiveLink) archiveLink.addEventListener("click", function (event) {
+        event.preventDefault();
+        showConfirmation("Open Archive Workflow?", "Review the archive details before changing the record state.", "The next screen will ask for an archive reason and confirmation. The evidence will become inactive only after that confirmation is submitted.", this.href, "bi-archive-fill", false);
+    });
+
+    const integrityForm = document.querySelector('form[action*="evidence_integrity_check"]');
+    if (integrityForm) integrityForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        pendingAction = null;
+        popupTitle.textContent = "Run Integrity Check?"; popupSubtitle.textContent = "Recalculate and compare the SHA-256 fingerprint.";
+        popupMessage.textContent = "The integrity check will recalculate the stored file hash and compare it with the recorded SHA-256 value.";
+        popupMessage.classList.add("is-neutral"); popupIcon.classList.remove("is-warning"); popupIcon.classList.add("is-success"); popupIcon.querySelector("i").className = "bi bi-fingerprint";
+        popupCancel.style.display = "inline-block"; popupOk.style.display = "inline-block"; popupOk.textContent = "Run Check"; popupOk.classList.add("success");
+        popupCancel.onclick = closePopup; popupOk.onclick = () => integrityForm.submit();
+        popup.classList.add("is-visible"); popup.setAttribute("aria-hidden", "false"); document.body.classList.add("aidex-popup-open");
+        window.setTimeout(() => popupOk.focus(), 0);
+    });
+
+    const restoreForm = document.getElementById("restoreEvidenceForm");
+    const restoreConfirmation = document.getElementById("restoreEvidenceConfirmation");
+    const restoreButton = document.getElementById("restoreEvidenceButton");
+    if (restoreForm && restoreButton) restoreForm.addEventListener("submit", function (event) {
+        if (restoreConfirmation && !restoreConfirmation.checked) {
+            event.preventDefault(); restoreConfirmation.focus(); restoreConfirmation.classList.add("is-invalid");
+            popupTitle.textContent = "Confirmation Required"; popupSubtitle.textContent = "Confirm the restore action before continuing."; popupMessage.textContent = "Please confirm that you want to restore this evidence to active workflows.";
+            popupMessage.classList.remove("is-neutral"); popupIcon.classList.remove("is-success"); popupIcon.classList.add("is-warning"); popupIcon.querySelector("i").className = "bi bi-exclamation-triangle-fill";
+            popupCancel.style.display = "none"; popupOk.textContent = "OK"; popupOk.classList.remove("success"); popupOk.onclick = closePopup;
+            popup.classList.add("is-visible"); popup.setAttribute("aria-hidden", "false"); document.body.classList.add("aidex-popup-open"); window.setTimeout(() => popupOk.focus(), 0); return;
+        }
+        restoreButton.disabled = true;
+        const defaultContent = restoreButton.querySelector(".btn-default"); const loadingContent = restoreButton.querySelector(".btn-loading");
+        if (defaultContent) defaultContent.style.display = "none"; if (loadingContent) loadingContent.style.display = "inline-flex";
+    });
+});
+</script>
+
+
+<script>
+(function () {
+    "use strict";
+    function wireDetailActions() {
+        function bind(selector, title, message) {
+            var link = document.querySelector(selector);
+            if (!link || link.dataset.aidexBound === "1") return;
+            link.dataset.aidexBound = "1";
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                var url = this.href;
+                if (window.aidexShowPopup) {
+                    window.aidexShowPopup(message, title);
+                    var ok = document.getElementById("aidexHardValidationOk");
+                    if (ok) {
+                        ok.onclick = function () {
+                            window.aidexClosePopup();
+                            window.location.href = url;
+                        };
+                    }
+                } else {
+                    window.location.href = url;
+                }
+            });
+        }
+
+        bind('a[href*="evidence_verify"]',
+            "Open Verification",
+            "You are about to open the verification workflow for this evidence. Continue?");
+        bind('a[href*="evidence_archive"]',
+            "Open Archive",
+            "You are about to open the archive workflow. The next screen will ask for the archive reason and confirmation.");
+        bind('a[href*="evidence_update"]',
+            "Update Evidence",
+            "You are about to edit this evidence record. Continue?");
+
+        var integrity = document.querySelector('form[action*="evidence_integrity_check"]');
+        if (integrity && integrity.dataset.aidexBound !== "1") {
+            integrity.dataset.aidexBound = "1";
+            integrity.addEventListener("submit", function (e) {
+                e.preventDefault();
+                var form = this;
+                window.aidexShowPopup(
+                    "Run the integrity check now? This will check the stored evidence file against its recorded SHA-256 hash.",
+                    "Run Integrity Check"
+                );
+                var ok = document.getElementById("aidexHardValidationOk");
+                if (ok) ok.onclick = function () {
+                    window.aidexClosePopup();
+                    form.submit();
+                };
+            });
+        }
+    }
+
+    function start() {
+        var tries = 0;
+        var timer = setInterval(function () {
+            tries++;
+            if (window.aidexShowPopup || tries > 30) {
+                clearInterval(timer);
+                if (window.aidexShowPopup) wireDetailActions();
+            }
+        }, 50);
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+    else start();
+})();
+</script>
+
+<script>
+(function () {
+    "use strict";
+    function initDetailRequiredValidation(){
+        var form=document.getElementById("restoreEvidenceForm"), confirmation=document.getElementById("restoreEvidenceConfirmation");
+        if(!form||!confirmation) return;
+        form.addEventListener("submit",function(e){
+            confirmation.classList.remove("is-invalid");
+            if(confirmation.checked) return;
+            e.preventDefault(); confirmation.classList.add("is-invalid");
+            if(window.aidexShowPopup) window.aidexShowPopup("I confirm that I want to restore this evidence. is required. Please tick this field.","Required Field Missing");
+        });
+    }
+    if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initDetailRequiredValidation); else initDetailRequiredValidation();
+})();
+</script>
+
+
+<style>
+.required-mark { color: #dc2626; margin-left: 2px; font-weight: 700; }
+</style>
+
+{% endblock %}

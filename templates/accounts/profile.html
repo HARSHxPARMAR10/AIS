@@ -1,0 +1,713 @@
+{% extends "base.html" %}
+
+{% block title %}
+AIDEX | User Profile
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-page {
+        padding: 40px 0;
+    }
+
+    .profile-shell {
+        max-width: 1120px;
+        margin: 0 auto;
+    }
+
+    .profile-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(96, 165, 250, 0.35),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #1e3a8a 50%,
+                #2563eb 100%
+            );
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.20);
+    }
+
+    .profile-hero::before {
+        content: "";
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        left: -70px;
+        bottom: -100px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-hero::after {
+        content: "";
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        right: 50px;
+        top: -90px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 48px;
+    }
+
+    .profile-image-wrapper {
+        position: relative;
+        width: 148px;
+        height: 148px;
+    }
+
+    .profile-photo {
+        width: 148px;
+        height: 148px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 6px solid rgba(255, 255, 255, 0.90);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.24);
+    }
+
+    .profile-placeholder {
+        width: 148px;
+        height: 148px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 6px solid rgba(255, 255, 255, 0.90);
+        background: rgba(255, 255, 255, 0.13);
+        font-size: 4rem;
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.24);
+    }
+
+    .verified-badge {
+        position: absolute;
+        right: 5px;
+        bottom: 8px;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: #ffffff;
+        background: #16a34a;
+        border: 4px solid #ffffff;
+        font-size: 0.95rem;
+    }
+
+    .profile-name {
+        font-size: 2.15rem;
+        font-weight: 800;
+        letter-spacing: -0.4px;
+    }
+
+    .profile-username {
+        color: rgba(255, 255, 255, 0.70);
+        font-size: 1rem;
+    }
+
+    .role-pill,
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 15px;
+        border-radius: 999px;
+        font-size: 0.86rem;
+        font-weight: 700;
+    }
+
+    .role-pill {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+    }
+
+    .status-pill {
+        color: #14532d;
+        background: #dcfce7;
+        border: 1px solid #bbf7d0;
+    }
+
+    .profile-action-btn {
+        min-height: 48px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+
+    .summary-card {
+        margin-top: -28px;
+        position: relative;
+        z-index: 3;
+        border: 0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+    }
+
+    .summary-item {
+        padding: 22px;
+        text-align: center;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .summary-item:last-child {
+        border-right: 0;
+    }
+
+    .summary-label {
+        margin-bottom: 5px;
+        color: #64748b;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+    }
+
+    .summary-value {
+        color: #0f172a;
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    .content-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 35px rgba(15, 23, 42, 0.07);
+    }
+
+    .section-title {
+        color: #0f172a;
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
+
+    .section-subtitle {
+        color: #64748b;
+        font-size: 0.92rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px;
+        height: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+    }
+
+    .detail-item:hover {
+        transform: translateY(-3px);
+        border-color: #bfdbfe;
+        box-shadow: 0 12px 25px rgba(37, 99, 235, 0.08);
+    }
+
+    .detail-icon {
+        flex: 0 0 auto;
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-size: 1.15rem;
+    }
+
+    .detail-label {
+        color: #64748b;
+        font-size: 0.77rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.55px;
+    }
+
+    .detail-value {
+        margin-top: 3px;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .security-panel {
+        border-left: 4px solid #2563eb;
+        border-radius: 16px;
+        background: #eff6ff;
+    }
+
+    .security-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-size: 1.25rem;
+    }
+
+    .danger-zone {
+        border: 1px solid #fecaca;
+        border-radius: 16px;
+        background: #fff7f7;
+    }
+
+    @media (max-width: 767.98px) {
+        .profile-page {
+            padding: 20px 0;
+        }
+
+        .hero-content {
+            padding: 30px 22px;
+            text-align: center;
+        }
+
+        .profile-image-wrapper {
+            margin: 0 auto;
+        }
+
+        .profile-name {
+            font-size: 1.7rem;
+        }
+
+        .summary-card {
+            margin-top: 18px;
+        }
+
+        .summary-item {
+            border-right: 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .summary-item:last-child {
+            border-bottom: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-page">
+
+    <div class="profile-shell">
+
+        <section class="profile-hero">
+
+            <div class="hero-content">
+
+                <div class="row align-items-center g-4">
+
+                    <div class="col-md-auto">
+
+                        <div class="profile-image-wrapper">
+
+                            {% if user_profile.profile_photo %}
+                                <img
+                                    src="{{ user_profile.profile_photo.url }}"
+                                    alt="{{ user_profile.full_name }} profile photo"
+                                    class="profile-photo"
+                                >
+                            {% else %}
+                                <div class="profile-placeholder">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                            {% endif %}
+
+                            <div class="verified-badge">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md">
+
+                        <div class="text-white-50 small fw-semibold mb-2">
+                            AIDEX AUTHORIZED PROFILE
+                        </div>
+
+                        <h1 class="profile-name mb-1">
+                            {{ user_profile.full_name|default:user_profile.username }}
+                        </h1>
+
+                        <div class="profile-username mb-3">
+                            @{{ user_profile.username }}
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 justify-content-md-start justify-content-center">
+
+                            <span class="role-pill">
+                                <i class="bi bi-person-badge-fill"></i>
+                                {{ user_profile.get_role_display }}
+                            </span>
+
+                            <span class="status-pill">
+                                <i class="bi bi-shield-check"></i>
+                                {{ user_profile.get_account_status_display }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-auto">
+
+                        <div class="d-flex flex-column gap-2">
+
+                            <a
+                                href="{% url 'accounts:update_profile' %}"
+                                class="btn btn-light text-primary profile-action-btn"
+                            >
+                                <i class="bi bi-pencil-square me-2"></i>
+                                Edit Profile
+                            </a>
+
+                            <a
+                                href="{% url 'accounts:dashboard_redirect' %}"
+                                class="btn btn-outline-light profile-action-btn"
+                            >
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Dashboard
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="summary-card">
+
+            <div class="row g-0">
+
+                <div class="col-md-4 summary-item">
+                    <div class="summary-label">
+                        Department
+                    </div>
+
+                    <div class="summary-value">
+                        {{ user_profile.department|default:"Not assigned" }}
+                    </div>
+                </div>
+
+                <div class="col-md-4 summary-item">
+                    <div class="summary-label">
+                        Badge ID
+                    </div>
+
+                    <div class="summary-value">
+                        {{ user_profile.badge_id }}
+                    </div>
+                </div>
+
+                <div class="col-md-4 summary-item">
+                    <div class="summary-label">
+                        Member Since
+                    </div>
+
+                    <div class="summary-value">
+                        {{ user_profile.date_joined|date:"d M Y" }}
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <div class="row g-4 mt-1">
+
+            <div class="col-lg-8">
+
+                <section class="content-card p-4 p-md-5">
+
+                    <div class="mb-4">
+                        <h2 class="section-title mb-1">
+                            Official Information
+                        </h2>
+
+                        <p class="section-subtitle mb-0">
+                            Personal, contact and account details registered in AIDEX.
+                        </p>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Full Name
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {{ user_profile.full_name|default:"Not provided" }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-at"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Username
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {{ user_profile.username }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-envelope-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Email Address
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {{ user_profile.email }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-telephone-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Phone Number
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {{ user_profile.phone_number|default:"Not provided" }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-building-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Department
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {{ user_profile.department|default:"Not assigned" }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-person-vcard-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Badge ID
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {{ user_profile.badge_id }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Account Created
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {{ user_profile.date_joined|date:"d M Y, h:i A" }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+
+                                <div>
+                                    <div class="detail-label">
+                                        Last Login
+                                    </div>
+
+                                    <div class="detail-value">
+                                        {% if user_profile.last_login %}
+                                            {{ user_profile.last_login|date:"d M Y, h:i A" }}
+                                        {% else %}
+                                            First login session
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <section class="content-card p-4 mb-4">
+
+                    <h2 class="section-title mb-3">
+                        Account Security
+                    </h2>
+
+                    <div class="security-panel p-3 mb-3">
+
+                        <div class="d-flex gap-3">
+
+                            <div class="security-icon">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+
+                            <div>
+                                <div class="fw-bold">
+                                    Protected Account
+                                </div>
+
+                                <div class="small text-muted">
+                                    Password hashing and authenticated session enabled.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="small text-muted mb-2">
+                        Role
+                    </div>
+
+                    <div class="fw-bold mb-3">
+                        {{ user_profile.get_role_display }}
+                    </div>
+
+                    <div class="small text-muted mb-2">
+                        Account Status
+                    </div>
+
+                    <div class="fw-bold">
+                        {{ user_profile.get_account_status_display }}
+                    </div>
+
+                </section>
+
+                <section class="danger-zone p-4">
+
+                    <h2 class="section-title text-danger mb-2">
+                        Session Control
+                    </h2>
+
+                    <p class="small text-muted">
+                        Logout securely after completing investigation work.
+                    </p>
+
+                    <form
+                        method="post"
+                        action="{% url 'accounts:logout' %}"
+                    >
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="btn btn-outline-danger w-100 profile-action-btn"
+                        >
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Secure Logout
+                        </button>
+                    </form>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

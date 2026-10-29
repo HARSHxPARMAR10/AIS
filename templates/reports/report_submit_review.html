@@ -1,0 +1,494 @@
+{% extends "base.html" %} 
+{% block title %}Submit Report for Review | AIDEX{% endblock %} 
+{% block content %} 
+
+<style> 
+    :root { 
+        --rw-panel: rgba(12, 25, 43, .95); 
+        --rw-border: rgba(148, 163, 184, .15); 
+        --rw-text: #eaf1f8; 
+        --rw-muted: #8196ad; 
+        --rw-cyan: #38bdf8; 
+        --rw-blue: #2563eb; 
+        --rw-green: #22c55e; 
+        --rw-amber: #f59e0b; 
+        --rw-red: #ef4444; 
+        --rw-shadow: 0 22px 62px rgba(0, 0, 0, .23); 
+    } 
+
+    .rw-page { 
+        min-height: calc(100vh - 70px); 
+        padding: 28px 0 52px; 
+        color: var(--rw-text); 
+        background: 
+            radial-gradient(circle at 8% 0%, rgba(37, 99, 235, .10), transparent 27%), 
+            radial-gradient(circle at 92% 6%, rgba(56, 189, 248, .07), transparent 23%); 
+    } 
+
+    .rw-shell { 
+        width: min(980px, calc(100% - 28px)); 
+        margin: 0 auto; 
+    } 
+
+    .rw-card { 
+        overflow: hidden; 
+        border: 1px solid var(--rw-border); 
+        border-radius: 22px; 
+        background: var(--rw-panel); 
+        box-shadow: var(--rw-shadow); 
+    } 
+
+    .rw-head { 
+        padding: 24px; 
+        border-bottom: 1px solid rgba(148, 163, 184, .09); 
+        background: linear-gradient(135deg, rgba(15,31,52,.98), rgba(8,19,34,.98)); 
+    } 
+
+    .rw-eyebrow { 
+        display: inline-flex; 
+        align-items: center; 
+        gap: 8px; 
+        margin-bottom: 9px; 
+        color: #7dd3fc; 
+        font-size: .72rem; 
+        font-weight: 850; 
+        letter-spacing: .11em; 
+        text-transform: uppercase; 
+    } 
+
+    .rw-eyebrow::before { 
+        content: ""; 
+        width: 7px; 
+        height: 7px; 
+        border-radius: 999px; 
+        background: var(--rw-cyan); 
+        box-shadow: 0 0 14px rgba(56,189,248,.7); 
+    } 
+
+    .rw-head h1 { 
+        margin: 0; 
+        color: #fff; 
+        font-size: clamp(1.55rem, 3vw, 2.15rem); 
+        letter-spacing: -.03em; 
+    } 
+
+    .rw-head p { 
+        margin: 9px 0 0; 
+        color: var(--rw-muted); 
+        font-size: .84rem; 
+        line-height: 1.65; 
+    } 
+
+    .rw-meta { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 8px; 
+        margin-top: 14px; 
+    } 
+
+    .rw-pill { 
+        padding: 6px 9px; 
+        border: 1px solid rgba(148,163,184,.14); 
+        border-radius: 999px; 
+        color: #a9bacd; 
+        background: rgba(255,255,255,.03); 
+        font-size: .7rem; 
+        font-weight: 750; 
+    } 
+
+    .rw-body { 
+        padding: 24px; 
+    } 
+
+    .rw-note { 
+        margin-bottom: 18px; 
+        padding: 14px 15px; 
+        border: 1px solid rgba(56,189,248,.14); 
+        border-radius: 12px; 
+        color: #b9d9e8; 
+        background: rgba(56,189,248,.04); 
+        font-size: .76rem; 
+        line-height: 1.55; 
+    } 
+
+    .rw-warning { 
+        border-color: rgba(245,158,11,.18); 
+        color: #fde68a; 
+        background: rgba(245,158,11,.055); 
+    } 
+
+    .rw-danger { 
+        border-color: rgba(239,68,68,.18); 
+        color: #fecaca; 
+        background: rgba(239,68,68,.055); 
+    } 
+
+    .rw-success { 
+        border-color: rgba(34,197,94,.18); 
+        color: #bbf7d0; 
+        background: rgba(34,197,94,.055); 
+    } 
+
+    .rw-field { 
+        margin-bottom: 18px; 
+    } 
+
+    .rw-field label { 
+        display: block; 
+        margin-bottom: 7px; 
+        color: #b7c7d7; 
+        font-size: .76rem; 
+        font-weight: 800; 
+    } 
+
+    .rw-field textarea, 
+    .rw-field input[type="text"] { 
+        width: 100%; 
+        min-height: 44px; 
+        padding: 11px 12px; 
+        border: 1px solid rgba(148,163,184,.17); 
+        border-radius: 10px; 
+        color: #eaf1f8; 
+        background: rgba(5,14,26,.72); 
+        outline: none; 
+        font-size: .82rem; 
+    } 
+
+    .rw-field textarea { 
+        min-height: 135px; 
+        resize: vertical; 
+        line-height: 1.6; 
+    } 
+
+    .rw-field textarea:focus, 
+    .rw-field input[type="text"]:focus { 
+        border-color: rgba(56,189,248,.5); 
+        box-shadow: 0 0 0 3px rgba(56,189,248,.08); 
+    } 
+
+    .rw-check { 
+        display: flex; 
+        align-items: flex-start; 
+        gap: 10px; 
+        margin: 16px 0 4px; 
+        padding: 13px 14px; 
+        border: 1px solid rgba(148,163,184,.11); 
+        border-radius: 11px; 
+        background: rgba(255,255,255,.025); 
+    } 
+
+    .rw-check input { 
+        width: 18px; 
+        height: 18px; 
+        margin-top: 2px; 
+        accent-color: #0ea5e9; 
+    } 
+
+    .rw-check label { 
+        margin: 0; 
+        color: #c8d6e4; 
+        font-size: .76rem; 
+        line-height: 1.5; 
+        font-weight: 700; 
+    } 
+
+    .rw-error { 
+        margin-top: 7px; 
+        color: #fecaca; 
+        font-size: .72rem; 
+    } 
+
+    .rw-actions { 
+        display: flex; 
+        justify-content: flex-end; 
+        gap: 9px; 
+        margin-top: 22px; 
+    } 
+
+    .rw-btn { 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center; 
+        min-height: 42px; 
+        padding: 0 15px; 
+        border: 1px solid transparent; 
+        border-radius: 10px; 
+        color: #eef7ff; 
+        font-size: .79rem; 
+        font-weight: 800; 
+        text-decoration: none; 
+        cursor: pointer; 
+    } 
+
+    .rw-btn:hover { 
+        color: #fff; 
+        text-decoration: none; 
+        transform: translateY(-1px); 
+    } 
+
+    .rw-secondary { 
+        border-color: rgba(148,163,184,.18); 
+        background: rgba(255,255,255,.04); 
+    } 
+
+    .rw-primary { 
+        background: linear-gradient(135deg, #2563eb, #0891b2); 
+    } 
+
+    .rw-green { 
+        color: #dcfce7; 
+        border-color: rgba(34,197,94,.22); 
+        background: rgba(34,197,94,.12); 
+    } 
+
+    .rw-red { 
+        color: #fee2e2; 
+        border-color: rgba(239,68,68,.22); 
+        background: rgba(239,68,68,.12); 
+    } 
+
+    .rw-amber { 
+        color: #fef3c7; 
+        border-color: rgba(245,158,11,.22); 
+        background: rgba(245,158,11,.12); 
+    }
+
+    .rw-required {
+        color: var(--rw-red);
+        font-weight: 900;
+        margin-left: 3px;
+    }
+
+    .rw-invalid {
+        border-color: rgba(239,68,68,.65) !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,.08) !important;
+    }
+
+    .rw-popup-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(2,8,23,.72);
+        backdrop-filter: blur(5px);
+    }
+
+    .rw-popup-backdrop.show {
+        display: flex;
+    }
+
+    .rw-popup {
+        width: min(430px, 100%);
+        padding: 22px;
+        border: 1px solid rgba(239,68,68,.28);
+        border-radius: 16px;
+        color: var(--rw-text);
+        background: #0c192b;
+        box-shadow: 0 25px 80px rgba(0,0,0,.45);
+    }
+
+    .rw-popup h3 {
+        margin: 0 0 8px;
+        color: #fff;
+        font-size: 1.05rem;
+    }
+
+    .rw-popup p {
+        margin: 0;
+        color: #b9c8d8;
+        font-size: .8rem;
+        line-height: 1.55;
+    }
+
+    .rw-popup ul {
+        margin: 10px 0 0;
+        padding-left: 20px;
+        color: #fecaca;
+        font-size: .8rem;
+        line-height: 1.6;
+    }
+
+    .rw-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 17px;
+    }
+
+    .rw-popup-ok {
+        min-width: 72px;
+        min-height: 38px;
+        border: 0;
+        border-radius: 9px;
+        color: #fff;
+        background: #dc2626;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    @media (max-width: 640px) { 
+        .rw-body, 
+        .rw-head { 
+            padding: 19px; 
+        } 
+
+        .rw-actions { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+        } 
+    } 
+</style> 
+
+<section class="rw-page"> 
+    <div class="rw-shell"> 
+        <div class="rw-card"> 
+            <header class="rw-head"> 
+                <div class="rw-eyebrow">Controlled Report Workflow</div> 
+                <h1>Submit Report for Review</h1> 
+                <p>Send this Draft or corrected report into the formal review queue.</p> 
+                <div class="rw-meta"> 
+                    <span class="rw-pill">{{ report.report_number }}</span> 
+                    <span class="rw-pill">{{ report.case.case_number }}</span> 
+                    <span class="rw-pill">{{ report.get_status_display }}</span> 
+                    <span class="rw-pill">v{{ report.version }}</span> 
+                </div> 
+            </header> 
+
+            <div class="rw-body"> 
+                <div class="rw-note rw-warning"> 
+                    After submission, normal report editing is locked until the workflow returns the report for revision. 
+                </div> 
+
+                <form method="post" novalidate id="submitReviewForm"> 
+                    {% csrf_token %} 
+
+                    {% if form.non_field_errors %} 
+                        <div class="rw-note rw-danger"> 
+                            {% for error in form.non_field_errors %} 
+                                <div>{{ error }}</div> 
+                            {% endfor %} 
+                        </div> 
+                    {% endif %} 
+
+
+<div class="rw-field"> 
+    <label for="{{ form.submission_note.id_for_label }}">Submission Note</label> 
+    {{ form.submission_note }} 
+    {% for error in form.submission_note.errors %} 
+        <div class="rw-error">{{ error }}</div> 
+    {% endfor %} 
+</div> 
+
+<div class="rw-check"> 
+    {{ form.confirmation }} 
+    <label for="{{ form.confirmation.id_for_label }}"> 
+        {{ form.confirmation.label }} <span class="rw-required">*</span>
+    </label> 
+</div> 
+{% for error in form.confirmation.errors %} 
+    <div class="rw-error">{{ error }}</div> 
+{% endfor %} 
+
+
+                    <div class="rw-actions"> 
+                        <a 
+                            class="rw-btn rw-secondary" 
+                            href="{% url 'reports:report_detail' report_id=report.pk %}" 
+                        > 
+                            Cancel 
+                        </a> 
+                        <button 
+                            class="rw-btn rw-amber" 
+                            type="submit"
+                            id="submitReviewButton"
+                        > 
+                            Submit for Review 
+                        </button> 
+                    </div> 
+                </form> 
+            </div> 
+        </div> 
+    </div>
+
+    <div class="rw-popup-backdrop" id="submitReviewValidationPopup" role="dialog"
+         aria-modal="true" aria-labelledby="submitReviewValidationTitle">
+        <div class="rw-popup">
+            <h3 id="submitReviewValidationTitle">Required Field Missing</h3>
+            <p>Please complete the following required field before submitting for review:</p>
+            <ul id="submitReviewMissingFields"></ul>
+            <div class="rw-popup-actions">
+                <button type="button" class="rw-popup-ok" id="submitReviewPopupOk">OK</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('submitReviewForm');
+    if (!form) return;
+
+    const confirmation = document.getElementById('{{ form.confirmation.id_for_label }}');
+    const popup = document.getElementById('submitReviewValidationPopup');
+    const missingList = document.getElementById('submitReviewMissingFields');
+    const popupOk = document.getElementById('submitReviewPopupOk');
+
+    function closePopup() {
+        popup.classList.remove('show');
+    }
+
+    function showPopup(missingFields) {
+        missingList.innerHTML = '';
+        missingFields.forEach(function (fieldName) {
+            const li = document.createElement('li');
+            li.textContent = fieldName;
+            missingList.appendChild(li);
+        });
+        popup.classList.add('show');
+    }
+
+    if (popupOk) {
+        popupOk.addEventListener('click', closePopup);
+    }
+
+    if (popup) {
+        popup.addEventListener('click', function (event) {
+            if (event.target === popup) closePopup();
+        });
+    }
+
+    if (confirmation) {
+        confirmation.addEventListener('change', function () {
+            if (confirmation.checked) {
+                confirmation.classList.remove('rw-invalid');
+            }
+        });
+    }
+
+    form.addEventListener('submit', function (event) {
+        const missingFields = [];
+
+        if (confirmation && !confirmation.checked) {
+            missingFields.push('{{ form.confirmation.label|escapejs }}');
+            confirmation.classList.add('rw-invalid');
+        }
+
+        if (missingFields.length > 0) {
+            event.preventDefault();
+            showPopup(missingFields);
+            return;
+        }
+
+        const submitButton = document.getElementById('submitReviewButton');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.style.opacity = '0.7';
+            submitButton.style.cursor = 'not-allowed';
+        }
+    });
+});
+</script>
+
+{% endblock %}

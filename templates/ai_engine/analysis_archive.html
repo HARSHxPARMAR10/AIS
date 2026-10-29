@@ -1,0 +1,1190 @@
+{% extends "base.html" %}
+
+{% block title %}
+Archive AI Analysis | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --archive-bg: #f8fafc;
+        --archive-surface: #ffffff;
+        --archive-border: #e2e8f0;
+        --archive-text: #0f172a;
+        --archive-muted: #64748b;
+        --archive-primary: #4f46e5;
+        --archive-secondary: #475569;
+        --archive-warning: #b45309;
+        --archive-danger: #b91c1c;
+        --archive-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+        --archive-radius-xl: 24px;
+        --archive-radius-lg: 18px;
+        --archive-radius-md: 14px;
+    }
+
+    .analysis-archive-page {
+        min-height: calc(100vh - 140px);
+        padding: 30px 0 56px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(71, 85, 105, 0.08),
+                transparent 28%
+            ),
+            var(--archive-bg);
+    }
+
+    .analysis-archive-container {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .archive-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px;
+        border-radius: var(--archive-radius-xl);
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at 90% 12%,
+                rgba(255, 255, 255, 0.15),
+                transparent 24%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #334155 48%,
+                #64748b 100%
+            );
+        box-shadow: 0 24px 60px rgba(51, 65, 85, 0.22);
+    }
+
+    .archive-hero::before,
+    .archive-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .archive-hero::before {
+        width: 240px;
+        height: 240px;
+        left: -105px;
+        bottom: -140px;
+    }
+
+    .archive-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 50px;
+        top: -105px;
+    }
+
+    .archive-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .archive-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.13);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.35px;
+    }
+
+    .archive-hero-title {
+        margin: 16px 0 8px;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        font-weight: 900;
+        letter-spacing: -0.8px;
+    }
+
+    .archive-hero-subtitle {
+        max-width: 810px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+    }
+
+    .archive-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .archive-hero-actions .btn {
+        min-height: 44px;
+        padding: 9px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .archive-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+        gap: 22px;
+        margin-top: 26px;
+    }
+
+    .archive-card,
+    .info-card {
+        border: 1px solid var(--archive-border);
+        border-radius: var(--archive-radius-lg);
+        background: var(--archive-surface);
+        box-shadow: var(--archive-shadow);
+    }
+
+    .archive-card {
+        padding: 28px;
+    }
+
+    .info-card {
+        padding: 22px;
+    }
+
+    .sticky-sidebar {
+        position: sticky;
+        top: 24px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin: 0;
+        color: var(--archive-text);
+        font-size: 1.08rem;
+        font-weight: 900;
+    }
+
+    .card-heading p {
+        margin: 5px 0 0;
+        color: var(--archive-muted);
+        font-size: 0.78rem;
+        line-height: 1.55;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #475569;
+        background: #e2e8f0;
+        font-size: 1.1rem;
+    }
+
+    .analysis-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .summary-item {
+        padding: 15px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .summary-label {
+        margin-bottom: 6px;
+        color: var(--archive-muted);
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+        color: var(--archive-text);
+        font-size: 0.84rem;
+        font-weight: 800;
+        word-break: break-word;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        color: #475569;
+        background: #e2e8f0;
+        font-size: 0.69rem;
+        font-weight: 900;
+    }
+
+    .archive-warning {
+        margin-bottom: 22px;
+        padding: 17px;
+        border-radius: 15px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.6;
+    }
+
+    .archive-warning strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #78350f;
+    }
+
+    .form-errors {
+        margin-bottom: 20px;
+        padding: 15px 17px;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 0.8rem;
+    }
+
+    .form-errors strong {
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .form-errors ul,
+    .field-error ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .confirmation-box {
+        margin-bottom: 20px;
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .confirmation-box .form-check {
+        margin: 0;
+    }
+
+    .confirmation-box .form-check-input {
+        margin-top: 0.2rem;
+    }
+
+    .confirmation-title {
+        color: var(--archive-text);
+        font-size: 0.82rem;
+        font-weight: 900;
+    }
+
+    .confirmation-text {
+        margin-top: 4px;
+        color: var(--archive-muted);
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .required-mark {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    .form-control {
+        min-height: 48px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+        color: var(--archive-text);
+    }
+
+    textarea.form-control {
+        min-height: 160px;
+        resize: vertical;
+    }
+
+    .form-control:focus {
+        border-color: #94a3b8;
+        box-shadow: 0 0 0 0.2rem rgba(100, 116, 139, 0.12);
+    }
+
+    .form-text {
+        margin-top: 7px;
+        color: var(--archive-muted);
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    .field-error {
+        margin-top: 7px;
+        color: #b91c1c;
+        font-size: 0.76rem;
+        font-weight: 700;
+    }
+
+    .form-control.is-invalid,
+    .form-check-input.is-invalid {
+        border-color: #dc2626;
+    }
+
+    .character-counter {
+        margin-top: 7px;
+        text-align: right;
+        color: #94a3b8;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+
+    .archive-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid #edf2f7;
+    }
+
+    .archive-actions .btn {
+        min-width: 165px;
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .info-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .info-title {
+        margin-bottom: 3px;
+        color: var(--archive-text);
+        font-size: 0.82rem;
+        font-weight: 900;
+    }
+
+    .info-text {
+        margin: 0;
+        color: var(--archive-muted);
+        font-size: 0.75rem;
+        line-height: 1.55;
+    }
+
+    .audit-note {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #475569;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.77rem;
+        line-height: 1.55;
+    }
+
+    .audit-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #334155;
+    }
+
+    @media (max-width: 991.98px) {
+        .archive-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sticky-sidebar {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .analysis-archive-page {
+            padding: 18px 0 38px;
+        }
+
+        .archive-hero {
+            padding: 28px 22px;
+        }
+
+        .archive-hero-actions {
+            justify-content: flex-start;
+        }
+
+        .archive-card,
+        .info-card {
+            padding: 20px;
+        }
+
+        .analysis-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .archive-actions {
+            flex-direction: column-reverse;
+        }
+
+        .archive-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-archive-page">
+    <div class="container-fluid px-3 px-lg-4">
+        <div class="analysis-archive-container">
+
+            <section class="archive-hero">
+                <div class="archive-hero-content">
+                    <div class="row align-items-center g-4">
+
+                        <div class="col-lg">
+                            <span class="archive-hero-badge">
+                                <i class="bi bi-archive-fill"></i>
+                                AI Analysis Archival
+                            </span>
+
+                            <h1 class="archive-hero-title">
+                                {{ page_title|default:"Archive AI Analysis" }}
+                            </h1>
+
+                            <p class="archive-hero-subtitle">
+                                Remove this analysis from active workflows without deleting its
+                                results, evidence relationship or audit history.
+                            </p>
+                        </div>
+
+                        <div class="col-lg-auto">
+                            <div class="archive-hero-actions">
+                                <a
+                                    href="{% url 'ai_engine:analysis_detail' analysis.id %}"
+                                    class="btn btn-outline-light"
+                                >
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Back to Analysis
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <div class="archive-layout">
+
+                <main class="archive-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Archive Confirmation</h2>
+
+                            <p>
+                                Review the analysis details and confirm this archival action.
+                            </p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-archive-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="analysis-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                Analysis
+                            </div>
+
+                            <div class="summary-value">
+                                {{ analysis.title }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                Analysis Number
+                            </div>
+
+                            <div class="summary-value">
+                                {{ analysis.analysis_number }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                Evidence
+                            </div>
+
+                            <div class="summary-value">
+                                {{ analysis.evidence.evidence_title }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                Related Case
+                            </div>
+
+                            <div class="summary-value">
+                                {{ analysis.evidence.case.case_number }}
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                Current Status
+                            </div>
+
+                            <div class="summary-value">
+                                <span class="status-badge">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    {{ analysis.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <div class="summary-label">
+                                Created By
+                            </div>
+
+                            <div class="summary-value">
+                                {{ analysis.created_by.full_name|default:analysis.created_by.username }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="archive-warning">
+                        <strong>
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Archival Effect
+                        </strong>
+
+                        The analysis will no longer appear in active result lists or normal
+                        workflow queues. Its AI output, token usage, linked evidence and audit
+                        history remain stored for traceability and future review.
+                    </div>
+
+                    {% if form.errors %}
+                        <div
+                            class="form-errors"
+                            id="archiveFormErrors"
+                            role="alert"
+                        >
+                            <strong>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                The analysis could not be archived. Please correct:
+                            </strong>
+
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>
+                                            <strong>{{ field.label }}:</strong>
+                                            {{ error }}
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" id="analysisArchiveForm" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.confirmation %}
+                            <div class="confirmation-box">
+                                <div class="form-check">
+                                    {{ form.confirmation }}
+
+                                    <label
+                                        class="form-check-label"
+                                        for="{{ form.confirmation.id_for_label }}"
+                                    >
+                                        <span class="confirmation-title">
+                                            {{ form.confirmation.label }}
+                                            {% if form.confirmation.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="confirmation-text">
+                                    Confirm that this analysis should be removed from active
+                                    workflows while preserving its forensic record.
+                                </div>
+
+                                {% if form.confirmation.errors %}
+                                    <div class="field-error">
+                                        {{ form.confirmation.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if form.reason %}
+                            <div>
+                                <label
+                                    for="{{ form.reason.id_for_label }}"
+                                    class="form-label"
+                                >
+                                    {{ form.reason.label }}
+
+                                    {% if form.reason.field.required %}
+                                        <span class="required-mark">*</span>
+                                    {% endif %}
+                                </label>
+
+                                {{ form.reason }}
+
+                                {% if form.reason.help_text %}
+                                    <div class="form-text">
+                                        {{ form.reason.help_text }}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.reason.errors %}
+                                    <div class="field-error">
+                                        {{ form.reason.errors }}
+                                    </div>
+                                {% endif %}
+
+                                <div
+                                    class="character-counter"
+                                    id="archiveReasonCounter"
+                                >
+                                    0 characters
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="archive-actions">
+                            <a
+                                href="{% url 'ai_engine:analysis_detail' analysis.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Keep Active
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-secondary"
+                                id="archiveAnalysisButton"
+                            >
+                                <i class="bi bi-archive-fill me-2"></i>
+                                Confirm Archive
+                            </button>
+                        </div>
+                    </form>
+                </main>
+
+                <aside class="sticky-sidebar">
+                    <section class="info-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Archive Checklist</h3>
+
+                                <p>
+                                    Recommended checks before removing an analysis from active use.
+                                </p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-list-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Confirm Workflow Completion
+                                    </div>
+
+                                    <p class="info-text">
+                                        Ensure the analysis is no longer needed for active review,
+                                        retry or investigation work.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-file-earmark-lock-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Evidence Remains Available
+                                    </div>
+
+                                    <p class="info-text">
+                                        Archiving the analysis does not archive or delete the linked
+                                        digital evidence.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Audit History Is Preserved
+                                    </div>
+
+                                    <p class="info-text">
+                                        Creation, execution, review and archive events remain
+                                        available for accountability.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-database-check"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        AI Results Are Retained
+                                    </div>
+
+                                    <p class="info-text">
+                                        Summary, findings, token usage, cache metadata and provider
+                                        diagnostics stay stored.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="audit-note">
+                            <strong>
+                                <i class="bi bi-fingerprint me-2"></i>
+                                Audit Notice
+                            </strong>
+
+                            The archive reason, acting user and timestamp are recorded in the
+                            AI analysis audit trail.
+                        </div>
+                    </section>
+                </aside>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (() => {
+        const form = document.getElementById("analysisArchiveForm");
+        const submitButton = document.getElementById("archiveAnalysisButton");
+        const confirmationField = document.getElementById(
+            "{{ form.confirmation.id_for_label|default:''|escapejs }}"
+        );
+        const reasonField = document.getElementById(
+            "{{ form.reason.id_for_label|default:''|escapejs }}"
+        );
+        const reasonCounter = document.getElementById("archiveReasonCounter");
+        const errorSummary = document.getElementById("archiveFormErrors");
+
+        if (!form) {
+            return;
+        }
+
+        const updateReasonCounter = () => {
+            if (!reasonField || !reasonCounter) {
+                return;
+            }
+
+            const characterCount = String(reasonField.value || "").length;
+
+            reasonCounter.textContent = (
+                characterCount
+                + (characterCount === 1 ? " character" : " characters")
+            );
+        };
+
+        if (reasonField) {
+            reasonField.addEventListener("input", updateReasonCounter);
+            updateReasonCounter();
+        }
+
+        /*
+         * Build the popup dynamically so it is independent of the page's
+         * existing layout and CSS. Existing inline/server-side errors stay.
+         */
+        let popup = document.getElementById("aiArchiveValidationPopup");
+
+        if (!popup) {
+            popup = document.createElement("div");
+            popup.id = "aiArchiveValidationPopup";
+            popup.setAttribute("role", "dialog");
+            popup.setAttribute("aria-modal", "true");
+            popup.style.cssText = [
+                "position:fixed",
+                "inset:0",
+                "z-index:99999",
+                "display:none",
+                "align-items:center",
+                "justify-content:center",
+                "padding:20px",
+                "background:rgba(15,23,42,.58)",
+                "backdrop-filter:blur(3px)"
+            ].join(";");
+
+            popup.innerHTML = `
+                <div style="
+                    width:min(100%,470px);
+                    padding:24px;
+                    border-radius:18px;
+                    background:#fff;
+                    border:1px solid #e2e8f0;
+                    box-shadow:0 24px 70px rgba(15,23,42,.24);
+                    font-family:inherit;
+                ">
+                    <h3 style="
+                        margin:0 0 8px;
+                        color:#0f172a;
+                        font-size:1.05rem;
+                        font-weight:900;
+                    ">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Please correct the following
+                    </h3>
+
+                    <p id="aiArchiveValidationPopupMessage" style="
+                        margin:0 0 12px;
+                        color:#64748b;
+                        font-size:.82rem;
+                        line-height:1.55;
+                    ">
+                        Please complete the following required field(s):
+                    </p>
+
+                    <ul id="aiArchiveValidationPopupList" style="
+                        margin:0;
+                        padding-left:20px;
+                        color:#b91c1c;
+                        font-size:.82rem;
+                        line-height:1.7;
+                    "></ul>
+
+                    <div style="
+                        display:flex;
+                        justify-content:flex-end;
+                        margin-top:20px;
+                    ">
+                        <button type="button" id="aiArchiveValidationPopupOk" style="
+                            min-width:90px;
+                            min-height:42px;
+                            border:0;
+                            border-radius:11px;
+                            color:#fff;
+                            background:#475569;
+                            font-weight:800;
+                            cursor:pointer;
+                        ">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+        }
+
+        const popupList = document.getElementById("aiArchiveValidationPopupList");
+        const popupMessage = document.getElementById(
+            "aiArchiveValidationPopupMessage"
+        );
+        const popupOk = document.getElementById("aiArchiveValidationPopupOk");
+
+        const closePopup = () => {
+            popup.style.display = "none";
+        };
+
+        const showPopup = (items, message) => {
+            if (!popupList) {
+                return;
+            }
+
+            popupList.innerHTML = "";
+
+            items.forEach((item) => {
+                const li = document.createElement("li");
+                li.textContent = item;
+                popupList.appendChild(li);
+            });
+
+            if (popupMessage) {
+                popupMessage.textContent = message;
+            }
+
+            popup.style.display = "flex";
+
+            if (popupOk) {
+                popupOk.focus();
+            }
+        };
+
+        if (popupOk) {
+            popupOk.addEventListener("click", closePopup);
+        }
+
+        popup.addEventListener("click", (event) => {
+            if (event.target === popup) {
+                closePopup();
+            }
+        });
+
+        const getLabel = (field) => {
+            if (field && field.id) {
+                const label = form.querySelector(
+                    'label[for="' + field.id.replace(/"/g, '\\"') + '"]'
+                );
+
+                if (label) {
+                    return label.textContent
+                        .replace(/\*/g, "")
+                        .replace(/\s+/g, " ")
+                        .trim();
+                }
+            }
+
+            return field && field.name
+                ? field.name.replace(/_/g, " ")
+                : "Required field";
+        };
+
+        const isMissing = (field) => {
+            if (!field || field.disabled) {
+                return false;
+            }
+
+            if (field.type === "checkbox") {
+                return !field.checked;
+            }
+
+            return String(field.value || "").trim() === "";
+        };
+
+        const markInvalid = (field) => {
+            if (!field) {
+                return;
+            }
+
+            field.classList.add("is-invalid");
+            field.setAttribute("aria-invalid", "true");
+        };
+
+        const clearInvalid = (field) => {
+            if (!field || isMissing(field)) {
+                return;
+            }
+
+            field.classList.remove("is-invalid");
+            field.removeAttribute("aria-invalid");
+        };
+
+        /*
+         * Collect Django's already-rendered server-side field errors.
+         * This also handles errors such as minimum-length validation that
+         * cannot safely be inferred from the HTML required attribute alone.
+         */
+        const getServerErrorItems = () => {
+            const items = [];
+            const seen = new Set();
+
+            form.querySelectorAll(".field-error").forEach((errorElement) => {
+                const errorText = errorElement.textContent
+                    .replace(/\s+/g, " ")
+                    .trim();
+
+                if (!errorText) {
+                    return;
+                }
+
+                let field = null;
+
+                if (
+                    confirmationField &&
+                    errorElement.closest(".confirmation-box")
+                ) {
+                    field = confirmationField;
+                } else if (reasonField) {
+                    field = reasonField;
+                }
+
+                const label = getLabel(field);
+                const item = label + ": " + errorText;
+
+                if (!seen.has(item)) {
+                    seen.add(item);
+                    items.push(item);
+                }
+
+                markInvalid(field);
+            });
+
+            if (errorSummary) {
+                errorSummary.querySelectorAll("li").forEach((li) => {
+                    const errorText = li.textContent
+                        .replace(/\s+/g, " ")
+                        .trim();
+
+                    if (errorText && !seen.has(errorText)) {
+                        seen.add(errorText);
+                        items.push(errorText);
+                    }
+                });
+            }
+
+            return items;
+        };
+
+        if (confirmationField) {
+            confirmationField.addEventListener("change", () => {
+                clearInvalid(confirmationField);
+            });
+        }
+
+        if (reasonField) {
+            reasonField.addEventListener("input", () => {
+                clearInvalid(reasonField);
+            });
+        }
+
+        /*
+         * Show existing server-side errors when Django has re-rendered this
+         * page after a failed archive attempt.
+         */
+        const serverErrorItems = getServerErrorItems();
+
+        if (serverErrorItems.length > 0) {
+            showPopup(
+                serverErrorItems,
+                "Please correct the following validation error(s):"
+            );
+        }
+
+        if (!submitButton) {
+            return;
+        }
+
+        form.addEventListener("submit", (event) => {
+            const missingFields = [];
+
+            if (
+                confirmationField &&
+                confirmationField.required &&
+                !confirmationField.checked
+            ) {
+                missingFields.push(getLabel(confirmationField) + " is required.");
+                markInvalid(confirmationField);
+            }
+
+            if (
+                reasonField &&
+                reasonField.required &&
+                String(reasonField.value || "").trim() === ""
+            ) {
+                missingFields.push(getLabel(reasonField) + " is required.");
+                markInvalid(reasonField);
+            }
+
+            if (missingFields.length > 0) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                form.classList.add("was-validated");
+
+                showPopup(
+                    missingFields,
+                    "Please complete the following required field(s):"
+                );
+
+                const firstInvalid = form.querySelector(".is-invalid");
+
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                }
+
+                return;
+            }
+
+            /*
+             * Other Django validation rules are allowed to submit normally.
+             * If the server returns an error, the page-load handler above
+             * will display that error in the popup on the re-rendered page.
+             */
+            submitButton.disabled = true;
+            submitButton.innerHTML = (
+                '<span class="spinner-border spinner-border-sm me-2" '
+                + 'role="status" aria-hidden="true"></span>'
+                + "Archiving Analysis"
+            );
+        });
+    })();
+</script>
+{% endblock %}

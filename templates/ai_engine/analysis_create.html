@@ -1,0 +1,1641 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create AI Analysis | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --create-bg: #f8fafc;
+        --create-surface: #ffffff;
+        --create-border: #e2e8f0;
+        --create-text: #0f172a;
+        --create-muted: #64748b;
+        --create-primary: #4f46e5;
+        --create-primary-dark: #3730a3;
+        --create-success: #15803d;
+        --create-warning: #b45309;
+        --create-danger: #b91c1c;
+        --create-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+        --create-radius-xl: 24px;
+        --create-radius-lg: 18px;
+        --create-radius-md: 14px;
+    }
+
+    .analysis-create-page {
+        min-height: calc(100vh - 140px);
+        padding: 30px 0 56px;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(99, 102, 241, 0.08),
+                transparent 30%
+            ),
+            var(--create-bg);
+    }
+
+    .analysis-create-container {
+        max-width: 1380px;
+        margin: 0 auto;
+    }
+
+    .create-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 38px;
+        border-radius: var(--create-radius-xl);
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at 90% 12%,
+                rgba(255, 255, 255, 0.18),
+                transparent 24%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #312e81 44%,
+                #4f46e5 72%,
+                #7c3aed 100%
+            );
+        box-shadow: 0 24px 62px rgba(67, 56, 202, 0.22);
+    }
+
+    .create-hero::before,
+    .create-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .create-hero::before {
+        width: 240px;
+        height: 240px;
+        left: -105px;
+        bottom: -140px;
+    }
+
+    .create-hero::after {
+        width: 170px;
+        height: 170px;
+        right: 60px;
+        top: -105px;
+    }
+
+    .create-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .create-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.13);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.35px;
+    }
+
+    .create-hero-title {
+        margin: 16px 0 8px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .create-hero-subtitle {
+        max-width: 850px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.7;
+    }
+
+    .create-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .create-hero-actions .btn {
+        min-height: 46px;
+        padding: 10px 18px;
+        border-radius: 13px;
+        font-weight: 800;
+    }
+
+    .create-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(330px, 0.75fr);
+        gap: 22px;
+        margin-top: 26px;
+    }
+
+    .create-card,
+    .info-card {
+        border: 1px solid var(--create-border);
+        border-radius: var(--create-radius-lg);
+        background: var(--create-surface);
+        box-shadow: var(--create-shadow);
+    }
+
+    .create-card {
+        padding: 28px;
+    }
+
+    .info-card {
+        padding: 22px;
+    }
+
+    .sticky-sidebar {
+        position: sticky;
+        top: 24px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin: 0;
+        color: var(--create-text);
+        font-size: 1.1rem;
+        font-weight: 900;
+    }
+
+    .card-heading p {
+        margin: 5px 0 0;
+        color: var(--create-muted);
+        font-size: 0.79rem;
+        line-height: 1.55;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #4338ca;
+        background: #e0e7ff;
+        font-size: 1.1rem;
+    }
+
+    .form-errors {
+        margin-bottom: 22px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 0.82rem;
+    }
+
+    .form-errors strong {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .form-errors ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .form-section {
+        padding: 24px 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .form-section:first-of-type {
+        padding-top: 0;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 17px;
+        color: var(--create-text);
+        font-size: 0.98rem;
+        font-weight: 900;
+    }
+
+    .section-title i {
+        color: var(--create-primary);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-grid-single {
+        grid-template-columns: 1fr;
+    }
+
+    .form-field {
+        min-width: 0;
+    }
+
+    .form-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .required-mark {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 48px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+        color: var(--create-text);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #818cf8;
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.12);
+    }
+
+    .is-invalid,
+    .form-control.is-invalid,
+    .form-select.is-invalid,
+    .form-check-input.is-invalid {
+        border-color: #dc2626;
+    }
+
+    .approval-card.has-error {
+        border-color: #fecaca;
+        background: #fef2f2;
+    }
+
+    .form-text {
+        margin-top: 7px;
+        color: var(--create-muted);
+        font-size: 0.74rem;
+        line-height: 1.5;
+    }
+
+    .field-error {
+        margin-top: 7px;
+        color: #b91c1c;
+        font-size: 0.76rem;
+        font-weight: 700;
+    }
+
+    .field-error ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .switch-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .switch-card {
+        position: relative;
+        padding: 16px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .switch-card .form-check {
+        margin: 0;
+    }
+
+    .switch-card .form-check-input {
+        margin-top: 0.2rem;
+    }
+
+    .switch-title {
+        color: var(--create-text);
+        font-size: 0.82rem;
+        font-weight: 900;
+    }
+
+    .switch-text {
+        margin-top: 4px;
+        color: var(--create-muted);
+        font-size: 0.73rem;
+        line-height: 1.5;
+    }
+
+    .prompt-preview {
+        margin-top: 16px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #334155;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.78rem;
+        line-height: 1.6;
+    }
+
+    .prompt-preview strong {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--create-text);
+    }
+
+
+    .approval-card {
+        padding: 18px;
+        border-radius: 15px;
+        color: #1e3a8a;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+    }
+
+    .approval-card .form-check {
+        margin: 0;
+    }
+
+    .approval-card .form-check-input {
+        width: 1.15rem;
+        height: 1.15rem;
+        margin-top: 0.15rem;
+    }
+
+    .approval-title {
+        color: #1e3a8a;
+        font-size: 0.84rem;
+        font-weight: 900;
+        line-height: 1.45;
+    }
+
+    .approval-text {
+        margin-top: 6px;
+        margin-left: 1.75rem;
+        color: #475569;
+        font-size: 0.75rem;
+        line-height: 1.55;
+    }
+
+    .free-tier-notice {
+        padding: 16px;
+        border-radius: 14px;
+        color: #3730a3;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        font-size: 0.79rem;
+        line-height: 1.55;
+    }
+
+    .free-tier-notice strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .create-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid #edf2f7;
+    }
+
+    .create-actions .btn {
+        min-width: 160px;
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .info-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    .info-title {
+        margin-bottom: 3px;
+        color: var(--create-text);
+        font-size: 0.82rem;
+        font-weight: 900;
+    }
+
+    .info-text {
+        margin: 0;
+        color: var(--create-muted);
+        font-size: 0.75rem;
+        line-height: 1.55;
+    }
+
+    .security-note {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.78rem;
+        line-height: 1.55;
+    }
+
+    .security-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+
+    .ai-required-popup-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(3px);
+    }
+
+    .ai-required-popup-backdrop[hidden] {
+        display: none;
+    }
+
+    .ai-required-popup {
+        width: min(100%, 460px);
+        padding: 24px;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+    }
+
+    .ai-required-popup h3 {
+        margin: 0 0 8px;
+        color: #0f172a;
+        font-size: 1.05rem;
+        font-weight: 900;
+    }
+
+    .ai-required-popup p {
+        margin: 0 0 12px;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .ai-required-popup ul {
+        margin: 0;
+        padding-left: 20px;
+        color: #334155;
+        font-size: 0.82rem;
+        line-height: 1.65;
+    }
+
+    .ai-required-popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .ai-required-popup-ok {
+        min-width: 90px;
+        min-height: 42px;
+        border: 0;
+        border-radius: 11px;
+        color: #ffffff;
+        background: #4f46e5;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .ai-required-popup-ok:hover {
+        background: #3730a3;
+    }
+
+    .ai-required-invalid {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.08) !important;
+    }
+
+    .approval-card.ai-required-invalid-card {
+        border-color: #fecaca !important;
+        background: #fef2f2 !important;
+    }
+
+    @media (max-width: 1199.98px) {
+        .create-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sticky-sidebar {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .analysis-create-page {
+            padding: 18px 0 38px;
+        }
+
+        .create-hero {
+            padding: 28px 22px;
+        }
+
+        .create-hero-actions {
+            justify-content: flex-start;
+        }
+
+        .create-card,
+        .info-card {
+            padding: 20px;
+        }
+
+        .form-grid,
+        .switch-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .create-actions {
+            flex-direction: column-reverse;
+        }
+
+        .create-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-create-page">
+    <div class="container-fluid px-3 px-lg-4">
+        <div class="analysis-create-container">
+
+            <section class="create-hero">
+                <div class="create-hero-content">
+                    <div class="row align-items-center g-4">
+                        <div class="col-xl">
+                            <span class="create-hero-badge">
+                                <i class="bi bi-stars"></i>
+                                New Forensic AI Request
+                            </span>
+
+                            <h1 class="create-hero-title">
+                                {{ page_title|default:"Create AI Analysis" }}
+                            </h1>
+
+                            <p class="create-hero-subtitle">
+                                {{ page_subtitle|default:"Prepare a structured forensic analysis request without consuming provider quota until you explicitly run it." }}
+                            </p>
+                        </div>
+
+                        <div class="col-xl-auto">
+                            <div class="create-hero-actions">
+                                <a
+                                    href="{% url 'ai_engine:dashboard' %}"
+                                    class="btn btn-outline-light"
+                                >
+                                    <i class="bi bi-speedometer2 me-2"></i>
+                                    AI Dashboard
+                                </a>
+
+                                <a
+                                    href="{% url 'ai_engine:analysis_list' %}"
+                                    class="btn btn-light text-primary"
+                                >
+                                    <i class="bi bi-list-ul me-2"></i>
+                                    Analysis List
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="create-layout">
+                <main class="create-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2>Analysis Request</h2>
+                            <p>
+                                Configure the evidence, forensic objective and execution preferences.
+                            </p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-cpu-fill"></i>
+                        </div>
+                    </div>
+
+                    {% if form.errors %}
+                        <div class="form-errors" id="formErrorSummary" role="alert">
+                            <strong>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                The analysis could not be created. Please correct these fields:
+                            </strong>
+
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>
+                                            <strong>{{ field.label }}:</strong>
+                                            {{ error }}
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" id="analysisCreateForm" novalidate>
+                        {% csrf_token %}
+
+                        <section class="form-section">
+                            <div class="section-title">
+                                <i class="bi bi-file-earmark-lock-fill"></i>
+                                Evidence Selection
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-field full-width">
+                                    <label
+                                        for="{{ form.evidence.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.evidence.label }}
+                                        {% if form.evidence.field.required %}
+                                            <span class="required-mark">*</span>
+                                        {% endif %}
+                                    </label>
+
+                                    {{ form.evidence }}
+
+                                    {% if form.evidence.help_text %}
+                                        <div class="form-text">
+                                            {{ form.evidence.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.evidence.errors %}
+                                        <div class="field-error">
+                                            {{ form.evidence.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="form-section">
+                            <div class="section-title">
+                                <i class="bi bi-sliders2"></i>
+                                Analysis Configuration
+                            </div>
+
+                            <div class="form-grid">
+                                {% if form.title %}
+                                    <div class="form-field full-width">
+                                        <label
+                                            for="{{ form.title.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.title.label }}
+                                            {% if form.title.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ form.title }}
+
+                                        {% if form.title.help_text %}
+                                            <div class="form-text">
+                                                {{ form.title.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.title.errors %}
+                                            <div class="field-error">
+                                                {{ form.title.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.analysis_type %}
+                                    <div class="form-field">
+                                        <label
+                                            for="{{ form.analysis_type.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.analysis_type.label }}
+                                            {% if form.analysis_type.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ form.analysis_type }}
+
+                                        {% if form.analysis_type.help_text %}
+                                            <div class="form-text">
+                                                {{ form.analysis_type.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.analysis_type.errors %}
+                                            <div class="field-error">
+                                                {{ form.analysis_type.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.provider %}
+                                    <div class="form-field">
+                                        <label
+                                            for="{{ form.provider.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.provider.label }}
+                                            {% if form.provider.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ form.provider }}
+
+                                        {% if form.provider.help_text %}
+                                            <div class="form-text">
+                                                {{ form.provider.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.provider.errors %}
+                                            <div class="field-error">
+                                                {{ form.provider.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.priority %}
+                                    <div class="form-field">
+                                        <label
+                                            for="{{ form.priority.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.priority.label }}
+                                            {% if form.priority.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ form.priority }}
+
+                                        {% if form.priority.help_text %}
+                                            <div class="form-text">
+                                                {{ form.priority.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.priority.errors %}
+                                            <div class="field-error">
+                                                {{ form.priority.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.prompt_version %}
+                                    <div class="form-field">
+                                        <label
+                                            for="{{ form.prompt_version.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.prompt_version.label }}
+                                            {% if form.prompt_version.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ form.prompt_version }}
+
+                                        {% if form.prompt_version.help_text %}
+                                            <div class="form-text">
+                                                {{ form.prompt_version.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.prompt_version.errors %}
+                                            <div class="field-error">
+                                                {{ form.prompt_version.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.prompt_template %}
+                                    <div class="form-field">
+                                        <label
+                                            for="{{ form.prompt_template.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.prompt_template.label }}
+                                            {% if form.prompt_template.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ form.prompt_template }}
+
+                                        {% if form.prompt_template.help_text %}
+                                            <div class="form-text">
+                                                {{ form.prompt_template.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.prompt_template.errors %}
+                                            <div class="field-error">
+                                                {{ form.prompt_template.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </section>
+
+                        {% if form.custom_prompt %}
+                            <section class="form-section" id="customPromptSection">
+                                <div class="section-title">
+                                    <i class="bi bi-chat-left-text-fill"></i>
+                                    Custom Forensic Objective
+                                </div>
+
+                                <div class="form-grid form-grid-single">
+                                    <div class="form-field">
+                                        <label
+                                            for="{{ form.custom_prompt.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.custom_prompt.label }}
+                                            {% if form.custom_prompt.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ form.custom_prompt }}
+
+                                        {% if form.custom_prompt.help_text %}
+                                            <div class="form-text">
+                                                {{ form.custom_prompt.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.custom_prompt.errors %}
+                                            <div class="field-error">
+                                                {{ form.custom_prompt.errors }}
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="prompt-preview">
+                                            <strong>
+                                                <i class="bi bi-shield-check me-2"></i>
+                                                Prompt Safety
+                                            </strong>
+
+                                            Custom instructions remain wrapped inside AIDEX forensic
+                                            safety controls. The AI must use only supplied evidence,
+                                            avoid invented facts and return structured results.
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        {% endif %}
+
+                        {% if form.use_cached_result or form.force_reanalysis %}
+                            <section class="form-section">
+                                <div class="section-title">
+                                    <i class="bi bi-database-check"></i>
+                                    Execution Preferences
+                                </div>
+
+                                <div class="switch-grid">
+                                    {% if form.use_cached_result %}
+                                        <div class="switch-card">
+                                            <div class="form-check form-switch">
+                                                {{ form.use_cached_result }}
+
+                                                <label
+                                                    class="form-check-label"
+                                                    for="{{ form.use_cached_result.id_for_label }}"
+                                                >
+                                                    <span class="switch-title">
+                                                        {{ form.use_cached_result.label }}
+                                                    </span>
+                                                </label>
+                                            </div>
+
+                                            <div class="switch-text">
+                                                Reuse a matching completed analysis when the evidence
+                                                hash, prompt and analysis type are unchanged.
+                                            </div>
+
+                                            {% if form.use_cached_result.errors %}
+                                                <div class="field-error">
+                                                    {{ form.use_cached_result.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.force_reanalysis %}
+                                        <div class="switch-card">
+                                            <div class="form-check form-switch">
+                                                {{ form.force_reanalysis }}
+
+                                                <label
+                                                    class="form-check-label"
+                                                    for="{{ form.force_reanalysis.id_for_label }}"
+                                                >
+                                                    <span class="switch-title">
+                                                        {{ form.force_reanalysis.label }}
+                                                    </span>
+                                                </label>
+                                            </div>
+
+                                            <div class="switch-text">
+                                                Create a fresh analysis request even when a reusable
+                                                cached result exists.
+                                            </div>
+
+                                            {% if form.force_reanalysis.errors %}
+                                                <div class="field-error">
+                                                    {{ form.force_reanalysis.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </section>
+                        {% endif %}
+
+
+                        {% if form.confirm_external_processing %}
+                            <section class="form-section">
+                                <div class="section-title">
+                                    <i class="bi bi-shield-check"></i>
+                                    Authorization & Consent
+                                </div>
+
+                                <div class="approval-card">
+                                    <div class="form-check">
+                                        {{ form.confirm_external_processing }}
+
+                                        <label
+                                            class="form-check-label approval-title"
+                                            for="{{ form.confirm_external_processing.id_for_label }}"
+                                        >
+                                            {{ form.confirm_external_processing.label }}
+
+                                            {% if form.confirm_external_processing.field.required %}
+                                                <span class="required-mark">*</span>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+
+                                    {% if form.confirm_external_processing.help_text %}
+                                        <div class="approval-text">
+                                            {{ form.confirm_external_processing.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.confirm_external_processing.errors %}
+                                        <div class="field-error ms-4">
+                                            {{ form.confirm_external_processing.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </section>
+                        {% endif %}
+
+                        {# Safe fallback for future fields not explicitly rendered above. #}
+                        {% for field in form %}
+                            {% if field.name != "evidence" and field.name != "title" and field.name != "analysis_type" and field.name != "provider" and field.name != "priority" and field.name != "prompt_version" and field.name != "prompt_template" and field.name != "custom_prompt" and field.name != "use_cached_result" and field.name != "force_reanalysis" and field.name != "confirm_external_processing" %}
+                                <section class="form-section">
+                                    <div class="section-title">
+                                        <i class="bi bi-ui-checks-grid"></i>
+                                        Additional Configuration
+                                    </div>
+
+                                    {% if field.field.widget.input_type == "checkbox" %}
+                                        <div class="approval-card">
+                                            <div class="form-check">
+                                                {{ field }}
+
+                                                <label
+                                                    class="form-check-label approval-title"
+                                                    for="{{ field.id_for_label }}"
+                                                >
+                                                    {{ field.label }}
+
+                                                    {% if field.field.required %}
+                                                        <span class="required-mark">*</span>
+                                                    {% endif %}
+                                                </label>
+                                            </div>
+
+                                            {% if field.help_text %}
+                                                <div class="approval-text">
+                                                    {{ field.help_text }}
+                                                </div>
+                                            {% endif %}
+
+                                            {% if field.errors %}
+                                                <div class="field-error ms-4">
+                                                    {{ field.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <div class="form-field full-width">
+                                            <label
+                                                for="{{ field.id_for_label }}"
+                                                class="form-label"
+                                            >
+                                                {{ field.label }}
+
+                                                {% if field.field.required %}
+                                                    <span class="required-mark">*</span>
+                                                {% endif %}
+                                            </label>
+
+                                            {{ field }}
+
+                                            {% if field.help_text %}
+                                                <div class="form-text">
+                                                    {{ field.help_text }}
+                                                </div>
+                                            {% endif %}
+
+                                            {% if field.errors %}
+                                                <div class="field-error">
+                                                    {{ field.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </section>
+                            {% endif %}
+                        {% endfor %}
+
+                        <div class="free-tier-notice">
+                            <strong>
+                                <i class="bi bi-lightning-charge-fill me-2"></i>
+                                Free-Tier Conscious Workflow
+                            </strong>
+
+                            Creating this record does not call Gemini or OpenRouter. Provider quota is used only
+                            after you open the analysis detail page and explicitly choose
+                            <strong class="d-inline">Run Analysis</strong>.
+                        </div>
+
+                        <div class="create-actions">
+                            <a
+                                href="{% url 'ai_engine:analysis_list' %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                <i class="bi bi-x-circle me-2"></i>
+                                Cancel
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                id="createAnalysisButton"
+                            >
+                                <i class="bi bi-plus-circle me-2"></i>
+                                {{ submit_label|default:"Create Analysis" }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div
+                        id="aiRequiredFieldsPopup"
+                        class="ai-required-popup-backdrop"
+                        hidden
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="aiRequiredPopupTitle"
+                    >
+                        <div class="ai-required-popup">
+                            <h3 id="aiRequiredPopupTitle">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Required fields missing
+                            </h3>
+                            <p>Please complete the following required field(s):</p>
+                            <ul id="aiRequiredPopupList"></ul>
+                            <div class="ai-required-popup-actions">
+                                <button type="button" class="ai-required-popup-ok" id="aiRequiredPopupOk">
+                                    OK
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <aside class="sticky-sidebar">
+                    <section class="info-card">
+                        <div class="card-heading">
+                            <div>
+                                <h3>Preparation Checklist</h3>
+                                <p>
+                                    Recommended checks before creating an AI request.
+                                </p>
+                            </div>
+
+                            <div class="card-heading-icon">
+                                <i class="bi bi-list-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-shield-lock-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Verified Evidence
+                                    </div>
+
+                                    <p class="info-text">
+                                        Prefer evidence with a valid SHA-256 hash and completed
+                                        verification review.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-bullseye"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Clear Objective
+                                    </div>
+
+                                    <p class="info-text">
+                                        Select the analysis type that best matches the forensic
+                                        question you need answered.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-database-check"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Use Cache First
+                                    </div>
+
+                                    <p class="info-text">
+                                        Cached results reduce repeat provider requests and protect
+                                        free-tier quota.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="info-title">
+                                        Human Review
+                                    </div>
+
+                                    <p class="info-text">
+                                        AI findings support investigation work and should be reviewed
+                                        by an authorized officer before operational use.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="security-note">
+                            <strong>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Security Reminder
+                            </strong>
+
+                            Do not include passwords, API keys or unrelated personal data in a custom
+                            prompt. AIDEX stores request details for audit and troubleshooting.
+                        </div>
+                    </section>
+                </aside>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (() => {
+        const form = document.getElementById("analysisCreateForm");
+        const submitButton = document.getElementById("createAnalysisButton");
+        const errorSummary = document.getElementById("formErrorSummary");
+
+        const promptTemplateId = "{{ form.prompt_template.id_for_label|default:''|escapejs }}";
+        const customPromptId = "{{ form.custom_prompt.id_for_label|default:''|escapejs }}";
+        const useCachedId = "{{ form.use_cached_result.id_for_label|default:''|escapejs }}";
+        const forceReanalysisId = "{{ form.force_reanalysis.id_for_label|default:''|escapejs }}";
+        const confirmExternalProcessingId = "{{ form.confirm_external_processing.id_for_label|default:''|escapejs }}";
+
+        const promptTemplate = promptTemplateId
+            ? document.getElementById(promptTemplateId)
+            : null;
+
+        const customPromptSection = document.getElementById(
+            "customPromptSection"
+        );
+
+        const customPromptField = customPromptId
+            ? document.getElementById(customPromptId)
+            : null;
+
+        const useCachedResult = useCachedId
+            ? document.getElementById(useCachedId)
+            : null;
+
+        const forceReanalysis = forceReanalysisId
+            ? document.getElementById(forceReanalysisId)
+            : null;
+
+        const confirmExternalProcessing = confirmExternalProcessingId
+            ? document.getElementById(confirmExternalProcessingId)
+            : null;
+
+        const updateCustomPromptVisibility = () => {
+            if (!promptTemplate || !customPromptSection) {
+                return;
+            }
+
+            const selectedValue = String(
+                promptTemplate.value || ""
+            ).trim().toUpperCase();
+
+            const customSelected = (
+                selectedValue === "CUSTOM"
+                || selectedValue.includes("CUSTOM")
+            );
+
+            customPromptSection.hidden = !customSelected;
+
+            if (customPromptField) {
+                customPromptField.required = customSelected;
+
+                if (!customSelected) {
+                    customPromptField.removeAttribute("aria-required");
+                } else {
+                    customPromptField.setAttribute("aria-required", "true");
+                }
+            }
+        };
+
+        const synchronizeExecutionPreferences = () => {
+            if (!useCachedResult || !forceReanalysis) {
+                return;
+            }
+
+            if (forceReanalysis.checked) {
+                useCachedResult.checked = false;
+            }
+        };
+
+        const markServerInvalidFields = () => {
+            document
+                .querySelectorAll(".field-error")
+                .forEach((errorElement) => {
+                    const fieldContainer = errorElement.closest(
+                        ".form-field, .approval-card, .switch-card"
+                    );
+
+                    if (!fieldContainer) {
+                        return;
+                    }
+
+                    const input = fieldContainer.querySelector(
+                        "input, select, textarea"
+                    );
+
+                    if (input) {
+                        input.classList.add("is-invalid");
+                        input.setAttribute("aria-invalid", "true");
+                    }
+
+                    if (fieldContainer.classList.contains("approval-card")) {
+                        fieldContainer.classList.add("has-error");
+                    }
+                });
+        };
+
+        if (promptTemplate) {
+            promptTemplate.addEventListener(
+                "change",
+                updateCustomPromptVisibility
+            );
+
+            updateCustomPromptVisibility();
+        }
+
+        if (forceReanalysis) {
+            forceReanalysis.addEventListener(
+                "change",
+                synchronizeExecutionPreferences
+            );
+        }
+
+        if (useCachedResult && forceReanalysis) {
+            useCachedResult.addEventListener(
+                "change",
+                () => {
+                    if (useCachedResult.checked) {
+                        forceReanalysis.checked = false;
+                    }
+                }
+            );
+        }
+
+        markServerInvalidFields();
+
+        if (errorSummary) {
+            errorSummary.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+
+        const requiredPopup = document.getElementById("aiRequiredFieldsPopup");
+        const requiredPopupList = document.getElementById("aiRequiredPopupList");
+        const requiredPopupOk = document.getElementById("aiRequiredPopupOk");
+
+        const closeRequiredPopup = () => {
+            if (requiredPopup) {
+                requiredPopup.hidden = true;
+            }
+        };
+
+        const showRequiredPopup = (missingFields) => {
+            if (!requiredPopup || !requiredPopupList) {
+                return;
+            }
+
+            requiredPopupList.innerHTML = "";
+            missingFields.forEach((fieldName) => {
+                const item = document.createElement("li");
+                item.textContent = fieldName;
+                requiredPopupList.appendChild(item);
+            });
+
+            requiredPopup.hidden = false;
+
+            if (requiredPopupOk) {
+                requiredPopupOk.focus();
+            }
+        };
+
+        if (requiredPopupOk) {
+            requiredPopupOk.addEventListener("click", closeRequiredPopup);
+        }
+
+        if (requiredPopup) {
+            requiredPopup.addEventListener("click", (event) => {
+                if (event.target === requiredPopup) {
+                    closeRequiredPopup();
+                }
+            });
+        }
+
+        const clearRequiredInvalid = (input) => {
+            if (!input) {
+                return;
+            }
+
+            if (input.type === "checkbox") {
+                if (input.checked) {
+                    input.classList.remove("ai-required-invalid");
+                    input.removeAttribute("aria-invalid");
+
+                    const card = input.closest(".approval-card");
+                    if (card) {
+                        card.classList.remove("ai-required-invalid-card");
+                    }
+                }
+                return;
+            }
+
+            if (String(input.value || "").trim() !== "") {
+                input.classList.remove("ai-required-invalid");
+                input.removeAttribute("aria-invalid");
+            }
+        };
+
+        [
+            document.getElementById("{{ form.evidence.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.title.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.analysis_type.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.provider.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.priority.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.prompt_version.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.prompt_template.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.custom_prompt.id_for_label|default:''|escapejs }}"),
+            document.getElementById("{{ form.confirm_external_processing.id_for_label|default:''|escapejs }}")
+        ].forEach((input) => {
+            if (!input) {
+                return;
+            }
+
+            input.addEventListener(
+                input.type === "checkbox" || input.tagName === "SELECT"
+                    ? "change"
+                    : "input",
+                () => clearRequiredInvalid(input)
+            );
+        });
+
+        if (form && submitButton) {
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const missingFields = [];
+
+                const requiredInputs = [
+                    {
+                        element: document.getElementById("{{ form.evidence.id_for_label|default:''|escapejs }}"),
+                        name: "{{ form.evidence.label|default:'Evidence'|escapejs }}"
+                    },
+                    {
+                        element: document.getElementById("{{ form.title.id_for_label|default:''|escapejs }}"),
+                        name: "{{ form.title.label|default:'Title'|escapejs }}"
+                    },
+                    {
+                        element: document.getElementById("{{ form.analysis_type.id_for_label|default:''|escapejs }}"),
+                        name: "{{ form.analysis_type.label|default:'Analysis type'|escapejs }}"
+                    },
+                    {
+                        element: document.getElementById("{{ form.provider.id_for_label|default:''|escapejs }}"),
+                        name: "{{ form.provider.label|default:'Provider'|escapejs }}"
+                    },
+                    {
+                        element: document.getElementById("{{ form.priority.id_for_label|default:''|escapejs }}"),
+                        name: "{{ form.priority.label|default:'Priority'|escapejs }}"
+                    },
+                    {
+                        element: document.getElementById("{{ form.prompt_version.id_for_label|default:''|escapejs }}"),
+                        name: "{{ form.prompt_version.label|default:'Prompt version'|escapejs }}"
+                    },
+                    {
+                        element: document.getElementById("{{ form.prompt_template.id_for_label|default:''|escapejs }}"),
+                        name: "{{ form.prompt_template.label|default:'Prompt template'|escapejs }}"
+                    },
+                    {
+                        element: customPromptField,
+                        name: "{{ form.custom_prompt.label|default:'Custom forensic objective'|escapejs }}",
+                        conditional: () => Boolean(customPromptField && customPromptField.required)
+                    },
+                    {
+                        element: confirmExternalProcessing,
+                        name: "{{ form.confirm_external_processing.label|default:'Confirmation'|escapejs }}",
+                        conditional: () => Boolean(
+                            confirmExternalProcessing
+                            && confirmExternalProcessing.required
+                        )
+                    }
+                ];
+
+                requiredInputs.forEach((item) => {
+                    if (!item.element || (item.conditional && !item.conditional())) {
+                        return;
+                    }
+
+                    const isCheckbox = item.element.type === "checkbox";
+                    const isMissing = isCheckbox
+                        ? !item.element.checked
+                        : String(item.element.value || "").trim() === "";
+
+                    if (isMissing) {
+                        missingFields.push(item.name);
+                        item.element.classList.add("ai-required-invalid");
+                        item.element.setAttribute("aria-invalid", "true");
+
+                        const card = item.element.closest(".approval-card");
+                        if (card) {
+                            card.classList.add("ai-required-invalid-card");
+                        }
+                    }
+                });
+
+                if (missingFields.length > 0) {
+                    form.classList.add("was-validated");
+                    showRequiredPopup(missingFields);
+
+                    const firstMissing = requiredInputs.find((item) => {
+                        if (!item.element || (item.conditional && !item.conditional())) {
+                            return false;
+                        }
+
+                        return item.element.classList.contains("ai-required-invalid");
+                    });
+
+                    if (firstMissing && firstMissing.element) {
+                        firstMissing.element.focus();
+                    }
+
+                    return;
+                }
+
+                if (!form.checkValidity()) {
+                    form.classList.add("was-validated");
+                    return;
+                }
+
+                submitButton.disabled = true;
+                submitButton.innerHTML = (
+                    '<span class="spinner-border spinner-border-sm me-2" '
+                    + 'role="status" aria-hidden="true"></span>'
+                    + "Creating Analysis"
+                );
+
+                form.submit();
+            });
+        }
+    })();
+</script>
+{% endblock %}

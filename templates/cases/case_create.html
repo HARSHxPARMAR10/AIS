@@ -1,0 +1,934 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create Case | AIDEX
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .case-form-page {
+        padding: 32px 0 52px;
+    }
+
+    .case-form-container {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .page-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 34px;
+        border-radius: 24px;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at top right,
+                rgba(96, 165, 250, 0.32),
+                transparent 35%
+            ),
+            linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #1e3a8a 52%,
+                #2563eb 100%
+            );
+        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+    }
+
+    .page-hero::before,
+    .page-hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .page-hero::before {
+        width: 220px;
+        height: 220px;
+        left: -90px;
+        bottom: -120px;
+    }
+
+    .page-hero::after {
+        width: 165px;
+        height: 165px;
+        right: 60px;
+        top: -100px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .page-title {
+        margin-top: 16px;
+        margin-bottom: 8px;
+        font-size: 2.08rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        max-width: 760px;
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.74);
+        line-height: 1.7;
+    }
+
+    .hero-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .hero-actions .btn {
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 11px 18px;
+    }
+
+    .form-layout {
+        margin-top: 28px;
+    }
+
+    .form-card,
+    .info-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .form-card {
+        padding: 28px;
+    }
+
+    .info-card {
+        padding: 24px;
+        position: sticky;
+        top: 24px;
+    }
+
+    .card-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .card-heading h2,
+    .card-heading h3 {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.18rem;
+        font-weight: 800;
+    }
+
+    .card-heading p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.87rem;
+    }
+
+    .card-heading-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 14px;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-size: 1.15rem;
+    }
+
+    .form-section {
+        padding: 22px 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .form-section:first-of-type {
+        padding-top: 0;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        margin-bottom: 16px;
+        color: #0f172a;
+        font-size: 0.98rem;
+        font-weight: 800;
+    }
+
+    .form-label {
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+
+    .required-mark {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 48px;
+        border-radius: 12px;
+        border-color: #dbe3ee;
+        color: #0f172a;
+    }
+
+    textarea.form-control {
+        min-height: 170px;
+        resize: vertical;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
+    }
+
+    .form-text {
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 0.77rem;
+    }
+
+    .field-error {
+        margin-top: 7px;
+        color: #b91c1c;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .field-error ul,
+    .form-errors ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .form-errors {
+        margin-bottom: 22px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        font-size: 0.85rem;
+    }
+
+    .form-errors-title {
+        margin-bottom: 6px;
+        font-weight: 800;
+    }
+
+    .switch-panel {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .switch-panel .form-check-input {
+        width: 2.7rem;
+        height: 1.45rem;
+        margin-top: 2px;
+        cursor: pointer;
+    }
+
+    .switch-title {
+        color: #0f172a;
+        font-weight: 800;
+        font-size: 0.88rem;
+    }
+
+    .switch-text {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid #edf2f7;
+    }
+
+    .form-actions .btn {
+        min-width: 140px;
+        min-height: 46px;
+        border-radius: 12px;
+        font-weight: 800;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1px solid #eef2f7;
+    }
+
+    .info-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .info-title {
+        margin-bottom: 3px;
+        color: #0f172a;
+        font-size: 0.86rem;
+        font-weight: 800;
+    }
+
+    .info-text {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.79rem;
+        line-height: 1.55;
+    }
+
+    .security-note {
+        margin-top: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        color: #92400e;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .security-note strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #78350f;
+    }
+
+    @media (max-width: 991.98px) {
+        .page-hero {
+            padding: 30px;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+
+        .info-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .case-form-page {
+            padding: 18px 0 35px;
+        }
+
+        .page-hero {
+            padding: 27px 22px;
+        }
+
+        .page-title {
+            font-size: 1.72rem;
+        }
+
+        .form-card,
+        .info-card {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+
+    /* AIDEX required-field validation popup */
+    .case-validation-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.58);
+        backdrop-filter: blur(4px);
+    }
+
+    .case-validation-popup {
+        width: min(460px, 100%);
+        padding: 24px;
+        border: 1px solid #dbe3ee;
+        border-radius: 18px;
+        background: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 25px 70px rgba(15, 23, 42, 0.25);
+    }
+
+    .case-validation-popup h3 {
+        margin: 0 0 9px;
+        color: #991b1b;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .case-validation-popup p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.84rem;
+        line-height: 1.6;
+    }
+
+    .case-validation-popup ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+        color: #334155;
+        font-size: 0.84rem;
+        line-height: 1.7;
+    }
+
+    .case-validation-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 18px;
+    }
+
+    .case-validation-ok {
+        min-height: 40px;
+        padding: 0 17px;
+        border: 0;
+        border-radius: 10px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        font-size: 0.8rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .case-required-invalid {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.10) !important;
+    }
+
+    .form-check-input.case-required-invalid {
+        outline: 2px solid rgba(220, 38, 38, 0.25);
+        outline-offset: 2px;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="case-form-page">
+    <div class="case-form-container">
+
+        <section class="page-hero">
+            <div class="hero-content">
+                <div class="row align-items-center g-4">
+
+                    <div class="col-lg">
+                        <span class="hero-badge">
+                            <i class="bi bi-folder-plus"></i>
+                            New Investigation Record
+                        </span>
+
+                        <h1 class="page-title">
+                            {{ page_title }}
+                        </h1>
+
+                        <p class="page-subtitle">
+                            {{ page_subtitle }}
+                        </p>
+                    </div>
+
+                    <div class="col-lg-auto">
+                        <div class="hero-actions">
+                            <a
+                                href="{% url 'cases:case_list' %}"
+                                class="btn btn-outline-light"
+                            >
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Back to Cases
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <div class="row g-4 form-layout">
+
+            <div class="col-lg-8">
+                <section class="form-card">
+
+                    <div class="card-heading">
+                        <div>
+                            <h2>Case Information</h2>
+                            <p>
+                                Enter accurate investigation details before creating the case.
+                            </p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-file-earmark-plus-fill"></i>
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="form-errors">
+                            <div class="form-errors-title">
+                                Please correct the following:
+                            </div>
+
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" novalidate id="caseCreateForm">
+                        {% csrf_token %}
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                Primary Details
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label
+                                        for="{{ form.case_title.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.case_title.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.case_title }}
+
+                                    {% if form.case_title.help_text %}
+                                        <div class="form-text">
+                                            {{ form.case_title.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.case_title.errors %}
+                                        <div class="field-error">
+                                            {{ form.case_title.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label
+                                        for="{{ form.description.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.description.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.description }}
+
+                                    {% if form.description.help_text %}
+                                        <div class="form-text">
+                                            {{ form.description.help_text }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if form.description.errors %}
+                                        <div class="field-error">
+                                            {{ form.description.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="section-title">
+                                Classification and Priority
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label
+                                        for="{{ form.crime_category.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.crime_category.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.crime_category }}
+
+                                    {% if form.crime_category.errors %}
+                                        <div class="field-error">
+                                            {{ form.crime_category.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label
+                                        for="{{ form.priority.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.priority.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.priority }}
+
+                                    {% if form.priority.errors %}
+                                        <div class="field-error">
+                                            {{ form.priority.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label
+                                        for="{{ form.status.id_for_label }}"
+                                        class="form-label"
+                                    >
+                                        {{ form.status.label }}
+                                        <span class="required-mark">*</span>
+                                    </label>
+
+                                    {{ form.status }}
+
+                                    {% if form.status.errors %}
+                                        <div class="field-error">
+                                            {{ form.status.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                {% if form.assigned_investigator %}
+                                    <div class="col-md-6">
+                                        <label
+                                            for="{{ form.assigned_investigator.id_for_label }}"
+                                            class="form-label"
+                                        >
+                                            {{ form.assigned_investigator.label }}
+                                        </label>
+
+                                        {{ form.assigned_investigator }}
+
+                                        {% if form.assigned_investigator.help_text %}
+                                            <div class="form-text">
+                                                {{ form.assigned_investigator.help_text }}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if form.assigned_investigator.errors %}
+                                            <div class="field-error">
+                                                {{ form.assigned_investigator.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if form.is_active %}
+                            <div class="form-section">
+                                <div class="section-title">
+                                    Record State
+                                </div>
+
+                                <div class="switch-panel">
+                                    {{ form.is_active }}
+
+                                    <div>
+                                        <label
+                                            for="{{ form.is_active.id_for_label }}"
+                                            class="switch-title"
+                                        >
+                                            {{ form.is_active.label }}
+                                        </label>
+
+                                        <div class="switch-text">
+                                            {{ form.is_active.help_text }}
+                                        </div>
+
+                                        {% if form.is_active.errors %}
+                                            <div class="field-error">
+                                                {{ form.is_active.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="form-actions">
+                            <a
+                                href="{% url 'cases:case_list' %}"
+                                class="btn btn-outline-secondary"
+                            >
+                                <i class="bi bi-x-circle me-2"></i>
+                                Cancel
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                id="createCaseButton">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {{ submit_label|default:"Create Case" }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <aside class="info-card">
+
+                    <div class="card-heading">
+                        <div>
+                            <h3>Case Registration Guide</h3>
+                            <p>
+                                Follow these guidelines for a clear and valid case record.
+                            </p>
+                        </div>
+
+                        <div class="card-heading-icon">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="info-list">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-card-heading"></i>
+                            </div>
+
+                            <div>
+                                <div class="info-title">
+                                    Use a Specific Title
+                                </div>
+
+                                <p class="info-text">
+                                    Mention the incident type, organization or affected platform clearly.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+
+                            <div>
+                                <div class="info-title">
+                                    Provide Complete Details
+                                </div>
+
+                                <p class="info-text">
+                                    Include the event summary, affected systems, known dates and initial findings.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+
+                            <div>
+                                <div class="info-title">
+                                    Select Priority Carefully
+                                </div>
+
+                                <p class="info-text">
+                                    Use Critical only when immediate action is required or major impact is confirmed.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="bi bi-person-check"></i>
+                            </div>
+
+                            <div>
+                                <div class="info-title">
+                                    Investigator Assignment
+                                </div>
+
+                                <p class="info-text">
+                                    Only active users with the Investigator role can be assigned.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="security-note">
+                        <strong>
+                            <i class="bi bi-shield-lock-fill me-2"></i>
+                            Security Reminder
+                        </strong>
+
+                        Do not enter passwords, API keys, banking credentials or unrelated personal data in the case description.
+                    </div>
+                </aside>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="case-validation-backdrop" id="caseCreateFormValidationPopup" aria-hidden="true">
+    <div class="case-validation-popup" role="alertdialog" aria-modal="true"
+         aria-labelledby="caseCreateFormValidationTitle">
+        <h3 id="caseCreateFormValidationTitle">Required Fields Missing</h3>
+        <p>Please complete the following required fields before creating the case:</p>
+        <ul id="caseCreateFormMissingFields"></ul>
+        <div class="case-validation-actions">
+            <button type="button" class="case-validation-ok" id="caseCreateFormValidationOk">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("caseCreateForm");
+    const button = document.getElementById("createCaseButton");
+    const popup = document.getElementById("caseCreateFormValidationPopup");
+    const missingList = document.getElementById("caseCreateFormMissingFields");
+    const popupOk = document.getElementById("caseCreateFormValidationOk");
+
+    if (!form || !popup || !missingList || !popupOk) return;
+
+    function closePopup() {
+        popup.style.display = "none";
+        popup.setAttribute("aria-hidden", "true");
+    }
+
+    function showPopup(missingFields) {
+        missingList.innerHTML = "";
+        missingFields.forEach(function (fieldName) {
+            const item = document.createElement("li");
+            item.textContent = fieldName;
+            missingList.appendChild(item);
+        });
+        popup.style.display = "flex";
+        popup.setAttribute("aria-hidden", "false");
+        popupOk.focus();
+    }
+
+    popupOk.addEventListener("click", closePopup);
+    popup.addEventListener("click", function (event) {
+        if (event.target === popup) closePopup();
+    });
+
+    const requiredFields = [
+        { field: document.getElementById("{{ form.case_title.id_for_label }}"), label: "{{ form.case_title.label|escapejs }}" },
+        { field: document.getElementById("{{ form.description.id_for_label }}"), label: "{{ form.description.label|escapejs }}" },
+        { field: document.getElementById("{{ form.crime_category.id_for_label }}"), label: "{{ form.crime_category.label|escapejs }}" },
+        { field: document.getElementById("{{ form.priority.id_for_label }}"), label: "{{ form.priority.label|escapejs }}" },
+        { field: document.getElementById("{{ form.status.id_for_label }}"), label: "{{ form.status.label|escapejs }}" }
+    ];
+
+    requiredFields.forEach(function (item) {
+        if (!item.field) return;
+        const clearInvalid = function () {
+            const value = item.field.type === "checkbox"
+                ? item.field.checked
+                : String(item.field.value || "").trim();
+            if (value) item.field.classList.remove("case-required-invalid");
+        };
+        item.field.addEventListener(
+            item.field.type === "checkbox" ? "change" : "input",
+            clearInvalid
+        );
+        if (item.field.tagName === "SELECT") {
+            item.field.addEventListener("change", clearInvalid);
+        }
+    });
+
+    form.addEventListener("submit", function (event) {
+        const missingFields = [];
+
+        requiredFields.forEach(function (item) {
+            if (!item.field) return;
+
+            const valid = item.field.type === "checkbox"
+                ? item.field.checked
+                : String(item.field.value || "").trim();
+
+            if (!valid) {
+                missingFields.push(item.label);
+                item.field.classList.add("case-required-invalid");
+            }
+        });
+
+        if (missingFields.length > 0) {
+            event.preventDefault();
+            showPopup(missingFields);
+            return;
+        }
+
+        if (button) {
+            button.disabled = true;
+        }
+        
+    });
+});
+</script>
+
+{% endblock %}
